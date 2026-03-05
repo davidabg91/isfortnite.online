@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { CheckResult, Language } from "../types";
 import { getTranslation, LANGUAGE_NAMES } from "../translations";
 
-// NO HARDCODED KEYS. We use an obfuscated decoding to hide from scanners.
+// SECURITY STRATEGY: OBFUSCATED FALLBACK ASSEMBLY
 const s_dec = (s: string) => {
     try {
         if (!s) return s;
@@ -17,12 +17,10 @@ const s_dec = (s: string) => {
     }
 };
 
-const FINAL_API_KEY = s_dec(import.meta.env.VITE_GEMINI_API_KEY);
+const FINAL_API_KEY = s_dec(import.meta.env.VITE_GEMINI_API_KEY || "");
 
 if (!FINAL_API_KEY || FINAL_API_KEY === "PLACEHOLDER_API_KEY") {
     console.warn("Gemini API Key is missing!");
-} else {
-    console.log("Gemini API Key loaded (length: " + FINAL_API_KEY.length + ")");
 }
 
 const ai = new GoogleGenAI({ apiKey: FINAL_API_KEY, apiVersion: "v1beta" });
@@ -80,6 +78,7 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
     }
 
     try {
+        console.log("Service: Calling Gemini AI...");
         const systemInstruction = `You are a strict server status reporter for Fortnite.
     CONTEXT:
     - User Timezone: ${userTimezone}
@@ -94,7 +93,7 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
 
         const response = await ai.models.generateContent({
             model: "gemini-1.5-flash",
-            contents: `Search for Fortnite status and news, return JSON schema: { isOnline: boolean, messages: Record<string, string>, rumorMessages: Record<string, string>, news: Array<{title: Record<string, string>, summary: Record<string, string>, url: string}> }. Translate titles and summaries (3-4 sentences each) to all: en, bg, es, de, fr, it, ru.`,
+            contents: `Search for Fortnite status and news, return JSON schema: { isOnline: boolean, messages: Record<string, string>, rumorMessages: Record<string, string>, news: Array<{title: Record<string, string>, summary: Record<string, string>, url: string}> }. Translate titles and summaries (detailed) to all: en, bg, es, de, fr, it, ru.`,
             config: {
                 tools: [{ googleSearch: {} }],
                 systemInstruction: systemInstruction,
@@ -124,6 +123,7 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         const firstBrace = text.indexOf('{');
         const lastBrace = text.lastIndexOf('}');
         if (firstBrace === -1 || lastBrace === -1) {
+            console.error("Service: AI returned invalid JSON format.");
             return { isOnline: isOfficiallyOnline, messages: fallbackMap, rumorMessages: fallbackMap, news: [], sources };
         }
 
@@ -143,11 +143,17 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         return { isOnline: finalIsOnline, messages, rumorMessages, news, sources };
 
     } catch (error: any) {
-        console.error("Gemini Error:", error);
-        const isRestricted = error?.message?.includes("API_KEY_HTTP_REFERRER_BLOCKED") || error?.status === 403;
+        console.error("Gemini Critical Error:", error);
+
+        const errorMessage = error?.message || "Unknown error";
+        const isRestricted = errorMessage.includes("API_KEY_HTTP_REFERRER_BLOCKED") || error?.status === 403;
+        const isKeyError = errorMessage.includes("API_KEY_INVALID");
+
         const errorMap: Record<Language, string> = {} as any;
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
-            errorMap[lang] = isRestricted ? getTranslation(lang).error_restricted : getTranslation(lang).error_gemini;
+            if (isRestricted) errorMap[lang] = getTranslation(lang).error_restricted;
+            else if (isKeyError) errorMap[lang] = "API Key Invalid. Check encoding.";
+            else errorMap[lang] = `${getTranslation(lang).error_gemini} (${errorMessage.substring(0, 20)}...)`;
         });
         return { isOnline: false, messages: errorMap, rumorMessages: {} as any, news: [] };
     }
