@@ -39,19 +39,24 @@ export default function App() {
 
   // Store News
   const [news, setNews] = useState<NewsItem[]>([]);
-
+  const [isPremium, setIsPremium] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'status' | 'shop' | 'giveaway'>('status');
   const [sources, setSources] = useState<{ uri: string; title: string }[]>([]);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
-
-  // New Timer Logic: Target timestamp for next check (epoch ms)
   const [nextCheckTime, setNextCheckTime] = useState<number>(Date.now() + CHECK_INTERVAL_MS);
   const [secondsUntilNext, setSecondsUntilNext] = useState<number>(30 * 60);
 
-  const [isPremium, setIsPremium] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'status' | 'shop' | 'giveaway'>('status');
-
-  // Ref to track status for sound notification comparison without adding dependency
+  // Use refs for "latest" values in the callback to keep it stable
+  const messagesRef = useRef(messagesMap);
+  const rumorsRef = useRef(rumorMessagesMap);
+  const newsRef = useRef(news);
+  const sourcesRef = useRef(sources);
   const statusRef = useRef(status);
+
+  useEffect(() => { messagesRef.current = messagesMap; }, [messagesMap]);
+  useEffect(() => { rumorsRef.current = rumorMessagesMap; }, [rumorMessagesMap]);
+  useEffect(() => { newsRef.current = news; }, [news]);
+  useEffect(() => { sourcesRef.current = sources; }, [sources]);
   useEffect(() => { statusRef.current = status; }, [status]);
 
   // Initialize Language, Premium State, and Welcome Modal
@@ -152,7 +157,10 @@ export default function App() {
   };
 
   // Define performCheck as a stable callback
-  const performCheck = useCallback(async (isManualRefresh = false) => {
+  const performCheck = useCallback(async (isManualParam = false) => {
+    // If we receive an event object or true, it's a manual refresh
+    const isManual = typeof isManualParam === 'boolean' ? isManualParam : !!isManualParam;
+
     const nowTimestamp = Date.now();
     setNextCheckTime(nowTimestamp + CHECK_INTERVAL_MS);
 
@@ -162,7 +170,7 @@ export default function App() {
     const cached = localStorage.getItem(CACHE_KEY);
     let shouldSkipAI = true;
 
-    if (isManualRefresh) {
+    if (isManual) {
       shouldSkipAI = false;
     } else if (cached) {
       try {
@@ -213,15 +221,16 @@ export default function App() {
     // Save to Cache
     const cacheData: CachedData = {
       status: newStatus,
-      messages: !shouldSkipAI ? result.messages : messagesMap,
-      rumorMessages: !shouldSkipAI ? result.rumorMessages : rumorMessagesMap,
-      news: !shouldSkipAI ? (result.news || []) : news,
-      sources: !shouldSkipAI ? (result.sources || []) : sources,
+      messages: !shouldSkipAI ? result.messages : messagesRef.current,
+      rumorMessages: !shouldSkipAI ? result.rumorMessages : rumorsRef.current,
+      news: !shouldSkipAI ? (result.news || []) : newsRef.current,
+      sources: !shouldSkipAI ? (result.sources || []) : sourcesRef.current,
       timestamp: !shouldSkipAI ? checkTime.getTime() : (cached ? JSON.parse(cached).timestamp : checkTime.getTime()),
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
-  }, [messagesMap, rumorMessagesMap, news, sources]);
+  }, []); // Truly stable callback
+
 
   // Initial Load Logic (Runs once)
   useEffect(() => {
