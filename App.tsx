@@ -1,5 +1,5 @@
-
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+// Final UI & Economy Update - 2026-03-06
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ServerStatus, Language, NewsItem } from './types';
 import { checkFortniteServerStatus } from './services/geminiService';
 import { StatusScreen } from './components/StatusScreen';
