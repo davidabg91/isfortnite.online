@@ -176,9 +176,14 @@ export default function App() {
       try {
         const parsed: CachedData = JSON.parse(cached);
         const age = nowTimestamp - parsed.timestamp;
-        // Only refresh AI data (news/rumors) every 12 hours to save tokens
-        // OR if the servers were previously offline
-        if (age > 12 * 60 * 60 * 1000 || parsed.status !== ServerStatus.ONLINE) {
+
+        // ECONOMY: Skip AI if:
+        // 1. Data is fresh (< 12h)
+        // 2. We actually have news saved (don't skip if news are empty!)
+        // 3. Servers were online last check
+        if (age < 12 * 60 * 60 * 1000 && parsed.news.length > 0 && parsed.status === ServerStatus.ONLINE) {
+          shouldSkipAI = true;
+        } else {
           shouldSkipAI = false;
         }
       } catch (e) {
@@ -204,10 +209,10 @@ export default function App() {
 
     // Update state
     setStatus(newStatus);
+    setMessagesMap(result.messages); // Always update messages to avoid "..."
 
-    // If AI was skipped, we keep existing news and rumors from state/cache
+    // Update AI-heavy objects only if not skipped
     if (!shouldSkipAI) {
-      setMessagesMap(result.messages);
       setRumorMessagesMap(result.rumorMessages);
       setNews(result.news || []);
       if (result.sources) setSources(result.sources);

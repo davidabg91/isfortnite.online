@@ -54,11 +54,19 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
 
     console.log("Service: Official Status (via Epic):", isOfficiallyOnline ? "ONLINE" : "ISSUES/OFFLINE");
 
+    // ECONOMIC MODE: If servers are fine and we are skipping AI, return now
     if (skipAI && isOfficiallyOnline) {
         console.log("Service: Economy mode active. Skipping AI research.");
+
+        // Generate a clean 'Online' message map from translations
+        const onlineMap: Record<Language, string> = {} as any;
+        (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
+            onlineMap[lang] = getTranslation(lang).inference_online;
+        });
+
         return {
             isOnline: isOfficiallyOnline,
-            messages: fallbackMap,
+            messages: onlineMap,
             rumorMessages: {} as any,
             news: [],
             sources: []
