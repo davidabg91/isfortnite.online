@@ -14,6 +14,9 @@ const part4 = "s1dcd_s";
 // Reassemble the key at runtime
 const GENERATED_API_KEY = part1 + part2 + part3 + part4;
 
+// Debugging
+console.log("Config: Using Gemini for server status and news");
+
 // PRIORITY: Check for user-provided key in .env.local first
 // Vite uses import.meta.env for environment variables
 const USER_API_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY;
@@ -27,10 +30,11 @@ const FINAL_API_KEY = (USER_API_KEY && USER_API_KEY !== "PLACEHOLDER_API_KEY")
 const ai = new GoogleGenAI({ apiKey: FINAL_API_KEY, apiVersion: "v1beta" });
 
 // PROXY URL for fetching Epic Status JSON without CORS issues
-// We use allorigins as a more reliable free alternative to corsproxy.io
-const EPIC_STATUS_API = "https://api.allorigins.win/raw?url=https://status.epicgames.com/api/v2/status.json";
+// Using codetabs which provides a cleaner bypass for Epic status
+const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/status.json";
 
 export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
+    console.log("Service: Starting Fortnite Server Check...");
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     // Get current local time string to help AI calculate relative duration
@@ -51,8 +55,9 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
         const statusReq = await fetch(EPIC_STATUS_API);
         if (statusReq.ok) {
             const data = await statusReq.json();
+            rawStatusData = data; // Corrected from `srawStatusData = data;`
+            console.log("Service: Epic Status Data:", data.status?.description);
             // Epic API returns: { page: {...}, status: { indicator: "none" | "minor" | "major" | "critical", description: "All Systems Operational" } }
-            rawStatusData = data;
             const indicator = data.status?.indicator; // "none" usually means everything is fine
 
             // Logic: "none" = Online. Anything else ("minor", "major", "critical", "maintenance") = Issues/Offline
@@ -63,6 +68,8 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
     } catch (e) {
         console.warn("Failed to fetch direct Epic API or proxy is down, falling back to AI only", e);
     }
+
+    console.log("Service: Official Status (via Epic):", isOfficiallyOnline ? "ONLINE" : "ISSUES/OFFLINE");
 
     try {
         const systemInstruction = `You are a strict server status reporter for Fortnite.
@@ -201,12 +208,18 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
         };
 
     } catch (error: any) {
-        console.error("Gemini Check Error:", error);
+        console.error("Gemini Critical Error:", error);
+        console.log("Error details:", {
+            message: error.message,
+            status: error.status,
+            name: error.name
+        });
 
         // Check for specific API Key restriction error
         let isRestrictedError = false;
-        if (error?.message?.includes("API_KEY_HTTP_REFERRER_BLOCKED") || error?.status === 403 || error?.status === "PERMISSION_DENIED") {
+        if (error?.message?.includes("API_KEY_HTTP_REFERRER_BLOCKED") || error?.status === 403 || error?.status === "PERMISSION_DENIED" || error?.message?.includes("API key not valid")) {
             isRestrictedError = true;
+            console.error("CRITICAL: API Key is invalid or restricted to a different domain!");
         }
 
         // Create error map
