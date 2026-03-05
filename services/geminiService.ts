@@ -3,17 +3,12 @@ import { GoogleGenAI } from "@google/genai";
 import { CheckResult, Language } from "../types";
 import { getTranslation, LANGUAGE_NAMES } from "../translations";
 
-// SECURITY STRATEGY: OBFUSCATED FALLBACK ASSEMBLY
-const _as = (a: number[]) => a.map(c => String.fromCharCode(c)).join('');
-const GENERATED_API_KEY = _as([65, 73, 122, 97, 83, 121, 66, 54, 111, 55, 102, 121, 79, 97, 87, 117, 78, 78, 116, 65, 74, 77, 78, 98, 68, 122, 66, 99, 116, 113, 121, 85, 115, 49, 100, 99, 100, 95, 115]);
+// NO HARDCODED KEYS AS PER SECURITY BEST PRACTICES
+const FINAL_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-console.log("Config: Using Gemini for server status and news");
-
-const USER_API_KEY = (import.meta as any).env?.VITE_GEMINI_API_KEY;
-
-const FINAL_API_KEY = (USER_API_KEY && USER_API_KEY !== "PLACEHOLDER_API_KEY")
-    ? USER_API_KEY
-    : GENERATED_API_KEY;
+if (!FINAL_API_KEY || FINAL_API_KEY === "PLACEHOLDER_API_KEY") {
+    console.warn("Gemini API Key is missing! Ensure VITE_GEMINI_API_KEY is set in GitHub Secrets.");
+}
 
 const ai = new GoogleGenAI({ apiKey: FINAL_API_KEY, apiVersion: "v1beta" });
 
