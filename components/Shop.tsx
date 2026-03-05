@@ -27,22 +27,31 @@ const sendOrderNotification = async (itemName: string, itemPrice: string, userna
     const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
     if (!token || !chatId || token === 'REPLACE_WITH_YOUR_BOT_TOKEN') return;
 
+    const escapeHTML = (str: string) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const safeUser = escapeHTML(username);
+    const safeEmail = escapeHTML(email);
+    const safeItem = escapeHTML(itemName);
+
     const message =
-        `🛒 *НОВА ПОРЪЧКА*\n` +
-        `👤 Fortnite Username: \`${username}\`\n` +
-        `📧 Email: \`${email}\`\n` +
-        `🎮 Предмет: *${itemName}*\n` +
-        `💶 Цена: *${itemPrice} €*\n` +
+        `🛒 <b>НОВА ПОРЪЧКА</b>\n` +
+        `👤 Fortnite Username: <code>${safeUser}</code>\n` +
+        `📧 Email: <code>${safeEmail}</code>\n` +
+        `🎮 Предмет: <b>${safeItem}</b>\n` +
+        `💶 Цена: <b>${itemPrice} €</b>\n` +
         `⏰ Дата: ${new Date().toLocaleString('bg-BG')}`;
 
     try {
-        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'Markdown' }),
+            body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' }),
         });
+        if (!res.ok) {
+            const errData = await res.json();
+            console.error('Telegram API error:', errData);
+        }
     } catch (e) {
-        console.error('Telegram notify failed', e);
+        console.error('Telegram notify failed:', e);
     }
 };
 
@@ -52,21 +61,30 @@ const sendContactNotification = async (name: string, email: string, message: str
     const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
     if (!token || !chatId || token === 'REPLACE_WITH_YOUR_BOT_TOKEN') return;
 
+    const escapeHTML = (str: string) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const safeName = escapeHTML(name);
+    const safeEmail = escapeHTML(email);
+    const safeMsg = escapeHTML(message);
+
     const text =
-        `❓ *НОВ ВЪПРОС*\n` +
-        `👤 Име: *${name}*\n` +
-        `📧 Email: \`${email}\`\n` +
-        `💬 Съобщение:\n${message}\n` +
+        `❓ <b>НОВ ВЪПРОС</b>\n` +
+        `👤 Име: <b>${safeName}</b>\n` +
+        `📧 Email: <code>${safeEmail}</code>\n` +
+        `💬 Съобщение:\n${safeMsg}\n` +
         `⏰ Дата: ${new Date().toLocaleString('bg-BG')}`;
 
     try {
-        await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'Markdown' }),
+            body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' }),
         });
+        if (!res.ok) {
+            const errData = await res.json();
+            console.error('Telegram contact API error:', errData);
+        }
     } catch (e) {
-        console.error('Telegram contact notify failed', e);
+        console.error('Telegram contact notify failed:', e);
     }
 };
 

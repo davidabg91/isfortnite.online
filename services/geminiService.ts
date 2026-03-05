@@ -23,12 +23,12 @@ const FINAL_API_KEY = (USER_API_KEY && USER_API_KEY !== "PLACEHOLDER_API_KEY")
     ? USER_API_KEY
     : GENERATED_API_KEY;
 
-// Initialize the client
-const ai = new GoogleGenAI({ apiKey: FINAL_API_KEY });
+// Initialize the client with v1beta to ensure better tool support in early 2026
+const ai = new GoogleGenAI({ apiKey: FINAL_API_KEY, apiVersion: "v1beta" });
 
 // PROXY URL for fetching Epic Status JSON without CORS issues
-// We use a public CORS proxy (corsproxy.io) to read the Epic Games status API.
-const EPIC_STATUS_API = "https://corsproxy.io/?https://status.epicgames.com/api/v2/status.json";
+// We use allorigins as a more reliable free alternative to corsproxy.io
+const EPIC_STATUS_API = "https://api.allorigins.win/raw?url=https://status.epicgames.com/api/v2/status.json";
 
 export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -125,16 +125,29 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
             },
         });
 
-        let text = response.text || "";
+        let text = "";
+        try {
+            text = response.text || "";
+        } catch (e) {
+            console.error("No text in response. Raw response:", response);
+            // If the model gave a different response structure, try to find text manually
+            // @ts-ignore
+            text = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        }
 
         // Extract sources from grounding metadata (save them before any JSON error)
         const sources: { uri: string; title: string }[] = [];
-        if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-            response.candidates[0].groundingMetadata.groundingChunks.forEach((chunk: any) => {
-                if (chunk.web) {
-                    sources.push({ uri: chunk.web.uri, title: chunk.web.title });
-                }
-            });
+        try {
+            const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+            if (Array.isArray(chunks)) {
+                chunks.forEach((chunk: any) => {
+                    if (chunk.web) {
+                        sources.push({ uri: chunk.web.uri, title: chunk.web.title || chunk.web.uri });
+                    }
+                });
+            }
+        } catch (e) {
+            console.warn("Could not extract chunks:", e);
         }
 
         // Extract JSON using a more robust method: find the first '{' and last '}'
@@ -142,6 +155,7 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
         const lastBrace = text.lastIndexOf('}');
 
         if (firstBrace === -1 || lastBrace === -1) {
+            console.error("Incomplete or missing JSON in AI response:", text);
             return { isOnline: isOfficiallyOnline, messages: fallbackMap, rumorMessages: fallbackMap, news: [], sources };
         }
 
