@@ -57,9 +57,11 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
 
             // Logic: "none" = Online. Anything else ("minor", "major", "critical", "maintenance") = Issues/Offline
             isOfficiallyOnline = indicator === "none";
+        } else {
+            console.warn(`Direct Epic API failed with status: ${statusReq.status}. Falling back to AI only.`);
         }
     } catch (e) {
-        console.warn("Failed to fetch direct Epic API, falling back to AI only", e);
+        console.warn("Failed to fetch direct Epic API or proxy is down, falling back to AI only", e);
     }
 
     try {
@@ -85,6 +87,7 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
     - Determine if Fortnite servers are ONLINE or OFFLINE based on the API data.
     - TIME DURATION RULE: Use relative time (e.g. "in 2 hours", "after 45 mins") based on user time if maintenance time is found.
     - ZERO ENGLISH TOLERANCE: Output must be translated to all requested languages.
+    - OUTPUT MUST BE VALID JSON ONLY. NO CHATTY EXPLANATIONS.
     
     OUTPUT FORMAT (JSON ONLY):
     {
@@ -105,25 +108,24 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
           "summary": { "en": "Short summary", "bg": "Кратко резюме", ... },
           "url": "http://source-url.com",
           "imageUrl": "http://valid-image-url.com/image.jpg",
-          "date": "2024-..."
+          "date": "2024-03-..."
         }
       ]
     }
     `;
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Analyze the provided API Data, check for recent rumors via Google Search, and find top 3 recent Fortnite news. Return JSON.`,
+            model: "gemini-1.5-flash",
+            contents: `Analyze Fortnite server status and find recent news. Return JSON.`,
             config: {
                 tools: [{ googleSearch: {} }],
                 systemInstruction: systemInstruction,
+                responseMimeType: "application/json",
+                maxOutputTokens: 4096,
             },
         });
 
         let text = response.text || "";
-
-        // Clean up potential markdown code blocks (```json ... ```)
-        text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
         // Extract sources from grounding metadata
         const sources: { uri: string; title: string }[] = [];
@@ -135,12 +137,23 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
             });
         }
 
+        // Extract JSON using a more robust method: find the first '{' and last '}'
+        const firstBrace = text.indexOf('{');
+        const lastBrace = text.lastIndexOf('}');
+
+        if (firstBrace === -1 || lastBrace === -1) {
+            console.error("No JSON found in response", text);
+            return { isOnline: isOfficiallyOnline, messages: fallbackMap, rumorMessages: fallbackMap, news: [], sources };
+        }
+
+        const jsonString = text.substring(firstBrace, lastBrace + 1);
+
         // Parse the JSON response
         let parsedData: any = {};
         try {
-            parsedData = JSON.parse(text);
+            parsedData = JSON.parse(jsonString);
         } catch (e) {
-            console.error("Failed to parse JSON", text);
+            console.error("Failed to parse JSON", jsonString);
             return { isOnline: isOfficiallyOnline, messages: fallbackMap, rumorMessages: fallbackMap, news: [], sources };
         }
 
