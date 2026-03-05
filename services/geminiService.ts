@@ -82,11 +82,12 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
     1. If "OFFICIAL API DATA" is provided, trust it 100%. (indicator "none" = ONLINE)
     2. Only use Google Search for "Rumors" or details about outages/news.
     3. Find top 3 trending Fortnite news from last 24h.
-    4. Output MUST BE VALID JSON ONLY.`;
+    4. For each news 'summary', provide a DETAILED update (3-4 sentences long) explaining exactly what is happening.
+    5. Output MUST BE VALID JSON ONLY.`;
 
         const response = await ai.models.generateContent({
             model: "gemini-flash-latest",
-            contents: `Search for Fortnite status and news, return JSON schema: { isOnline: boolean, messages: Record<string, string>, rumorMessages: Record<string, string>, news: Array<any> }. Translate to all: en, bg, es, de, fr, it, ru.`,
+            contents: `Search for Fortnite status and news, return JSON schema: { isOnline: boolean, messages: Record<string, string>, rumorMessages: Record<string, string>, news: Array<{title: Record<string, string>, summary: Record<string, string>, url: string}> }. Translate titles and summaries (3-4 sentences each) to all: en, bg, es, de, fr, it, ru.`,
             config: {
                 tools: [{ googleSearch: {} }],
                 systemInstruction: systemInstruction,
