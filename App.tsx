@@ -230,7 +230,6 @@ export default function App() {
 
   return (
     <>
-      {showWelcome && <WelcomeModal onClose={closeWelcome} language={language} />}
       <StatusScreen
         status={status}
         message={displayMessage}
