@@ -122,13 +122,36 @@ export default function App() {
   };
 
   // Define performCheck as a stable callback
-  const performCheck = useCallback(async () => {
+  const performCheck = useCallback(async (isManualRefresh = false) => {
     const nowTimestamp = Date.now();
     setNextCheckTime(nowTimestamp + CHECK_INTERVAL_MS);
 
     setStatus(ServerStatus.CHECKING);
 
-    const result = await checkFortniteServerStatus();
+    // AI Economy Logic
+    const cached = localStorage.getItem(CACHE_KEY);
+    let shouldSkipAI = true;
+
+    if (isManualRefresh) {
+      shouldSkipAI = false;
+    } else if (cached) {
+      try {
+        const parsed: CachedData = JSON.parse(cached);
+        const age = nowTimestamp - parsed.timestamp;
+        // Only refresh AI data (news/rumors) every 12 hours to save tokens
+        // OR if the servers were previously offline
+        if (age > 12 * 60 * 60 * 1000 || parsed.status !== ServerStatus.ONLINE) {
+          shouldSkipAI = false;
+        }
+      } catch (e) {
+        shouldSkipAI = false;
+      }
+    } else {
+      // No cache at all? Must run AI.
+      shouldSkipAI = false;
+    }
+
+    const result = await checkFortniteServerStatus(shouldSkipAI);
     const checkTime = new Date();
 
     setLastChecked(checkTime);
@@ -141,27 +164,29 @@ export default function App() {
       }
     }
 
+    // Update state
     setStatus(newStatus);
-    setMessagesMap(result.messages);
-    setRumorMessagesMap(result.rumorMessages);
-    setNews(result.news || []);
 
-    if (result.sources) {
-      setSources(result.sources);
+    // If AI was skipped, we keep existing news and rumors from state/cache
+    if (!shouldSkipAI) {
+      setMessagesMap(result.messages);
+      setRumorMessagesMap(result.rumorMessages);
+      setNews(result.news || []);
+      if (result.sources) setSources(result.sources);
     }
 
     // Save to Cache
     const cacheData: CachedData = {
       status: newStatus,
-      messages: result.messages,
-      rumorMessages: result.rumorMessages,
-      news: result.news || [],
-      sources: result.sources || [],
-      timestamp: checkTime.getTime(),
+      messages: !shouldSkipAI ? result.messages : messagesMap,
+      rumorMessages: !shouldSkipAI ? result.rumorMessages : rumorMessagesMap,
+      news: !shouldSkipAI ? (result.news || []) : news,
+      sources: !shouldSkipAI ? (result.sources || []) : sources,
+      timestamp: !shouldSkipAI ? checkTime.getTime() : (cached ? JSON.parse(cached).timestamp : checkTime.getTime()),
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
-  }, []);
+  }, [messagesMap, rumorMessagesMap, news, sources]);
 
   // Initial Load Logic (Runs once)
   useEffect(() => {
