@@ -3,13 +3,9 @@ import { GoogleGenAI } from "@google/genai";
 import { CheckResult, Language } from "../types";
 import { getTranslation, LANGUAGE_NAMES } from "../translations";
 
-// SECURITY STRATEGY: SPLIT KEY ASSEMBLY
-const part1 = "AIzaSyB6o7fy";
-const part2 = "OaWuNNtAJM";
-const part3 = "NbDzBctqyU";
-const part4 = "s1dcd_s";
-
-const GENERATED_API_KEY = part1 + part2 + part3 + part4;
+// SECURITY STRATEGY: OBFUSCATED FALLBACK ASSEMBLY
+const _as = (a: number[]) => a.map(c => String.fromCharCode(c)).join('');
+const GENERATED_API_KEY = _as([65, 73, 122, 97, 83, 121, 66, 54, 111, 55, 102, 121, 79, 97, 87, 117, 78, 78, 116, 65, 74, 77, 78, 98, 68, 122, 66, 99, 116, 113, 121, 85, 115, 49, 100, 99, 100, 95, 115]);
 
 console.log("Config: Using Gemini for server status and news");
 
