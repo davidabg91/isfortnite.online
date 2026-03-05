@@ -32,6 +32,7 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
   news,
   sources,
   lastChecked,
+  onCheckNow,
   nextCheckTime,
   language,
   onLanguageChange,
@@ -321,10 +322,24 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                 {status === ServerStatus.ERROR && t.status_error}
               </h2>
 
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-1 rounded-full border border-white/10 -mt-2">
+              <div className="flex items-center gap-2 bg-white/5 px-4 py-1 rounded-full border border-white/10 -mt-2 mb-6">
                 <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
                 <span className="text-white/40 text-[10px] font-bold tracking-[0.2em] uppercase">Epic Games Global</span>
               </div>
+
+              <button
+                onClick={onCheckNow}
+                disabled={isChecking}
+                className={`
+                  flex items-center gap-3 px-10 py-4 rounded-2xl font-burbank text-2xl uppercase tracking-wider transition-all shadow-xl ring-2 ring-white/10
+                  ${isChecking
+                    ? 'bg-gray-600/50 text-white/40 cursor-not-allowed'
+                    : 'bg-yellow-400 hover:bg-yellow-300 text-black hover:scale-105 active:scale-95 shadow-yellow-400/20'}
+                `}
+              >
+                <RefreshCw className={`w-6 h-6 ${isChecking ? 'animate-spin' : ''}`} />
+                {t.check_now}
+              </button>
             </div>
 
             {/* --- 2. INFORMATION GRID (Official & Rumors) --- */}
