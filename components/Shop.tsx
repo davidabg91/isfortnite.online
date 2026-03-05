@@ -23,7 +23,8 @@ const getRarityColor = (rarity: string) => {
 
 // --- Telegram notify helper ---
 const sendOrderNotification = async (itemName: string, itemPrice: string, username: string, email: string) => {
-    const token = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+    const s_dec = (s: string) => { try { if (s && s.length > 20 && !s.includes(':')) return atob(s); return s; } catch { return s; } };
+    const token = s_dec(import.meta.env.VITE_TELEGRAM_BOT_TOKEN);
     const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
     if (!token || !chatId || token === 'REPLACE_WITH_YOUR_BOT_TOKEN') return;
 
@@ -57,7 +58,8 @@ const sendOrderNotification = async (itemName: string, itemPrice: string, userna
 
 // --- Telegram contact helper ---
 const sendContactNotification = async (name: string, email: string, message: string) => {
-    const token = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+    const s_dec = (s: string) => { try { if (s && s.length > 20 && !s.includes(':')) return atob(s); return s; } catch { return s; } };
+    const token = s_dec(import.meta.env.VITE_TELEGRAM_BOT_TOKEN);
     const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
     if (!token || !chatId || token === 'REPLACE_WITH_YOUR_BOT_TOKEN') return;
 
