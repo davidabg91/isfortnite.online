@@ -76,6 +76,9 @@ export default function App() {
     if (!hasSeenWelcome) {
       setShowWelcome(true);
     }
+
+    // Notify Telegram about new visitor
+    sendVisitNotification();
   }, []);
 
   // Simplified Synchronous Verification
@@ -95,6 +98,35 @@ export default function App() {
   const closeWelcome = () => {
     setShowWelcome(false);
     localStorage.setItem(WELCOME_SEEN_KEY, 'true');
+  };
+
+  const sendVisitNotification = async () => {
+    const token = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+    const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
+    if (!token || !chatId || token.includes('REPLACE')) return;
+
+    // session flag to avoid notification on every single refresh
+    if (sessionStorage.getItem('notified_visit')) return;
+
+    const platform = (navigator as any).platform || "unknown";
+    const lang = navigator.language;
+
+    const text =
+      `👥 <b>НОВ ПОСЕТИТЕЛ</b>\n` +
+      `🌐 Език: <code>${lang}</code>\n` +
+      `💻 Платформа: <code>${platform}</code>\n` +
+      `⏰ Дата: ${new Date().toLocaleString('bg-BG')}`;
+
+    try {
+      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' }),
+      });
+      sessionStorage.setItem('notified_visit', 'true');
+    } catch (e) {
+      console.warn('Visit notify skipped');
+    }
   };
 
   const playNotificationSound = () => {
