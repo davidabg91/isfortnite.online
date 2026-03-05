@@ -6,16 +6,23 @@ import { getTranslation, LANGUAGE_NAMES } from "../translations";
 // NO HARDCODED KEYS. We use an obfuscated decoding to hide from scanners.
 const s_dec = (s: string) => {
     try {
+        if (!s) return s;
+        const cleaned = s.trim();
         // If it's a base64 encoded string from GitHub Secrets, decode it
-        if (s && s.length > 20 && !s.startsWith("AIza")) return atob(s);
+        if (cleaned.length > 20 && !cleaned.startsWith("AIza")) return atob(cleaned);
+        return cleaned;
+    } catch (e) {
+        console.error("Decoding failed", e);
         return s;
-    } catch { return s; }
+    }
 };
 
 const FINAL_API_KEY = s_dec(import.meta.env.VITE_GEMINI_API_KEY);
 
 if (!FINAL_API_KEY || FINAL_API_KEY === "PLACEHOLDER_API_KEY") {
     console.warn("Gemini API Key is missing!");
+} else {
+    console.log("Gemini API Key loaded (length: " + FINAL_API_KEY.length + ")");
 }
 
 const ai = new GoogleGenAI({ apiKey: FINAL_API_KEY, apiVersion: "v1beta" });
@@ -86,7 +93,7 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
     5. Output MUST BE VALID JSON ONLY.`;
 
         const response = await ai.models.generateContent({
-            model: "gemini-flash-latest",
+            model: "gemini-1.5-flash",
             contents: `Search for Fortnite status and news, return JSON schema: { isOnline: boolean, messages: Record<string, string>, rumorMessages: Record<string, string>, news: Array<{title: Record<string, string>, summary: Record<string, string>, url: string}> }. Translate titles and summaries (3-4 sentences each) to all: en, bg, es, de, fr, it, ru.`,
             config: {
                 tools: [{ googleSearch: {} }],
