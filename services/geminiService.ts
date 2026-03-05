@@ -116,18 +116,17 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
 
         const response = await ai.models.generateContent({
             model: "gemini-1.5-flash",
-            contents: `Analyze Fortnite server status and find recent news. Return JSON.`,
+            contents: `Please search for Fortnite status and news, then return a response strictly following this JSON schema: { isOnline: boolean, messages: { [lang]: string }, rumorMessages: { [lang]: string }, news: Array<{ title: { [lang]: string }, summary: { [lang]: string }, url: string, imageUrl: string, date: string }> }. Do not add any conversational text before or after the JSON.`,
             config: {
                 tools: [{ googleSearch: {} }],
                 systemInstruction: systemInstruction,
-                responseMimeType: "application/json",
                 maxOutputTokens: 4096,
             },
         });
 
         let text = response.text || "";
 
-        // Extract sources from grounding metadata
+        // Extract sources from grounding metadata (save them before any JSON error)
         const sources: { uri: string; title: string }[] = [];
         if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
             response.candidates[0].groundingMetadata.groundingChunks.forEach((chunk: any) => {
@@ -142,7 +141,13 @@ export const checkFortniteServerStatus = async (): Promise<CheckResult> => {
         const lastBrace = text.lastIndexOf('}');
 
         if (firstBrace === -1 || lastBrace === -1) {
-            console.error("No JSON found in response", text);
+            console.error("No JSON found in AI response. Raw text:", text);
+            // Fallback: If AI is being conversational, we'll try to use its text as a message
+            const simplifiedMessages = { ...fallbackMap };
+            if (text.length > 20) {
+                // If the AI gave a long text and we can't find JSON, maybe use the text as a generic message for all languages as a last resort
+                // But better to just use fallback to avoid mixing languages
+            }
             return { isOnline: isOfficiallyOnline, messages: fallbackMap, rumorMessages: fallbackMap, news: [], sources };
         }
 
