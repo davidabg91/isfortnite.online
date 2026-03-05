@@ -321,7 +321,10 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                 {status === ServerStatus.ERROR && t.status_error}
               </h2>
 
-
+              <div className="flex items-center gap-2 bg-white/5 px-4 py-1 rounded-full border border-white/10 -mt-2">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                <span className="text-white/40 text-[10px] font-bold tracking-[0.2em] uppercase">Epic Games Global</span>
+              </div>
             </div>
 
             {/* --- 2. INFORMATION GRID (Official & Rumors) --- */}
@@ -329,55 +332,45 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
 
               {/* A. Official Information Card */}
               <div className={`
-                 w-full relative backdrop-blur-xl bg-gradient-to-br from-indigo-950/90 via-blue-900/50 to-indigo-900/90 border-2 border-blue-400/40 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_80px_rgba(37,99,235,0.3)] flex flex-col h-full overflow-hidden group transition-all hover:border-blue-400/60
-                 ${!hasRumors ? 'max-w-4xl' : ''}
+                 w-full relative backdrop-blur-xl bg-gradient-to-br from-indigo-950/90 via-blue-900/50 to-indigo-900/90 border-2 border-blue-400/40 rounded-[2rem] p-6 shadow-xl flex flex-col h-full overflow-hidden group transition-all hover:border-blue-400/60 min-h-[160px]
+                 ${!hasRumors ? 'max-w-3xl' : ''}
               `}>
                 {/* Visual Accent - Large Background Icon */}
-                <div className="absolute -right-16 -bottom-16 p-4 opacity-[0.05] pointer-events-none group-hover:scale-110 group-hover:opacity-[0.08] transition-all duration-1000">
-                  <Info className="w-96 h-96 text-blue-400" />
+                <div className="absolute -right-8 -bottom-8 p-4 opacity-[0.05] pointer-events-none group-hover:scale-110 group-hover:opacity-[0.08] transition-all duration-1000">
+                  <Info className="w-48 h-48 text-blue-400" />
                 </div>
 
-                {/* Scanline Effect */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,128,0.03))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20"></div>
-
-                <div className="absolute top-0 left-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-br-2xl text-[10px] font-black tracking-widest shadow-xl flex items-center gap-2 uppercase z-20 border-b border-r border-blue-400/20">
-                  <div className="relative">
-                    <div className="w-2 h-2 bg-blue-300 rounded-full animate-ping absolute"></div>
-                    <div className="w-2 h-2 bg-blue-100 rounded-full relative"></div>
-                  </div>
-                  <Info className="w-3.5 h-3.5" />
+                <div className="absolute top-0 left-0 bg-blue-600 text-white px-3 py-1 rounded-br-xl text-[8px] font-black tracking-widest shadow-xl flex items-center gap-1.5 uppercase z-20">
+                  <Info className="w-3 h-3" />
                   {t.official_label}
                 </div>
 
-                <div className="mt-12 flex-grow flex flex-col items-center justify-center relative z-10">
-                  <div className="p-4 bg-blue-500/10 rounded-full mb-8 border border-blue-500/20 group-hover:scale-110 transition-transform duration-700">
-                    <Activity className="w-20 h-20 text-blue-400 drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
-                  </div>
-                  <p className="text-2xl md:text-4xl text-white font-burbank leading-[1.1] text-center drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] tracking-wide uppercase italic">
+                <div className="mt-4 flex-grow flex flex-col items-center justify-start pt-4 relative z-10">
+                  <p className="text-xl md:text-2xl text-white font-burbank leading-tight text-center drop-shadow-md tracking-wide uppercase italic">
                     {message}
                   </p>
-                  <div className="flex items-center gap-4 mt-10">
-                    <div className="h-1 w-20 bg-gradient-to-r from-transparent to-blue-500 rounded-full"></div>
-                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                    <div className="h-1 w-20 bg-gradient-to-l from-transparent to-blue-500 rounded-full"></div>
+                  <div className="flex items-center gap-2 mt-4 opacity-30">
+                    <div className="h-0.5 w-12 bg-gradient-to-r from-transparent to-blue-500 rounded-full"></div>
+                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                    <div className="h-0.5 w-12 bg-gradient-to-l from-transparent to-blue-500 rounded-full"></div>
                   </div>
                 </div>
               </div>
 
               {/* B. Rumor Card (Conditional) */}
               {hasRumors && (
-                <div className="w-full relative backdrop-blur-md bg-cyan-900/40 border border-cyan-400/30 rounded-2xl p-6 shadow-[0_0_30px_rgba(34,211,238,0.15)] flex flex-col h-full overflow-hidden">
+                <div className="w-full relative backdrop-blur-md bg-cyan-900/40 border border-cyan-400/30 rounded-[2rem] p-6 shadow-xl flex flex-col h-full overflow-hidden min-h-[160px]">
                   <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                    <Zap className="w-40 h-40 text-cyan-400" />
+                    <Zap className="w-24 h-24 text-cyan-400" />
                   </div>
 
-                  <div className="absolute top-0 left-0 bg-cyan-600 px-4 py-1.5 rounded-br-xl text-black text-[10px] font-black tracking-wider shadow-lg flex items-center gap-2 uppercase z-20">
-                    <Zap className="w-3.5 h-3.5" />
+                  <div className="absolute top-0 left-0 bg-cyan-600 px-3 py-1.5 rounded-br-xl text-black text-[8px] font-black tracking-wider shadow-lg flex items-center gap-1.5 uppercase z-20">
+                    <Zap className="w-3 h-3" />
                     {t.rumor_label}
                   </div>
 
-                  <div className="mt-6 flex-grow flex items-center justify-center relative z-10">
-                    <p className="text-cyan-100 text-base md:text-lg font-medium text-center leading-relaxed italic">
+                  <div className="mt-4 flex-grow flex items-center justify-start pt-4 relative z-10">
+                    <p className="text-cyan-100 text-sm md:text-base font-medium text-center leading-relaxed italic">
                       "{rumorMessage}"
                     </p>
                   </div>
@@ -424,74 +417,76 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
       </div>
 
       {/* Premium Modal */}
-      {showPremiumModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
-          <div className="bg-gradient-to-br from-indigo-900 to-purple-900 border-2 border-yellow-400 rounded-2xl p-8 max-w-md w-full text-center relative shadow-[0_0_50px_rgba(250,204,21,0.3)] my-auto">
-            <button
-              onClick={() => setShowPremiumModal(false)}
-              className="absolute top-2 right-2 text-white/50 hover:text-white"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            <Lock className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-            <h3 className="font-burbank text-3xl text-white mb-2">{t.premium_title}</h3>
-            <p className="text-white/80 mb-6 font-medium">
-              {t.premium_desc}
-            </p>
-
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={handleDonate}
-                className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-burbank text-xl py-3 rounded-lg flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 mb-4"
-              >
-                <Heart className="w-5 h-5 fill-red-500 text-red-500" />
-                {t.unlock_fee}
-              </button>
-
-              <div className="bg-black/40 p-4 rounded-xl border border-white/10">
-                <label className="text-white/60 text-sm mb-1 block text-left uppercase tracking-wider font-bold">{t.enter_code}</label>
-                <div className="flex flex-col gap-2">
-                  <input
-                    type="text"
-                    value={inputCode}
-                    onChange={(e) => {
-                      setInputCode(e.target.value.toUpperCase());
-                      setCodeError(false);
-                    }}
-                    onKeyDown={(e) => e.key === 'Enter' && handleVerifyCode()}
-                    placeholder="FN-XXXX-XXXX"
-                    className={`w-full bg-black/50 text-white font-mono text-center text-lg p-2 rounded border-2 focus:outline-none focus:border-yellow-400 transition-colors ${codeError ? 'border-red-500' : 'border-white/20'}`}
-                  />
-                  {codeError && <span className="text-red-400 text-sm font-bold animate-pulse">{t.invalid_code}</span>}
-                  {unlockSuccess && <span className="text-green-400 text-sm font-bold animate-bounce">{t.code_success}</span>}
-
-                  <button
-                    onClick={handleVerifyCode}
-                    disabled={isVerifying}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-burbank text-lg py-2 rounded transition-colors flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
-                  >
-                    {isVerifying ? (
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <KeyRound className="w-4 h-4" />
-                    )}
-                    {t.verify_btn}
-                  </button>
-                </div>
-              </div>
-
+      {
+        showPremiumModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
+            <div className="bg-gradient-to-br from-indigo-900 to-purple-900 border-2 border-yellow-400 rounded-2xl p-8 max-w-md w-full text-center relative shadow-[0_0_50px_rgba(250,204,21,0.3)] my-auto">
               <button
                 onClick={() => setShowPremiumModal(false)}
-                className="text-white/40 hover:text-white text-sm mt-4"
+                className="absolute top-2 right-2 text-white/50 hover:text-white"
               >
-                {t.cancel}
+                <X className="w-6 h-6" />
               </button>
+
+              <Lock className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
+              <h3 className="font-burbank text-3xl text-white mb-2">{t.premium_title}</h3>
+              <p className="text-white/80 mb-6 font-medium">
+                {t.premium_desc}
+              </p>
+
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleDonate}
+                  className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-burbank text-xl py-3 rounded-lg flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-105 mb-4"
+                >
+                  <Heart className="w-5 h-5 fill-red-500 text-red-500" />
+                  {t.unlock_fee}
+                </button>
+
+                <div className="bg-black/40 p-4 rounded-xl border border-white/10">
+                  <label className="text-white/60 text-sm mb-1 block text-left uppercase tracking-wider font-bold">{t.enter_code}</label>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      value={inputCode}
+                      onChange={(e) => {
+                        setInputCode(e.target.value.toUpperCase());
+                        setCodeError(false);
+                      }}
+                      onKeyDown={(e) => e.key === 'Enter' && handleVerifyCode()}
+                      placeholder="FN-XXXX-XXXX"
+                      className={`w-full bg-black/50 text-white font-mono text-center text-lg p-2 rounded border-2 focus:outline-none focus:border-yellow-400 transition-colors ${codeError ? 'border-red-500' : 'border-white/20'}`}
+                    />
+                    {codeError && <span className="text-red-400 text-sm font-bold animate-pulse">{t.invalid_code}</span>}
+                    {unlockSuccess && <span className="text-green-400 text-sm font-bold animate-bounce">{t.code_success}</span>}
+
+                    <button
+                      onClick={handleVerifyCode}
+                      disabled={isVerifying}
+                      className="w-full bg-blue-600 hover:bg-blue-500 text-white font-burbank text-lg py-2 rounded transition-colors flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
+                    >
+                      {isVerifying ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <KeyRound className="w-4 h-4" />
+                      )}
+                      {t.verify_btn}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowPremiumModal(false)}
+                  className="text-white/40 hover:text-white text-sm mt-4"
+                >
+                  {t.cancel}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-    </div>
+    </div >
   );
 };

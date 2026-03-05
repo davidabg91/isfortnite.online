@@ -117,6 +117,12 @@ export default function App() {
       `💻 Платформа: <code>${platform}</code>\n` +
       `⏰ Дата: ${new Date().toLocaleString('bg-BG')}`;
 
+    // Skip bot/cloud traffic pattern if matches common automated crawlers
+    if (platform.includes("Linux") && platform.includes("x86_64") && lang === "en-US") {
+      console.log("Visit notify skipped (bot pattern)");
+      return;
+    }
+
     try {
       await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
