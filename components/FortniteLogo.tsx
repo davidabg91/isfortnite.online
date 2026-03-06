@@ -18,13 +18,13 @@ export const FortniteLogo: React.FC<{ subtitle: string }> = ({ subtitle }) => {
         </h1>
 
         {/* Re-designed Cyber/Hacker Official Badge - Moved to Top Right Option */}
-        <div className="absolute -top-4 -right-12 md:-top-6 md:-right-20 z-20 group-hover:scale-105 transition-transform duration-500">
+        <div className="absolute -top-3 -right-8 md:-top-4 md:-right-12 z-20 group-hover:scale-105 transition-transform duration-500">
           <div className="relative">
             {/* Neon Glow Backplate */}
-            <div className="absolute inset-0 bg-cyan-500 blur-lg opacity-40 animate-pulse"></div>
+            <div className="absolute inset-0 bg-cyan-500 blur-md opacity-40 animate-pulse"></div>
 
             {/* Main Badge Body - Sci-Fi / Cyberpunk themed */}
-            <div className="relative bg-slate-900 border border-cyan-400 px-4 py-2 md:px-6 md:py-2.5 shadow-[0_0_15px_rgba(34,211,238,0.5)] transform -skew-x-[20deg] flex items-center justify-center gap-3 overflow-hidden">
+            <div className="relative bg-slate-900 border border-cyan-400 px-3 py-1 md:px-4 md:py-1.5 shadow-[0_0_10px_rgba(34,211,238,0.5)] transform -skew-x-[20deg] flex items-center justify-center gap-2 overflow-hidden">
 
               {/* Subtle scanline overlay */}
               <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] pointer-events-none"></div>
@@ -33,19 +33,19 @@ export const FortniteLogo: React.FC<{ subtitle: string }> = ({ subtitle }) => {
               <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-300 to-transparent"></div>
 
               <div className="flex flex-col items-end transform skew-x-[20deg]">
-                <span className="font-burbank text-cyan-50 text-sm md:text-xl leading-none text-right tracking-widest relative z-10 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]">
+                <span className="font-burbank text-cyan-50 text-xs md:text-sm leading-none text-right tracking-widest relative z-10 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]">
                   {subtitle}
                 </span>
 
                 {/* Technological Sub-Accent */}
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className="w-1.5 h-1.5 bg-cyan-400 rounded-sm animate-ping"></div>
-                  <span className="text-[7px] md:text-[9px] font-mono text-cyan-400 uppercase tracking-widest opacity-80">SYS.ONLINE // OFFICIAL</span>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <div className="w-1 h-1 bg-cyan-400 rounded-sm animate-ping"></div>
+                  <span className="text-[6px] md:text-[7px] font-mono text-cyan-400 uppercase tracking-widest opacity-80">SYS.ONLINE // OFFICIAL</span>
                 </div>
               </div>
 
               {/* Decorative Side Accents */}
-              <div className="h-full w-1 border-l-2 border-dashed border-cyan-500/50 absolute left-2 transform skew-x-[20deg]"></div>
+              <div className="h-full w-1 border-l border-dashed border-cyan-500/50 absolute left-1.5 transform skew-x-[20deg]"></div>
             </div>
           </div>
         </div>

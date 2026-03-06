@@ -44,18 +44,19 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
             onlineMap[lang] = getTranslation(lang).inference_online;
         });
-        return { isOnline: true, messages: onlineMap, rumorMessages: {}, news: [], sources: [] };
+        return { isOnline: true, messages: onlineMap, rumorMessages: {} as Record<Language, string>, news: [], sources: [] };
     }
 
     try {
         if (!apiKey || apiKey.length < 10) throw new Error("KEY_MISSING");
 
         const prompt = `You are a professional Fortnite status reporter and leaker.
-        TODAY'S DATE: ${new Date().toISOString().split('T')[0]}
-        OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
-        1. Find 3 latest Fortnite news (patch notes, events, etc.) strictly from the last 24h of TODAY'S DATE.
-        2. Provide 1 interesting Fortnite rumor, leak, or upcoming update for the 'rumorMessages' field. DO NOT say there are no rumors.
-        3. Output MUST BE valid, parseable JSON exactly matching this structure:
+        TODAY\'S DATE: ${new Date().toISOString().split('T')[0]}
+        OFFICIAL API STATUS IS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
+        1. Find 3 latest Fortnite news (patch notes, events, etc.) strictly from the last 24h of TODAY\'S DATE.
+        2. Give a brief Community Report for the 'messages' field. DO NOT just say "Servers are online". Instead, summarize what real players on DownDetector, Twitter, or Reddit are currently reporting. E.g. "Matchmaking is perfectly stable with zero complaints," or "Some players are reporting minor login queues." Give 1-2 sentences of community sentiment.
+        3. Provide 1 interesting Fortnite rumor, leak, or upcoming update for the 'rumorMessages' field. DO NOT say there are no rumors.
+        4. Output MUST BE valid, parseable JSON exactly matching this structure:
         {
             "isOnline": boolean,
             "messages": {"en": "...", "bg": "..."},

@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
 import { ServerStatus, Language, NewsItem } from '../types';
-import { AlertCircle, CheckCircle2, RefreshCw, Clock, ExternalLink, Heart, Lock, X, KeyRound, Zap, Info } from 'lucide-react';
+import { AlertCircle, CheckCircle2, RefreshCw, Clock, ExternalLink, Heart, Lock, X, KeyRound, Zap, Info, Flame } from 'lucide-react';
 import { FortniteLogo } from './FortniteLogo';
 import { getTranslation, LANGUAGE_NAMES } from '../translations';
 import { NewsSection } from './NewsSection';
 import { Shop } from './Shop';
-import { ShoppingBag, Activity, ShoppingCart } from 'lucide-react';
+import { ShoppingBag, Activity } from 'lucide-react';
 
 interface StatusScreenProps {
   status: ServerStatus;
@@ -157,18 +157,18 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
         <FortniteLogo subtitle={t.logo_subtitle} />
 
         {/* --- TAB NAVIGATION --- */}
-        <div className="relative z-30 mt-8 md:mt-16 mb-12 flex gap-3 md:gap-6">
+        <div className="relative z-30 mt-8 md:mt-16 mb-8 flex gap-3 md:gap-4">
           <button
             onClick={() => onTabChange('status')}
             className={`
-              group relative flex items-center justify-center px-6 md:px-10 py-3 md:py-4 font-burbank text-xl md:text-3xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300
+              group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300
               ${activeTab === 'status'
-                ? 'bg-blue-600 text-white border-b-4 border-blue-900 shadow-[0_0_25px_rgba(37,99,235,0.8)] scale-105'
+                ? 'bg-blue-600 text-white border-b-4 border-blue-900 shadow-[0_0_20px_rgba(37,99,235,0.6)] scale-105'
                 : 'bg-black/80 text-white/60 border-b-4 border-gray-900 hover:bg-white/10 hover:text-white'}
             `}
           >
             <div className="flex items-center gap-2 transform skew-x-12">
-              <Activity className="w-5 h-5 md:w-7 md:h-7" />
+              <Activity className="w-4 h-4 md:w-5 md:h-5" />
               {t.tab_status}
             </div>
           </button>
@@ -176,18 +176,18 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           <button
             onClick={() => onTabChange('shop')}
             className={`
-              group relative flex items-center justify-center px-6 md:px-10 py-3 md:py-4 font-burbank text-xl md:text-3xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300
+              group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300
               ${activeTab === 'shop'
-                ? 'bg-yellow-400 text-black border-b-4 border-orange-600 shadow-[0_0_25px_rgba(250,204,21,0.8)] scale-105'
+                ? 'bg-yellow-400 text-black border-b-4 border-orange-600 shadow-[0_0_20px_rgba(250,204,21,0.6)] scale-105'
                 : 'bg-black/80 text-white/60 border-b-4 border-gray-900 hover:bg-white/10 hover:text-white'}
             `}
           >
             <div className="flex items-center gap-2 transform skew-x-12">
-              <ShoppingBag className={`w-5 h-5 md:w-7 md:h-7 ${activeTab === 'shop' ? 'fill-black' : ''}`} />
+              <ShoppingBag className={`w-4 h-4 md:w-5 md:h-5 ${activeTab === 'shop' ? 'fill-black' : ''}`} />
               {t.tab_shop}
 
               {/* Promotion Badge */}
-              <div className="absolute -top-4 -right-4 md:-top-5 md:-right-6 bg-red-600 text-white text-xs md:text-sm font-black px-2 py-1 rounded-sm border-2 border-black shadow-xl animate-bounce italic whitespace-nowrap z-30">
+              <div className="absolute -top-3 -right-3 md:-top-4 md:-right-5 bg-red-600 text-white text-[10px] md:text-xs font-black px-1.5 py-0.5 rounded-sm border-2 border-black shadow-lg animate-bounce italic whitespace-nowrap z-30">
                 -50%
               </div>
             </div>
@@ -196,14 +196,14 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           <button
             onClick={() => onTabChange('giveaway')}
             className={`
-              group relative flex items-center justify-center px-6 md:px-10 py-3 md:py-4 font-burbank text-xl md:text-3xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300
+              group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300
               ${activeTab === 'giveaway'
-                ? 'bg-purple-600 text-white border-b-4 border-purple-900 shadow-[0_0_25px_rgba(147,51,234,0.8)] scale-105'
+                ? 'bg-purple-600 text-white border-b-4 border-purple-900 shadow-[0_0_20px_rgba(147,51,234,0.6)] scale-105'
                 : 'bg-black/80 text-white/60 border-b-4 border-gray-900 hover:bg-white/10 hover:text-white'}
             `}
           >
             <div className="flex items-center gap-2 transform skew-x-12">
-              <Zap className={`w-5 h-5 md:w-7 md:h-7 ${activeTab === 'giveaway' ? 'fill-white' : ''}`} />
+              <Zap className={`w-4 h-4 md:w-5 md:h-5 ${activeTab === 'giveaway' ? 'fill-white' : ''}`} />
               {t.tab_giveaway}
             </div>
           </button>
@@ -219,47 +219,68 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
 
               {/* Visual Elements */}
               <div className="absolute -top-20 -left-20 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px] animate-pulse"></div>
-              <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px] animate-pulse delay-700"></div>
+              <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-fuchsia-500/20 rounded-full blur-[100px] animate-pulse delay-700"></div>
 
               <div className="relative z-10 flex flex-col items-center text-center">
-                <div className="bg-purple-600/20 p-4 rounded-3xl mb-6 border border-purple-500/30 shadow-[0_0_30px_rgba(168,85,247,0.2)]">
-                  <Zap className="w-16 h-16 text-purple-400 animate-bounce" />
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 font-burbank tracking-widest uppercase mb-4">
+                  <Flame className="w-4 h-4 text-orange-400" />
+                  Season 2 Exclusive
                 </div>
-                <h2 className="font-burbank text-5xl md:text-8xl text-white italic tracking-tighter uppercase mb-2 drop-shadow-[0_0_20px_rgba(168,85,247,0.5)]">
-                  {t.giveaway_title}
-                </h2>
-                <p className="text-purple-300 font-bold tracking-[0.3em] text-sm md:text-lg mb-8 uppercase italic">
-                  {t.giveaway_subtitle}
+                <h1 className="font-burbank text-6xl md:text-8xl text-white italic tracking-tighter drop-shadow-[0_4px_10px_rgba(168,85,247,0.4)] mb-2">
+                  13,500 <span className="text-purple-400">V-BUCKS</span>
+                </h1>
+                <p className="font-burbank text-2xl md:text-3xl text-gray-300 tracking-wide uppercase">
+                  Massive Community Giveaway
                 </p>
+              </div>
+            </div>
 
-                <div className="w-24 h-1.5 bg-gradient-to-r from-transparent via-purple-500 to-transparent rounded-full mb-8"></div>
+            {/* Entry Section */}
+            <div className="w-full max-w-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
+              {/* Background Glow */}
+              <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent pointer-events-none"></div>
 
-                <p className="text-white/80 text-lg md:text-2xl max-w-3xl leading-relaxed font-medium mb-12">
-                  {t.giveaway_desc}
-                </p>
+              <div className="relative z-10 flex flex-col items-center gap-6">
+                <div className="text-center">
+                  <h3 className="font-burbank text-3xl text-white mb-2 tracking-wide uppercase">Enter to Win</h3>
+                  <p className="text-gray-400 text-sm">Follow instructions carefully to secure your entry.</p>
+                </div>
 
-                {/* Last Winner Showcase */}
-                <div className="w-full max-w-2xl bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-md relative overflow-hidden group/winner">
-                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-transparent to-yellow-400/10 opacity-0 group-hover/winner:opacity-100 transition-opacity duration-1000"></div>
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                <div className="w-full space-y-4">
+                  <div className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group hover:bg-white/10 transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(250,204,21,0.4)]">
-                        <Activity className="w-6 h-6 text-black" />
+                      <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center border border-purple-500/30">
+                        <span className="font-burbank text-xl text-purple-400">1</span>
                       </div>
-                      <div className="text-left">
-                        <p className="text-yellow-400 text-[10px] uppercase font-black tracking-widest">{t.last_winner}</p>
-                        <p className="text-white font-burbank text-3xl italic tracking-tight">{t.last_winner_name}</p>
-                      </div>
+                      <span className="text-white font-medium">Like our latest video</span>
                     </div>
-                    <button
-                      onClick={() => onTabChange('shop')}
-                      className="bg-yellow-400 hover:bg-yellow-300 text-black font-burbank text-xl px-8 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg flex items-center gap-2"
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      {t.giveaway_cta}
-                    </button>
+                    <CheckCircle2 className="w-6 h-6 text-gray-600" />
+                  </div>
+
+                  <div className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center border border-purple-500/30">
+                        <span className="font-burbank text-xl text-purple-400">2</span>
+                      </div>
+                      <span className="text-white font-medium">Tag 3 friends</span>
+                    </div>
+                    <CheckCircle2 className="w-6 h-6 text-gray-600" />
+                  </div>
+
+                  <div className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center border border-purple-500/30">
+                        <span className="font-burbank text-xl text-purple-400">3</span>
+                      </div>
+                      <span className="text-white font-medium">Verify your Epic ID</span>
+                    </div>
+                    <CheckCircle2 className="w-6 h-6 text-gray-600" />
                   </div>
                 </div>
+
+                <button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-burbank text-2xl uppercase tracking-wider py-4 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] transform hover:-translate-y-1 transition-all active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                  Verify Entry
+                </button>
               </div>
             </div>
 
@@ -315,17 +336,17 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
         ) : (
           <>
             {/* Status Summary Area */}
-            <div className="w-full max-w-6xl flex flex-col items-center justify-center gap-4 mb-8 backdrop-blur-md bg-black/20 p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
+            <div className="w-full max-w-4xl flex flex-col items-center justify-center gap-3 mb-8 backdrop-blur-md bg-black/20 p-6 md:p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
 
               <div className={`absolute inset-0 opacity-10 blur-[50px] ${status === ServerStatus.ONLINE ? 'bg-green-500' : 'bg-red-500'}`}></div>
 
-              <div className="flex justify-center mb-2 relative z-10">
-                {status === ServerStatus.CHECKING && <RefreshCw className="w-24 h-24 text-yellow-400 animate-spin" />}
-                {status === ServerStatus.ONLINE && <CheckCircle2 className="w-24 h-24 text-green-400 animate-bounce" />}
-                {(status === ServerStatus.OFFLINE || status === ServerStatus.ERROR || status === ServerStatus.IDLE) && <AlertCircle className="w-24 h-24 text-red-500 animate-pulse" />}
+              <div className="flex justify-center mb-1 relative z-10">
+                {status === ServerStatus.CHECKING && <RefreshCw className="w-14 h-14 md:w-16 md:h-16 text-yellow-400 animate-spin" />}
+                {status === ServerStatus.ONLINE && <CheckCircle2 className="w-14 h-14 md:w-16 md:h-16 text-green-400 animate-bounce" />}
+                {(status === ServerStatus.OFFLINE || status === ServerStatus.ERROR || status === ServerStatus.IDLE) && <AlertCircle className="w-14 h-14 md:w-16 md:h-16 text-red-500 animate-pulse" />}
               </div>
 
-              <h2 className="font-burbank text-6xl md:text-8xl text-white mb-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] text-center tracking-wide relative z-10">
+              <h2 className="font-burbank text-4xl md:text-6xl text-white mb-1 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] text-center tracking-wide relative z-10">
                 {status === ServerStatus.CHECKING && t.status_checking}
                 {status === ServerStatus.ONLINE && t.status_online}
                 {status === ServerStatus.OFFLINE && t.status_offline}
@@ -333,9 +354,9 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                 {status === ServerStatus.ERROR && t.status_error}
               </h2>
 
-              <div className="flex items-center gap-2 bg-white/5 px-6 py-2 rounded-full border border-white/10 mt-2 relative z-10">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-white/50 text-xs font-bold tracking-[0.2em] uppercase">Epic Games Global</span>
+              <div className="flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 mt-1 relative z-10">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                <span className="text-white/50 text-[10px] font-bold tracking-[0.2em] uppercase">Epic Games Global</span>
               </div>
             </div>
 
