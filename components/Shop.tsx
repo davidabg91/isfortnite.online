@@ -4,7 +4,7 @@ import { fetchFortniteShop } from '../services/fortniteShopService';
 import { getTranslation } from '../translations';
 import { Loader2, AlertCircle, X, ShoppingCart, CheckCircle, Info, Clock, Zap, CheckCircle2 } from 'lucide-react';
 
-const VBUCK_RATE = 0.0052; // 0.52 euro cents per V-Buck
+const VBUCK_RATE = 0.0049; // 0.49 euro cents per V-Buck
 
 interface ShopProps {
     language: Language;
