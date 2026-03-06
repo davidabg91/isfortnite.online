@@ -240,6 +240,10 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                   <Flame className="w-4 h-4 text-orange-400" />
                   Season 2 Exclusive
                 </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-widest mb-6">
+                  <Activity className="w-3 h-3" />
+                  {t.giveaway_invalid_region}
+                </div>
                 <h1 className="font-burbank text-6xl md:text-8xl text-white italic tracking-tighter drop-shadow-[0_4px_10px_rgba(168,85,247,0.4)] mb-2">
                   13,500 <span className="text-purple-400">V-BUCKS</span>
                 </h1>
@@ -292,8 +296,11 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                   </div>
                 </div>
 
-                <button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-burbank text-2xl uppercase tracking-wider py-4 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] transform hover:-translate-y-1 transition-all active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed">
-                  Verify Entry
+                <button
+                  disabled
+                  className="w-full mt-4 bg-gray-800 text-gray-400 font-burbank text-2xl uppercase tracking-wider py-4 rounded-xl cursor-not-allowed border border-white/5 opacity-80"
+                >
+                  {t.giveaway_invalid_region}
                 </button>
               </div>
             </div>
@@ -305,7 +312,13 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                 <div className="absolute top-0 right-0 p-4 opacity-5">
                   <ShoppingBag className="w-32 h-32 text-yellow-400" />
                 </div>
-                <span className="text-yellow-400 font-black text-xs tracking-widest uppercase mb-4">ЕЖЕМЕСЕЧНА НАГРАДА</span>
+                <div className="flex flex-col items-center gap-2 mb-4">
+                  <span className="text-yellow-400 font-black text-xs tracking-widest uppercase">{t.last_winner}</span>
+                  <div className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    <span className="text-green-400 text-[10px] font-bold uppercase tracking-widest">{t.giveaway_valid_all}</span>
+                  </div>
+                </div>
                 <h3 className="font-burbank text-4xl md:text-6xl text-white italic uppercase mb-6 leading-none">
                   {t.giveaway_prize}
                 </h3>

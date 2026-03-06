@@ -108,6 +108,8 @@ interface TranslationData {
   status_info_title: string;
   status_info_desc: string;
   buy_username_help_btn: string;
+  giveaway_invalid_region: string;
+  giveaway_valid_all: string;
 }
 
 export const LANGUAGE_NAMES: Record<Language, { label: string; flag: string }> = {
@@ -228,7 +230,9 @@ const translations: Record<Language, TranslationData> = {
     buy_username_help_desc: "This is exactly how your name appears in the Fortnite lobby. It's case-insensitive.",
     status_info_title: "AUTO-UPDATE SYSTEM",
     status_info_desc: "This page checks Epic Games servers every 10 minutes. The screen glows green when online and red when offline. Leave this tab open during updates—it will automatically notify you when the game is back online!",
-    buy_username_help_btn: "UNDERSTOOD"
+    buy_username_help_btn: "UNDERSTOOD",
+    giveaway_invalid_region: "Not valid in your region",
+    giveaway_valid_all: "Valid for everyone"
   },
   bg: {
     status_checking: "ПРОВЕРЯВА СЕ...",
@@ -337,7 +341,9 @@ const translations: Record<Language, TranslationData> = {
     buy_username_help_desc: "Това е точно както е изписано името ви в лобито на Fortnite. Главните и малки букви нямат значение.",
     status_info_title: "АВТОМАТИЧНО ОБНОВЯВАНЕ",
     status_info_desc: "Тази страница проверява сървърите на Epic Games на всеки 10 минути. Екранът свети зелено, когато са онлайн, и червено, когато са офлайн. Оставете този прозорец отворен по време на ъпдейти – ще ви извести автоматично в момента, в който играта тръгне!",
-    buy_username_help_btn: "РАЗБРАХ"
+    buy_username_help_btn: "РАЗБРАХ",
+    giveaway_invalid_region: "не е валидна за вашия регион",
+    giveaway_valid_all: "валидно за всички"
   },
   es: {
     status_checking: "COMPROBANDO...",
@@ -444,7 +450,11 @@ const translations: Record<Language, TranslationData> = {
     buy_username_label: "Epic Display Name (Único)",
     buy_username_help_title: "¿Cómo encontrar tu nombre?",
     buy_username_help_desc: "Abre Fortnite -> Ajustes -> Cuenta y privacidad. Copia exactamente el 'Nombre en pantalla'. Es la única forma de que el bot te encuentre.",
-    buy_username_help_btn: "¿Dónde está esto?"
+    status_info_title: "SISTEMA DE AUTO-ACTUALIZACIÓN",
+    status_info_desc: "Esta página verifica los servidores de Epic Games cada 10 minutos. La pantalla brilla en verde cuando está en línea y en rojo cuando está fuera de línea. ¡Deja esta pestaña abierta durante las actualizaciones y te notificará automáticamente!",
+    buy_username_help_btn: "¿Dónde está esto?",
+    giveaway_invalid_region: "No válido en tu región",
+    giveaway_valid_all: "Válido para todos"
   },
   de: {
     status_checking: "PRÜFUNG...",
@@ -551,7 +561,11 @@ const translations: Record<Language, TranslationData> = {
     buy_username_label: "Epic Display Name (Einzigartig)",
     buy_username_help_title: "Wie finde ich meinen Namen?",
     buy_username_help_desc: "Öffne Fortnite -> Einstellungen -> Konto & Datenschutz. Kopiere genau den 'Anzeigenamen'. Nur so kann der Bot dich finden.",
-    buy_username_help_btn: "Wo ist das?"
+    status_info_title: "AUTO-UPDATE SYSTEM",
+    status_info_desc: "Diese Seite überprüft die Epic Games Server alle 10 Minuten. Der Bildschirm leuchtet grün, wenn sie online sind, und rot, wenn sie offline sind. Lassen Sie diesen Tab während der Updates offen – er wird Sie automatisch benachrichtigen!",
+    buy_username_help_btn: "Wo ist das?",
+    giveaway_invalid_region: "In deiner Region nicht gültig",
+    giveaway_valid_all: "Gültig für alle"
   },
   fr: {
     status_checking: "VÉRIFICATION...",
@@ -658,7 +672,11 @@ const translations: Record<Language, TranslationData> = {
     buy_username_label: "Epic Display Name (Unique)",
     buy_username_help_title: "Où trouver votre nom ?",
     buy_username_help_desc: "Ouvrez Fortnite -> Paramètres -> Compte et confidentialité. Copiez exactement le 'Pseudo'. C'est le seul moyen pour le bot de vous trouver.",
-    buy_username_help_btn: "C'est où ?"
+    status_info_title: "SYSTÈME DE MISE À JOUR AUTO",
+    status_info_desc: "Cette page vérifie les serveurs Epic Games toutes les 10 minutes. L'écran devient vert en ligne et rouge hors ligne. Laissez cet onglet ouvert – il vous préviendra automatiquement !",
+    buy_username_help_btn: "C'est où ?",
+    giveaway_invalid_region: "Non valide dans votre région",
+    giveaway_valid_all: "Valide pour tous"
   },
   it: {
     status_checking: "CONTROLLO...",
@@ -765,7 +783,11 @@ const translations: Record<Language, TranslationData> = {
     buy_username_label: "Epic Display Name (Unico)",
     buy_username_help_title: "Dove trovo il mio nome?",
     buy_username_help_desc: "Apri Fortnite -> Impostazioni -> Account e privacy. Copia esattamente il 'Nome visualizzato'. Solo così il bot può trovarti.",
-    buy_username_help_btn: "Dove si trova?"
+    status_info_title: "SISTEMA DI AGGIORNAMENTO AUTO",
+    status_info_desc: "Questa pagina controlla i server di Epic Games ogni 10 minuti. Lo schermo diventa verde quando è online e rosso quando è offline. Lascia questa scheda aperta: ti avviserà automaticamente!",
+    buy_username_help_btn: "Dove si trova?",
+    giveaway_invalid_region: "Non valido nella tua regione",
+    giveaway_valid_all: "Valido per tutti"
   },
   ru: {
     status_checking: "ПРОВЕРКА...",
@@ -872,7 +894,11 @@ const translations: Record<Language, TranslationData> = {
     buy_username_label: "Epic Display Name (Уникальный)",
     buy_username_help_title: "Где найти никнейм?",
     buy_username_help_desc: "Откройте Fortnite -> Настройки -> Аккаунт и конфиденциальность. Скопируйте 'Отображаемое имя'. Это единственный способ для бота найти вас.",
-    buy_username_help_btn: "Где это?"
+    status_info_title: "СИСТЕМА АВТООБНОВЛЕНИЯ",
+    status_info_desc: "Эта страница проверяет серверы Epic Games каждые 10 минут. Экран светится зеленым онлайн и красным офлайн. Оставь эту вкладку открытой — она автоматически оповестит тебя!",
+    buy_username_help_btn: "Где это?",
+    giveaway_invalid_region: "Недоступно в вашем регионе",
+    giveaway_valid_all: "Доступно для всех"
   }
 };
 
