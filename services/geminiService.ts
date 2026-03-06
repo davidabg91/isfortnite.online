@@ -81,7 +81,7 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
     }
 
     try {
-        console.log("Service: Calling Gemini AI...");
+        console.log("Service: Calling Gemini AI (v1)...");
         const systemInstruction = `You are a strict server status reporter for Fortnite.
     CONTEXT:
     - User Timezone: ${userTimezone}
@@ -91,31 +91,41 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
     1. If "OFFICIAL API DATA" is provided, trust it 100%. (indicator "none" = ONLINE)
     2. Only use Google Search for "Rumors" or details about outages/news.
     3. Find top 3 trending Fortnite news from last 24h.
-    4. For each news 'summary', provide a DETAILED update (3-4 sentences long) explaining exactly what is happening.
+    4. For each news 'summary', provide a DETAILED update (3-4 sentences long).
     5. Output MUST BE VALID JSON ONLY.`;
 
+        // Using standard naming for v1 API (sometimes v1 is pickier about camelCase vs snake_case)
         const response = await ai.models.generateContent({
             model: "gemini-1.5-flash-8b",
-            contents: `Search for Fortnite server status and latest news in the last 24h. Output valid JSON: { isOnline: boolean, messages: Record<string, string>, rumorMessages: Record<string, string>, news: Array<{title: Record<string, string>, summary: Record<string, string>, url: string}> }. Translate titles and summaries (detailed, 3-4 sentences each) to all: en, bg, es, de, fr, it, ru.`,
+            contents: [{
+                role: "user",
+                parts: [{ text: `Search for Fortnite status. Return JSON with keys: isOnline (boolean), messages (obj), rumorMessages (obj), news (array). Translate to: en, bg, es, de, fr, it, ru.` }]
+            }],
             config: {
-                tools: [{ googleSearch: {} }],
-                systemInstruction: systemInstruction,
+                systemInstruction: { parts: [{ text: systemInstruction }] } as any,
                 maxOutputTokens: 8192,
                 responseMimeType: "application/json",
-            },
+            } as any
         });
 
         let text = "";
         try {
-            text = response.text || "";
-        } catch (e) {
             // @ts-ignore
-            text = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            text = response.text || response.response?.text?.() || "";
+            if (!text) {
+                // @ts-ignore
+                text = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            }
+        } catch (e) {
+            console.warn("Text extraction failed", e);
         }
+
+        console.log("Service: AI Raw text length:", text.length);
 
         const sources: { uri: string; title: string }[] = [];
         try {
-            const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+            // @ts-ignore
+            const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || response.response?.candidates?.[0]?.groundingMetadata?.groundingChunks;
             if (Array.isArray(chunks)) {
                 chunks.forEach((chunk: any) => {
                     if (chunk.web) sources.push({ uri: chunk.web.uri, title: chunk.web.title || chunk.web.uri });
@@ -123,15 +133,17 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
             }
         } catch (e) { }
 
+        // Robust JSON finding
         const firstBrace = text.indexOf('{');
         const lastBrace = text.lastIndexOf('}');
+
         if (firstBrace === -1 || lastBrace === -1) {
-            console.error("Service: AI returned invalid JSON format.");
+            console.error("No JSON found in response");
             return { isOnline: isOfficiallyOnline, messages: fallbackMap, rumorMessages: fallbackMap, news: [], sources };
         }
 
         const jsonString = text.substring(firstBrace, lastBrace + 1);
-        let parsedData: any = JSON.parse(jsonString);
+        let parsedData = JSON.parse(jsonString);
 
         let finalIsOnline = rawStatusData ? isOfficiallyOnline : !!parsedData.isOnline;
         const messages = parsedData.messages || fallbackMap;
