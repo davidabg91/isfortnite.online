@@ -227,7 +227,85 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           <Shop language={language} />
         ) : activeTab === 'giveaway' ? (
           <div className="w-full max-w-5xl animate-fade-in flex flex-col items-center">
-            {/* SECTION 1: MONTHLY GIVEAWAY (Emerald Theme) */}
+            {/* SECTION 1: 2000 V-BUCKS FB GIVEAWAY */}
+            <div className="w-full max-w-4xl bg-black/40 backdrop-blur-xl border border-orange-500/30 rounded-[3rem] overflow-hidden shadow-2xl relative mb-16">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-transparent pointer-events-none"></div>
+
+              <div className="flex flex-col md:flex-row items-stretch">
+                {/* Image Section */}
+                <div className="md:w-1/2 relative group overflow-hidden">
+                  <img
+                    src="https://imgur.com/vHq0F2h.jpg"
+                    alt="2000 V-Bucks Giveaway"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80&w=1074";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-600/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest mb-2 border border-white/20">
+                      {t.giveaway_vbucks_2000_deadline}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content Section */}
+                <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-black/20">
+                  <div className="text-center md:text-left mb-8">
+                    <h2 className="font-burbank text-4xl md:text-5xl text-orange-400 italic uppercase mb-2">
+                      {t.giveaway_vbucks_2000_title}
+                    </h2>
+                    <h3 className="font-burbank text-5xl md:text-6xl text-white italic tracking-tighter mb-4 drop-shadow-[0_4px_10px_rgba(249,115,22,0.4)]">
+                      {t.giveaway_vbucks_2000_prize}
+                    </h3>
+                    <p className="text-gray-300 font-medium leading-relaxed italic">
+                      {t.giveaway_vbucks_2000_winner_info}
+                    </p>
+                  </div>
+
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 group hover:border-orange-500/30 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-orange-600/20 flex items-center justify-center border border-orange-500/30 shrink-0">
+                        <span className="font-burbank text-orange-400">1</span>
+                      </div>
+                      <p className="text-white text-sm font-medium pt-1">{t.giveaway_vbucks_2000_step1}</p>
+                    </div>
+
+                    <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 group hover:border-orange-500/30 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-orange-600/20 flex items-center justify-center border border-orange-500/30 shrink-0">
+                        <span className="font-burbank text-orange-400">2</span>
+                      </div>
+                      <p className="text-white text-sm font-medium pt-1">{t.giveaway_vbucks_2000_step2}</p>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-orange-400 text-xs font-black uppercase tracking-widest pl-2">
+                      <Zap className="w-3 h-3 animate-pulse" />
+                      {t.giveaway_vbucks_2000_bonus}
+                    </div>
+                  </div>
+
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61586612323239"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white font-burbank text-2xl uppercase py-4 rounded-2xl flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] shadow-[0_10px_30px_rgba(24,119,242,0.3)]"
+                  >
+                    <Facebook className="w-6 h-6" />
+                    Enter on Facebook
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* SEPARATOR */}
+            <div className="w-full flex items-center gap-4 mb-16 px-4">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
+              <Zap className="w-8 h-8 text-emerald-500 animate-pulse" />
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
+            </div>
+
+            {/* SECTION 2: MONTHLY GIVEAWAY (Emerald Theme) */}
             <div className="w-full flex flex-col items-center mb-16">
               <div className="relative w-full bg-gradient-to-b from-emerald-600/20 to-transparent p-12 rounded-[3rem] border border-emerald-500/20 mb-12 overflow-hidden flex flex-col items-center text-center group">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
@@ -288,81 +366,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                     {t.giveaway_requirement}
                   </h3>
                   <p className="text-white/40 text-[11px] uppercase font-bold tracking-widest">System detects your shop activity</p>
-                </div>
-              </div>
-            </div>
-
-            {/* SEPARATOR */}
-            <div className="w-full flex items-center gap-4 mb-16 px-4">
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-orange-500/50 to-transparent"></div>
-              <Flame className="w-8 h-8 text-orange-500 animate-pulse" />
-              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-orange-500/50 to-transparent"></div>
-            </div>
-
-            {/* SECTION 3: 2000 V-BUCKS FB GIVEAWAY */}
-            <div className="w-full max-w-4xl bg-black/40 backdrop-blur-xl border border-orange-500/30 rounded-[3rem] overflow-hidden shadow-2xl relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-transparent pointer-events-none"></div>
-
-              <div className="flex flex-col md:flex-row items-stretch">
-                {/* Image Section */}
-                <div className="md:w-1/2 relative group overflow-hidden">
-                  <img
-                    src="https://raw.githubusercontent.com/davidabg91/isfortnite.online/main/public/images/giveaway_2000.jpg"
-                    alt="2000 V-Bucks Giveaway"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-600/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest mb-2">
-                      {t.giveaway_vbucks_2000_deadline}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content Section */}
-                <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-                  <div className="text-center md:text-left mb-8">
-                    <h2 className="font-burbank text-4xl md:text-5xl text-orange-400 italic uppercase mb-2">
-                      {t.giveaway_vbucks_2000_title}
-                    </h2>
-                    <h3 className="font-burbank text-5xl md:text-6xl text-white italic tracking-tighter mb-4 drop-shadow-[0_4px_10px_rgba(249,115,22,0.4)]">
-                      {t.giveaway_vbucks_2000_prize}
-                    </h3>
-                    <p className="text-gray-300 font-medium leading-relaxed italic">
-                      {t.giveaway_vbucks_2000_winner_info}
-                    </p>
-                  </div>
-
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 group hover:border-orange-500/30 transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-orange-600/20 flex items-center justify-center border border-orange-500/30 shrink-0">
-                        <span className="font-burbank text-orange-400">1</span>
-                      </div>
-                      <p className="text-white text-sm font-medium pt-1">{t.giveaway_vbucks_2000_step1}</p>
-                    </div>
-
-                    <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 group hover:border-orange-500/30 transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-orange-600/20 flex items-center justify-center border border-orange-500/30 shrink-0">
-                        <span className="font-burbank text-orange-400">2</span>
-                      </div>
-                      <p className="text-white text-sm font-medium pt-1">{t.giveaway_vbucks_2000_step2}</p>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-orange-400 text-xs font-black uppercase tracking-widest pl-2">
-                      <Zap className="w-3 h-3 animate-pulse" />
-                      {t.giveaway_vbucks_2000_bonus}
-                    </div>
-                  </div>
-
-                  <a
-                    href="https://www.facebook.com/profile.php?id=61586612323239"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white font-burbank text-2xl uppercase py-4 rounded-2xl flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02] shadow-[0_10px_30px_rgba(24,119,242,0.3)]"
-                  >
-                    <Facebook className="w-6 h-6" />
-                    Enter on Facebook
-                  </a>
                 </div>
               </div>
             </div>
