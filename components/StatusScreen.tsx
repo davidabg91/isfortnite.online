@@ -227,117 +227,134 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           <Shop language={language} />
         ) : activeTab === 'giveaway' ? (
           <div className="w-full max-w-5xl animate-fade-in flex flex-col items-center">
-            {/* Header Section */}
-            <div className="relative w-full bg-gradient-to-b from-purple-600/20 to-transparent p-12 rounded-[3rem] border border-purple-500/20 mb-12 overflow-hidden group">
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+            {/* SECTION 1: 13,500 V-BUCKS GIVEAWAY */}
+            <div className="w-full mb-16">
+              <div className="relative w-full bg-gradient-to-b from-purple-600/20 to-transparent p-8 md:p-12 rounded-[3rem] border border-purple-500/20 mb-8 overflow-hidden group">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
 
-              {/* Visual Elements */}
-              <div className="absolute -top-20 -left-20 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px] animate-pulse"></div>
-              <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-fuchsia-500/20 rounded-full blur-[100px] animate-pulse delay-700"></div>
+                <div className="relative z-10 flex flex-col items-center text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 font-burbank tracking-widest uppercase mb-4">
+                    <Flame className="w-4 h-4 text-orange-400" />
+                    {t.giveaway_vbucks_title}
+                  </div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-widest mb-6">
+                    <Activity className="w-3 h-3" />
+                    {t.giveaway_invalid_region}
+                  </div>
+                  <h1 className="font-burbank text-5xl md:text-7xl text-white italic tracking-tighter drop-shadow-[0_4px_10px_rgba(168,85,247,0.4)] mb-2">
+                    13,500 <span className="text-purple-400">V-BUCKS</span>
+                  </h1>
+                </div>
+              </div>
 
-              <div className="relative z-10 flex flex-col items-center text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 font-burbank tracking-widest uppercase mb-4">
-                  <Flame className="w-4 h-4 text-orange-400" />
-                  Season 2 Exclusive
+              {/* Entry Section for 13.5k */}
+              <div className="w-full max-w-2xl mx-auto bg-black/40 backdrop-blur-xl border border-white/10 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent pointer-events-none"></div>
+
+                <div className="relative z-10 flex flex-col items-center gap-6">
+                  <div className="text-center">
+                    <h3 className="font-burbank text-3xl text-white mb-2 tracking-wide uppercase">Enter to Win</h3>
+                    <p className="text-gray-400 text-sm">Follow instructions carefully to secure your entry.</p>
+                  </div>
+
+                  <div className="w-full space-y-4">
+                    {/* FB REQUIREMENT */}
+                    <div className="bg-[#1877F2]/10 border border-[#1877F2]/30 p-5 rounded-2xl flex flex-col items-center gap-4 group hover:bg-[#1877F2]/20 transition-all">
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-10 h-10 rounded-full bg-[#1877F2] flex items-center justify-center shadow-lg shadow-[#1877F2]/40">
+                          <Facebook className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-white font-bold text-lg">{t.giveaway_fb_requirement}</span>
+                      </div>
+                      <a
+                        href="https://www.facebook.com/profile.php?id=61586612323239"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white font-burbank text-xl uppercase py-3 rounded-xl flex items-center justify-center gap-2 transition-transform transform hover:scale-[1.02] shadow-xl"
+                      >
+                        <Facebook className="w-5 h-5" />
+                        Follow ImBotBg
+                      </a>
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group opacity-50 cursor-not-allowed">
+                      <div className="flex items-center gap-4">
+                        <div className="w-8 h-8 rounded-full bg-purple-600/20 flex items-center justify-center border border-purple-500/30">
+                          <span className="font-burbank text-lg text-purple-400">1</span>
+                        </div>
+                        <span className="text-white/60 font-medium">Like & Tag Friends</span>
+                      </div>
+                      <CheckCircle2 className="w-6 h-6 text-gray-700" />
+                    </div>
+                  </div>
+
+                  <button
+                    disabled
+                    className="w-full mt-4 bg-gray-800 text-gray-400 font-burbank text-2xl uppercase tracking-wider py-4 rounded-xl cursor-not-allowed border border-white/5 opacity-80"
+                  >
+                    {t.giveaway_invalid_region}
+                  </button>
                 </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-widest mb-6">
-                  <Activity className="w-3 h-3" />
-                  {t.giveaway_invalid_region}
-                </div>
-                <h1 className="font-burbank text-6xl md:text-8xl text-white italic tracking-tighter drop-shadow-[0_4px_10px_rgba(168,85,247,0.4)] mb-2">
-                  13,500 <span className="text-purple-400">V-BUCKS</span>
-                </h1>
-                <p className="font-burbank text-2xl md:text-3xl text-gray-300 tracking-wide uppercase">
-                  Massive Community Giveaway
-                </p>
               </div>
             </div>
 
-            {/* Entry Section */}
-            <div className="w-full max-w-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
-              {/* Background Glow */}
-              <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 to-transparent pointer-events-none"></div>
-
-              <div className="relative z-10 flex flex-col items-center gap-6">
-                <div className="text-center">
-                  <h3 className="font-burbank text-3xl text-white mb-2 tracking-wide uppercase">Enter to Win</h3>
-                  <p className="text-gray-400 text-sm">Follow instructions carefully to secure your entry.</p>
-                </div>
-
-                <div className="w-full space-y-4">
-                  <div className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group hover:bg-white/10 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center border border-purple-500/30">
-                        <span className="font-burbank text-xl text-purple-400">1</span>
-                      </div>
-                      <span className="text-white font-medium">Like our latest video</span>
-                    </div>
-                    <CheckCircle2 className="w-6 h-6 text-gray-600" />
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group hover:bg-white/10 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center border border-purple-500/30">
-                        <span className="font-burbank text-xl text-purple-400">2</span>
-                      </div>
-                      <span className="text-white font-medium">Tag 3 friends</span>
-                    </div>
-                    <CheckCircle2 className="w-6 h-6 text-gray-600" />
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between group hover:bg-white/10 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center border border-purple-500/30">
-                        <span className="font-burbank text-xl text-purple-400">3</span>
-                      </div>
-                      <span className="text-white font-medium">Verify your Epic ID</span>
-                    </div>
-                    <CheckCircle2 className="w-6 h-6 text-gray-600" />
-                  </div>
-                </div>
-
-                <button
-                  disabled
-                  className="w-full mt-4 bg-gray-800 text-gray-400 font-burbank text-2xl uppercase tracking-wider py-4 rounded-xl cursor-not-allowed border border-white/5 opacity-80"
-                >
-                  {t.giveaway_invalid_region}
-                </button>
-              </div>
+            {/* SEPARATOR */}
+            <div className="w-full flex items-center gap-4 mb-16 px-4">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+              <Zap className="w-8 h-8 text-purple-500 animate-pulse" />
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
             </div>
 
-            {/* Price & Entry Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-              {/* Prize Card */}
-              <div className="bg-black/40 backdrop-blur-xl border-2 border-yellow-400/30 rounded-[2rem] p-10 flex flex-col items-center text-center relative overflow-hidden group hover:border-yellow-400/60 transition-all shadow-xl">
-                <div className="absolute top-0 right-0 p-4 opacity-5">
-                  <ShoppingBag className="w-32 h-32 text-yellow-400" />
-                </div>
-                <div className="flex flex-col items-center gap-2 mb-4">
-                  <span className="text-yellow-400 font-black text-xs tracking-widest uppercase">{t.last_winner}</span>
-                  <div className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-full flex items-center gap-2">
-                    <CheckCircle2 className="w-3 h-3 text-green-400" />
-                    <span className="text-green-400 text-[10px] font-bold uppercase tracking-widest">{t.giveaway_valid_all}</span>
-                  </div>
-                </div>
-                <h3 className="font-burbank text-4xl md:text-6xl text-white italic uppercase mb-6 leading-none">
+            {/* SECTION 2: MONTHLY GIVEAWAY */}
+            <div className="w-full flex flex-col items-center">
+              <div className="relative w-full bg-gradient-to-b from-yellow-600/10 to-transparent p-12 rounded-[3rem] border border-yellow-500/20 mb-12 overflow-hidden flex flex-col items-center text-center">
+                <span className="text-yellow-400 font-black text-xs tracking-widest uppercase mb-4">{t.giveaway_monthly_title}</span>
+                <h2 className="font-burbank text-5xl md:text-7xl text-white italic uppercase mb-6 leading-none">
                   {t.giveaway_prize}
-                </h3>
-                <div className="flex items-center gap-4 bg-yellow-400 text-black px-6 py-3 rounded-2xl font-black italic transform -skew-x-12 shadow-[0_0_30px_rgba(250,204,21,0.3)] animate-pulse">
-                  <CheckCircle2 className="w-6 h-6" />
-                  ГАРАНТИРАНО
+                </h2>
+
+                <div className="px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-full flex items-center gap-2 mb-8">
+                  <CheckCircle2 className="w-4 h-4 text-green-400" />
+                  <span className="text-green-400 text-xs font-bold uppercase tracking-widest">{t.giveaway_valid_all}</span>
+                </div>
+
+                {/* FB REQUIREMENT FOR MONTHLY */}
+                <div className="w-full max-w-md bg-black/40 backdrop-blur-xl border border-[#1877F2]/30 p-6 rounded-2xl flex flex-col items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    <Facebook className="w-6 h-6 text-[#1877F2]" />
+                    <span className="text-white font-bold">{t.giveaway_fb_requirement}</span>
+                  </div>
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61586612323239"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white font-burbank text-lg uppercase py-3 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105"
+                  >
+                    Follow to Participate
+                  </a>
                 </div>
               </div>
 
-              {/* Entry Requirement Card */}
-              <div className="bg-black/40 backdrop-blur-xl border-2 border-blue-400/30 rounded-[2rem] p-10 flex flex-col items-center text-center relative overflow-hidden group hover:border-blue-400/60 transition-all shadow-xl">
-                <div className="absolute top-0 left-0 p-4 opacity-5">
-                  <Activity className="w-32 h-32 text-blue-400" />
+              {/* Requirement Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                {/* Winner Card */}
+                <div className="bg-black/40 backdrop-blur-xl border-2 border-yellow-400/30 rounded-[2rem] p-8 flex flex-col items-center text-center relative overflow-hidden">
+                  <span className="text-yellow-400 font-black text-xs tracking-widest uppercase mb-4">{t.last_winner}</span>
+                  <p className="font-burbank text-4xl text-white italic mb-4">{t.last_winner_name}</p>
+                  <div className="flex items-center gap-2 text-yellow-500 font-black italic">
+                    <CheckCircle2 className="w-5 h-5" />
+                    VERIFIED
+                  </div>
                 </div>
-                <span className="text-blue-400 font-black text-xs tracking-widest uppercase mb-4">УСЛОВИЕ ЗА УЧАСТИЕ</span>
-                <h3 className="font-burbank text-3xl md:text-5xl text-white italic uppercase mb-6 leading-tight">
-                  {t.giveaway_requirement}
-                </h3>
-                <p className="text-white/40 text-sm font-bold uppercase tracking-widest">Системата автоматично засича вашата покупка</p>
+
+                {/* Auto entry Card */}
+                <div className="bg-black/40 backdrop-blur-xl border-2 border-blue-400/30 rounded-[2rem] p-8 flex flex-col items-center text-center relative overflow-hidden">
+                  <span className="text-blue-400 font-black text-xs tracking-widest uppercase mb-4">{t.official_label}</span>
+                  <h3 className="font-burbank text-3xl text-white italic uppercase mb-2">
+                    {t.giveaway_requirement}
+                  </h3>
+                  <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest">System detects your shop activity</p>
+                </div>
               </div>
             </div>
 

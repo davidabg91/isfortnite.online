@@ -110,6 +110,9 @@ interface TranslationData {
   buy_username_help_btn: string;
   giveaway_invalid_region: string;
   giveaway_valid_all: string;
+  giveaway_fb_requirement: string;
+  giveaway_vbucks_title: string;
+  giveaway_monthly_title: string;
 }
 
 export const LANGUAGE_NAMES: Record<Language, { label: string; flag: string }> = {
@@ -232,7 +235,10 @@ const translations: Record<Language, TranslationData> = {
     status_info_desc: "This page checks Epic Games servers every 10 minutes. The screen glows green when online and red when offline. Leave this tab open during updates—it will automatically notify you when the game is back online!",
     buy_username_help_btn: "UNDERSTOOD",
     giveaway_invalid_region: "Not valid in your region",
-    giveaway_valid_all: "Valid for everyone"
+    giveaway_valid_all: "Valid for everyone",
+    giveaway_fb_requirement: "Follow our Facebook page",
+    giveaway_vbucks_title: "13,500 V-BUCKS GIVEAWAY",
+    giveaway_monthly_title: "MONTHLY PRIZE GIVEAWAY"
   },
   bg: {
     status_checking: "ПРОВЕРЯВА СЕ...",
@@ -343,7 +349,10 @@ const translations: Record<Language, TranslationData> = {
     status_info_desc: "Тази страница проверява сървърите на Epic Games на всеки 10 минути. Екранът свети зелено, когато са онлайн, и червено, когато са офлайн. Оставете този прозорец отворен по време на ъпдейти – ще ви извести автоматично в момента, в който играта тръгне!",
     buy_username_help_btn: "РАЗБРАХ",
     giveaway_invalid_region: "не е валидна за вашия регион",
-    giveaway_valid_all: "валидно за всички"
+    giveaway_valid_all: "валидно за всички",
+    giveaway_fb_requirement: "Последвайте страницата ни във Facebook",
+    giveaway_vbucks_title: "ТОМБОЛА ЗА 13,500 V-BUCKS",
+    giveaway_monthly_title: "МЕСЕЧНА ТОМБОЛА ЗА НАГРАДИ"
   },
   es: {
     status_checking: "COMPROBANDO...",
@@ -454,7 +463,10 @@ const translations: Record<Language, TranslationData> = {
     status_info_desc: "Esta página verifica los servidores de Epic Games cada 10 minutos. La pantalla brilla en verde cuando está en línea y en rojo cuando está fuera de línea. ¡Deja esta pestaña abierta durante las actualizaciones y te notificará automáticamente!",
     buy_username_help_btn: "¿Dónde está esto?",
     giveaway_invalid_region: "No válido en tu región",
-    giveaway_valid_all: "Válido para todos"
+    giveaway_valid_all: "Válido para todos",
+    giveaway_fb_requirement: "Síguenos en Facebook",
+    giveaway_vbucks_title: "SORTEO DE 13,500 V-BUCKS",
+    giveaway_monthly_title: "SORTEO MENSUAL DE PREMIOS"
   },
   de: {
     status_checking: "PRÜFUNG...",
@@ -565,7 +577,10 @@ const translations: Record<Language, TranslationData> = {
     status_info_desc: "Diese Seite überprüft die Epic Games Server alle 10 Minuten. Der Bildschirm leuchtet grün, wenn sie online sind, und rot, wenn sie offline sind. Lassen Sie diesen Tab während der Updates offen – er wird Sie automatisch benachrichtigen!",
     buy_username_help_btn: "Wo ist das?",
     giveaway_invalid_region: "In deiner Region nicht gültig",
-    giveaway_valid_all: "Gültig für alle"
+    giveaway_valid_all: "Gültig für alle",
+    giveaway_fb_requirement: "Folge uns auf Facebook",
+    giveaway_vbucks_title: "13.500 V-BUCKS GIVEAWAY",
+    giveaway_monthly_title: "MONATLICHE PREISVERLOSUNG"
   },
   fr: {
     status_checking: "VÉRIFICATION...",
@@ -676,7 +691,10 @@ const translations: Record<Language, TranslationData> = {
     status_info_desc: "Cette page vérifie les serveurs Epic Games toutes les 10 minutes. L'écran devient vert en ligne et rouge hors ligne. Laissez cet onglet ouvert – il vous préviendra automatiquement !",
     buy_username_help_btn: "C'est où ?",
     giveaway_invalid_region: "Non valide dans votre région",
-    giveaway_valid_all: "Valide pour tous"
+    giveaway_valid_all: "Valide pour tous",
+    giveaway_fb_requirement: "Suivez-nous sur Facebook",
+    giveaway_vbucks_title: "CONCOURS 13 500 V-BUCKS",
+    giveaway_monthly_title: "CONCOURS MENSUEL DE PRIX"
   },
   it: {
     status_checking: "CONTROLLO...",
@@ -787,7 +805,10 @@ const translations: Record<Language, TranslationData> = {
     status_info_desc: "Questa pagina controlla i server di Epic Games ogni 10 minuti. Lo schermo diventa verde quando è online e rosso quando è offline. Lascia questa scheda aperta: ti avviserà automaticamente!",
     buy_username_help_btn: "Dove si trova?",
     giveaway_invalid_region: "Non valido nella tua regione",
-    giveaway_valid_all: "Valido per tutti"
+    giveaway_valid_all: "Valido per tutti",
+    giveaway_fb_requirement: "Seguici su Facebook",
+    giveaway_vbucks_title: "GIVEAWAY 13.500 V-BUCKS",
+    giveaway_monthly_title: "ESTRAZIONE PREMI MENSILE"
   },
   ru: {
     status_checking: "ПРОВЕРКА...",
@@ -898,7 +919,10 @@ const translations: Record<Language, TranslationData> = {
     status_info_desc: "Эта страница проверяет серверы Epic Games каждые 10 минут. Экран светится зеленым онлайн и красным офлайн. Оставь эту вкладку открытой — она автоматически оповестит тебя!",
     buy_username_help_btn: "Где это?",
     giveaway_invalid_region: "Недоступно в вашем регионе",
-    giveaway_valid_all: "Доступно для всех"
+    giveaway_valid_all: "Доступно для всех",
+    giveaway_fb_requirement: "Подпишитесь на нашу страницу в Facebook",
+    giveaway_vbucks_title: "РОЗЫГРЫШ 13,500 V-BUCKS",
+    giveaway_monthly_title: "ЕЖЕМЕСЯЧНЫЙ РОЗЫГРЫШ ПРИЗОВ"
   }
 };
 
