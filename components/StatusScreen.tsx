@@ -233,23 +233,17 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
 
               <div className="flex flex-col md:flex-row items-stretch">
                 {/* Image Section */}
-                <div className="md:w-1/2 relative group overflow-hidden bg-gradient-to-br from-orange-600/20 to-black flex items-center justify-center">
-                  {/* Robust Fallback Icon (Visible if image fails) */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Zap className="w-24 h-24 text-orange-500/20 animate-pulse" />
-                  </div>
-
+                <div className="md:w-1/2 relative group overflow-hidden">
                   <img
-                    src="https://cdn2.unrealengine.com/fortnite-v-bucks-1920x1080-1a7f0e3f01c9.jpg"
+                    src="https://i.imgur.com/vHq0F2h.png"
                     alt="2000 V-Bucks Giveaway"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 relative z-10"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.src = "https://fortnite-api.com/images/vbuck.png";
                     }}
                   />
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-20"></div>
-                  <div className="absolute bottom-6 left-6 right-6 z-30">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                  <div className="absolute bottom-6 left-6 right-6">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-600/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest mb-2 border border-white/20">
                       {t.giveaway_vbucks_2000_deadline}
                     </div>
