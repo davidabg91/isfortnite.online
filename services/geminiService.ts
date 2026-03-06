@@ -17,17 +17,20 @@ const s_dec = (s: string) => {
     }
 };
 
-const FINAL_API_KEY = s_dec(import.meta.env.VITE_GEMINI_API_KEY || "");
+const FINAL_API_KEY = s_dec((import.meta.env.VITE_GEMINI_API_KEY || "").trim());
 
 if (!FINAL_API_KEY || FINAL_API_KEY === "PLACEHOLDER_API_KEY") {
     console.warn("Gemini API Key is missing!");
+} else {
+    console.log("Gemini API Key detected.");
 }
 
-const ai = new GoogleGenAI({ apiKey: FINAL_API_KEY, apiVersion: "v1beta" });
+const ai = new GoogleGenAI({ apiKey: FINAL_API_KEY, apiVersion: "v1" });
 
 const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/status.json";
 
 export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckResult> => {
+    // ... rest of the code stays same ...
     console.log(`Service: Starting Fortnite Server Check (AI Skip: ${skipAI})...`);
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const now = new Date();
@@ -92,8 +95,8 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
     5. Output MUST BE VALID JSON ONLY.`;
 
         const response = await ai.models.generateContent({
-            model: "gemini-1.5-flash",
-            contents: `Search for Fortnite status and news, return JSON schema: { isOnline: boolean, messages: Record<string, string>, rumorMessages: Record<string, string>, news: Array<{title: Record<string, string>, summary: Record<string, string>, url: string}> }. Translate titles and summaries (detailed) to all: en, bg, es, de, fr, it, ru.`,
+            model: "gemini-1.5-flash-8b",
+            contents: `Search for Fortnite server status and latest news in the last 24h. Output valid JSON: { isOnline: boolean, messages: Record<string, string>, rumorMessages: Record<string, string>, news: Array<{title: Record<string, string>, summary: Record<string, string>, url: string}> }. Translate titles and summaries (detailed, 3-4 sentences each) to all: en, bg, es, de, fr, it, ru.`,
             config: {
                 tools: [{ googleSearch: {} }],
                 systemInstruction: systemInstruction,
