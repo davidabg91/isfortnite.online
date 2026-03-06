@@ -44,6 +44,7 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
   const [codeError, setCodeError] = useState(false);
   const [unlockSuccess, setUnlockSuccess] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [showStatusInfo, setShowStatusInfo] = useState(false);
 
   const t = getTranslation(language);
 
@@ -339,6 +340,34 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
             <div className="w-full max-w-4xl flex flex-col items-center justify-center gap-3 mb-8 backdrop-blur-md bg-black/20 p-6 md:p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
 
               <div className={`absolute inset-0 opacity-10 blur-[50px] ${status === ServerStatus.ONLINE ? 'bg-green-500' : 'bg-red-500'}`}></div>
+
+              {/* Info Button */}
+              <button
+                onClick={() => setShowStatusInfo(true)}
+                className="absolute top-4 right-4 z-20 p-2 bg-white/5 hover:bg-white/20 rounded-full transition-all text-white/50 hover:text-white"
+                aria-label="Server Update Information"
+              >
+                <Info className="w-5 h-5" />
+              </button>
+
+              {/* Info Modal/Tooltip */}
+              {showStatusInfo && (
+                <div className="absolute inset-x-4 top-14 md:inset-auto md:top-auto md:bottom-20 z-30 p-6 bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl animate-fade-in text-center max-w-lg mx-auto">
+                  <button
+                    onClick={() => setShowStatusInfo(false)}
+                    className="absolute top-3 right-3 p-1 bg-white/5 hover:bg-white/20 rounded-full transition-all text-white/50 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                  <Info className="w-8 h-8 text-blue-400 mx-auto mb-3" />
+                  <h3 className="font-burbank text-2xl text-white tracking-widest uppercase mb-2">
+                    {t.status_info_title}
+                  </h3>
+                  <p className="text-sm md:text-base text-white/70 font-medium leading-relaxed">
+                    {t.status_info_desc}
+                  </p>
+                </div>
+              )}
 
               <div className="flex justify-center mb-1 relative z-10">
                 {status === ServerStatus.CHECKING && <RefreshCw className="w-14 h-14 md:w-16 md:h-16 text-yellow-400 animate-spin" />}

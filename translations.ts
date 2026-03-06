@@ -105,6 +105,8 @@ interface TranslationData {
   buy_username_label: string;
   buy_username_help_title: string;
   buy_username_help_desc: string;
+  status_info_title: string;
+  status_info_desc: string;
   buy_username_help_btn: string;
 }
 
@@ -223,8 +225,10 @@ const translations: Record<Language, TranslationData> = {
     how_btn_close: "Got it, let's continue!",
     buy_username_label: "Epic Display Name (Unique)",
     buy_username_help_title: "How to find your unique name?",
-    buy_username_help_desc: "Open Fortnite -> Settings -> Account & Privacy. Copy exactly as shown in 'Display Name'. This is the only way our bot can find you among millions of players.",
-    buy_username_help_btn: "Where is this?"
+    buy_username_help_desc: "This is exactly how your name appears in the Fortnite lobby. It's case-insensitive.",
+    status_info_title: "AUTO-UPDATE SYSTEM",
+    status_info_desc: "This page checks Epic Games servers every 10 minutes. The screen glows green when online and red when offline. Leave this tab open during updates—it will automatically notify you when the game is back online!",
+    buy_username_help_btn: "UNDERSTOOD"
   },
   bg: {
     status_checking: "ПРОВЕРЯВА СЕ...",
@@ -330,8 +334,10 @@ const translations: Record<Language, TranslationData> = {
     how_btn_close: "Разбрах, продължаваме!",
     buy_username_label: "Epic Display Name (Уникален)",
     buy_username_help_title: "Къде да намериш името си?",
-    buy_username_help_desc: "Отвори Fortnite -> Настройки -> Account & Privacy. Копирай точно това, което пише на 'Display Name'. Това е единственият начин ботът да те намери сред милиони играчи.",
-    buy_username_help_btn: "Откъде се взима?"
+    buy_username_help_desc: "Това е точно както е изписано името ви в лобито на Fortnite. Главните и малки букви нямат значение.",
+    status_info_title: "АВТОМАТИЧНО ОБНОВЯВАНЕ",
+    status_info_desc: "Тази страница проверява сървърите на Epic Games на всеки 10 минути. Екранът свети зелено, когато са онлайн, и червено, когато са офлайн. Оставете този прозорец отворен по време на ъпдейти – ще ви извести автоматично в момента, в който играта тръгне!",
+    buy_username_help_btn: "РАЗБРАХ"
   },
   es: {
     status_checking: "COMPROBANDO...",
