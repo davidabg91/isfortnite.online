@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ServerStatus, Language, NewsItem } from '../types';
-import { AlertCircle, CheckCircle2, RefreshCw, Clock, ExternalLink, Heart, Lock, X, KeyRound, Zap, Info, Flame } from 'lucide-react';
+import { AlertCircle, CheckCircle2, RefreshCw, Clock, ExternalLink, Heart, Lock, X, KeyRound, Zap, Info, Flame, Facebook } from 'lucide-react';
 import { FortniteLogo } from './FortniteLogo';
 import { getTranslation, LANGUAGE_NAMES } from '../translations';
 import { NewsSection } from './NewsSection';
@@ -136,6 +136,19 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
             ))}
           </div>
         )}
+      </div>
+
+      {/* Social Links & Other Fixed Controls */}
+      <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
+        <a
+          href="https://www.facebook.com/profile.php?id=61586612323239"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-12 h-12 rounded-full bg-[#1877F2]/20 backdrop-blur-md border border-[#1877F2]/50 hover:bg-[#1877F2]/40 transition-all transform hover:scale-110 flex items-center justify-center shadow-xl text-white group"
+          title="Последвайте ни във Facebook"
+        >
+          <Facebook className="w-5 h-5 group-hover:scale-110 transition-transform" />
+        </a>
       </div>
 
       <button
