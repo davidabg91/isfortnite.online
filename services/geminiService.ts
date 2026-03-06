@@ -54,10 +54,11 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
 
         const prompt = `You are a professional Fortnite status reporter.
         OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
-        1. Find 3 news from last 24h.
-        2. Detailed summaries (3-4 sentences each).
-        3. Output VALID JSON ONLY: {"isOnline":boolean, "messages":Object, "news":Array}.
-        4. Languages: en, bg, es, de, fr, it, ru.`;
+        1. Find 3 latest Fortnite news.
+        2. Keep summaries concise (1-2 sentences).
+        3. Output MUST BE valid, parseable JSON: {"isOnline":boolean, "messages":{"en":"..."}, "news":["..."]}.
+        4. Translate EVERYTHING into: en, bg, es, de, fr, it, ru.
+        5. Provide RAW JSON. No markdown (\`\`\`). No trailing commas. Check your string escaping.`;
 
         // Using direct FETCH to avoid SDK 404 bugs.
         // Updated to gemini-2.5-flash as 2.0-flash is not available to new users.
@@ -81,11 +82,14 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         const result = await response.json();
         const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-        const firstBrace = responseText.indexOf('{');
-        const lastBrace = responseText.lastIndexOf('}');
+        // Strip out markdown code blocks if the AI decided to add them despite instructions
+        const cleanText = responseText.replace(/```json/gi, "").replace(/```/g, "").trim();
+
+        const firstBrace = cleanText.indexOf('{');
+        const lastBrace = cleanText.lastIndexOf('}');
         if (firstBrace === -1) throw new Error("JSON_NOT_FOUND");
 
-        const parsedData = JSON.parse(responseText.substring(firstBrace, lastBrace + 1));
+        const parsedData = JSON.parse(cleanText.substring(firstBrace, lastBrace + 1));
 
         const finalIsOnline = isOfficiallyOnline || !!parsedData.isOnline;
         const messages = parsedData.messages || fallbackMap;
