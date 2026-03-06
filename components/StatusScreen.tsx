@@ -15,7 +15,6 @@ interface StatusScreenProps {
   news?: NewsItem[];
   sources?: { uri: string; title: string }[];
   lastChecked: Date | null;
-  onCheckNow: () => void;
   nextCheckTime: number;
   language: Language;
   onLanguageChange: (lang: Language) => void;
@@ -32,7 +31,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
   news,
   sources,
   lastChecked,
-  onCheckNow,
   nextCheckTime,
   language,
   onLanguageChange,
@@ -64,7 +62,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
   };
 
   const isOnline = status === ServerStatus.ONLINE;
-  const isChecking = status === ServerStatus.CHECKING;
   const hasRumors = rumorMessage && rumorMessage.length > 5;
 
 
@@ -317,18 +314,18 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           </div>
         ) : (
           <>
-            {/* --- 1. MAIN STATUS & ACTION WINDOW --- */}
-            <div className={`
-          w-full max-w-4xl backdrop-blur-md bg-black/30 border-2 border-white/20 rounded-3xl p-8 shadow-2xl transform transition-all duration-500 mb-8 flex flex-col items-center
-          ${isChecking ? 'scale-95 opacity-80' : 'scale-100 opacity-100'}
-        `}>
-              <div className="flex justify-center mb-4">
-                {status === ServerStatus.CHECKING && <RefreshCw className="w-20 h-20 text-yellow-400 animate-spin" />}
-                {status === ServerStatus.ONLINE && <CheckCircle2 className="w-20 h-20 text-green-400 animate-bounce" />}
-                {(status === ServerStatus.OFFLINE || status === ServerStatus.ERROR || status === ServerStatus.IDLE) && <AlertCircle className="w-20 h-20 text-red-500 animate-pulse" />}
+            {/* Status Summary Area */}
+            <div className="w-full max-w-6xl flex flex-col items-center justify-center gap-4 mb-8 backdrop-blur-md bg-black/20 p-8 rounded-[2rem] border border-white/5 relative overflow-hidden">
+
+              <div className={`absolute inset-0 opacity-10 blur-[50px] ${status === ServerStatus.ONLINE ? 'bg-green-500' : 'bg-red-500'}`}></div>
+
+              <div className="flex justify-center mb-2 relative z-10">
+                {status === ServerStatus.CHECKING && <RefreshCw className="w-24 h-24 text-yellow-400 animate-spin" />}
+                {status === ServerStatus.ONLINE && <CheckCircle2 className="w-24 h-24 text-green-400 animate-bounce" />}
+                {(status === ServerStatus.OFFLINE || status === ServerStatus.ERROR || status === ServerStatus.IDLE) && <AlertCircle className="w-24 h-24 text-red-500 animate-pulse" />}
               </div>
 
-              <h2 className="font-burbank text-5xl md:text-7xl text-white mb-6 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] text-center tracking-wide">
+              <h2 className="font-burbank text-6xl md:text-8xl text-white mb-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] text-center tracking-wide relative z-10">
                 {status === ServerStatus.CHECKING && t.status_checking}
                 {status === ServerStatus.ONLINE && t.status_online}
                 {status === ServerStatus.OFFLINE && t.status_offline}
@@ -336,24 +333,10 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                 {status === ServerStatus.ERROR && t.status_error}
               </h2>
 
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-1 rounded-full border border-white/10 -mt-2 mb-6">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                <span className="text-white/40 text-[10px] font-bold tracking-[0.2em] uppercase">Epic Games Global</span>
+              <div className="flex items-center gap-2 bg-white/5 px-6 py-2 rounded-full border border-white/10 mt-2 relative z-10">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span className="text-white/50 text-xs font-bold tracking-[0.2em] uppercase">Epic Games Global</span>
               </div>
-
-              <button
-                onClick={onCheckNow}
-                disabled={isChecking}
-                className={`
-                  flex items-center gap-3 px-10 py-4 rounded-2xl font-burbank text-2xl uppercase tracking-wider transition-all shadow-xl ring-2 ring-white/10
-                  ${isChecking
-                    ? 'bg-gray-600/50 text-white/40 cursor-not-allowed'
-                    : 'bg-yellow-400 hover:bg-yellow-300 text-black hover:scale-105 active:scale-95 shadow-yellow-400/20'}
-                `}
-              >
-                <RefreshCw className={`w-6 h-6 ${isChecking ? 'animate-spin' : ''}`} />
-                {t.check_now}
-              </button>
             </div>
 
             {/* --- 2. INFORMATION GRID (Official & Rumors) --- */}

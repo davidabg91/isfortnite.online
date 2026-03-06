@@ -312,7 +312,6 @@ export default function App() {
         news={news}
         sources={sources}
         lastChecked={lastChecked}
-        onCheckNow={performCheck}
         nextCheckTime={secondsUntilNext}
         language={language}
         onLanguageChange={setLanguage}
