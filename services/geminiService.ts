@@ -60,8 +60,8 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         4. Languages: en, bg, es, de, fr, it, ru.`;
 
         // Using direct FETCH to avoid SDK 404 bugs.
-        // Updated to gemini-2.0-flash as 1.5-flash is not found in this environment.
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        // Updated to gemini-2.5-flash as 2.0-flash is not available to new users.
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
