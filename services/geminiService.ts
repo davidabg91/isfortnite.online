@@ -50,11 +50,10 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
     try {
         if (!apiKey || apiKey.length < 10) throw new Error("KEY_MISSING");
 
-        console.log("Service: Direct Connection (No SDK) for maximum stability...");
-
         const prompt = `You are a professional Fortnite status reporter and leaker.
+        TODAY'S DATE: ${new Date().toISOString().split('T')[0]}
         OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
-        1. Find 3 latest Fortnite news (patch notes, events, etc.).
+        1. Find 3 latest Fortnite news (patch notes, events, etc.) strictly from the last 24h of TODAY'S DATE.
         2. Provide 1 interesting Fortnite rumor, leak, or upcoming update for the 'rumorMessages' field. DO NOT say there are no rumors.
         3. Output MUST BE valid, parseable JSON exactly matching this structure:
         {
