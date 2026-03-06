@@ -61,13 +61,19 @@ export default function App() {
 
   // Initialize Language, Premium State, and Welcome Modal
   useEffect(() => {
-    const browserLang = navigator.language.split('-')[0].toLowerCase() as Language;
-    const supportedLangs: Language[] = ['en', 'bg', 'es', 'de', 'fr', 'it', 'ru'];
-    if (supportedLangs.includes(browserLang)) {
-      setLanguage(browserLang);
-    } else {
-      setLanguage('en');
+    let browserLang: Language = 'en';
+    try {
+      if (navigator.language) {
+        const bl = navigator.language.split('-')[0].toLowerCase() as Language;
+        const supportedLangs: Language[] = ['en', 'bg', 'es', 'de', 'fr', 'it', 'ru'];
+        if (supportedLangs.includes(bl)) {
+          browserLang = bl;
+        }
+      }
+    } catch (e) {
+      console.warn("Language detection failed, using en");
     }
+    setLanguage(browserLang);
 
     const storedPremium = localStorage.getItem('isPremium');
     if (storedPremium === 'true') {
