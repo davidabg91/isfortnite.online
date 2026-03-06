@@ -55,10 +55,22 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         const prompt = `You are a professional Fortnite status reporter.
         OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
         1. Find 3 latest Fortnite news.
-        2. Keep summaries concise (1-2 sentences).
-        3. Output MUST BE valid, parseable JSON: {"isOnline":boolean, "messages":{"en":"..."}, "news":["..."]}.
-        4. Translate EVERYTHING into: en, bg, es, de, fr, it, ru.
-        5. Provide RAW JSON. No markdown (\`\`\`). No trailing commas. Check your string escaping.`;
+        2. Output MUST BE valid, parseable JSON exactly matching this structure:
+        {
+            "isOnline": boolean,
+            "messages": {"en": "...", "bg": "..."},
+            "rumorMessages": {"en": "...", "bg": "..."},
+            "news": [
+                {
+                    "title": {"en": "...", "bg": "..."},
+                    "summary": {"en": "...", "bg": "..."},
+                    "url": "https://...",
+                    "date": "YYYY-MM-DD"
+                }
+            ]
+        }
+        3. Translate ALL text fields (messages, rumorMessages, title, summary) into: en, bg, es, de, fr, it, ru.
+        4. Provide RAW JSON. No markdown (\`\`\`). No trailing commas. Check your string escaping.`;
 
         // Using direct FETCH to avoid SDK 404 bugs.
         // Updated to gemini-2.5-flash as 2.0-flash is not available to new users.
@@ -93,13 +105,14 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
 
         const finalIsOnline = isOfficiallyOnline || !!parsedData.isOnline;
         const messages = parsedData.messages || fallbackMap;
+        const rumorMessages = parsedData.rumorMessages || {};
         const news = parsedData.news || [];
 
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
             if (!messages[lang]) messages[lang] = finalIsOnline ? getTranslation(lang).inference_online : getTranslation(lang).inference_offline;
         });
 
-        return { isOnline: finalIsOnline, messages, rumorMessages: {}, news, sources: [] };
+        return { isOnline: finalIsOnline, messages, rumorMessages, news, sources: [] };
 
     } catch (error: any) {
         console.error("Gemini Error:", error.message);
@@ -110,6 +123,6 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
             errorMap[lang] = `${getTranslation(lang).error_gemini} (${diag})`;
         });
 
-        return { isOnline: isOfficiallyOnline, messages: errorMap, rumorMessages: {}, news: [] };
+        return { isOnline: isOfficiallyOnline, messages: errorMap, rumorMessages: {} as any, news: [] };
     }
 };
