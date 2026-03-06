@@ -12,7 +12,7 @@ const s_dec = (s: string) => {
         if (!s || s.length < 10) return s || "";
         const cleaned = s.trim();
 
-        // If it's already a cleartext Google API Key, don't touch it
+        // If it's already a cleartext Google API Key (starts with AIza), don't touch it
         if (cleaned.startsWith("AIza")) return cleaned;
 
         // Try to decode. Support URL-safe Base64 (_ -> /, - -> +)
@@ -20,7 +20,6 @@ const s_dec = (s: string) => {
         const decoded = atob(b64);
 
         // If decoded result makes sense (starts with AIza), use it. 
-        // Otherwise, it might have been cleartext all along but didn't start with AIza.
         if (decoded.startsWith("AIza")) return decoded;
         return cleaned;
     } catch (e) {
@@ -35,12 +34,7 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
     const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
     const FINAL_API_KEY = s_dec(rawKey).trim();
 
-    console.log("Service: Key verification...");
-    if (FINAL_API_KEY.startsWith("AIza")) {
-        console.log("Service: Key format valid (AIza...)");
-    } else {
-        console.warn("Service: Key format suspicious or missing!");
-    }
+    console.log("Service: Initializing NEW Google GenAI SDK...");
 
     const fallbackMap: Record<Language, string> = {} as any;
     (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
@@ -64,38 +58,47 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         return { isOnline: true, messages: onlineMap, rumorMessages: {}, news: [], sources: [] };
     }
 
-    // 2. AI RESEARCH PHASE
+    // 2. AI RESEARCH PHASE (NEW SDK v1.x)
     try {
         if (!FINAL_API_KEY || FINAL_API_KEY.length < 10) {
             throw new Error("EMPTY_KEY");
         }
 
-        // Initialize with object-style for browser compatibility
-        const genAI = new GoogleGenAI({ apiKey: FINAL_API_KEY });
-
-        console.log("Service: Querying Gemini API (v1beta)...");
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
+        // Initialize NEW SDK (introduced in late 2024 for Gemini 2.0)
+        const client = new GoogleGenAI({
+            apiKey: FINAL_API_KEY,
             // @ts-ignore
-            systemInstruction: `You are a professional Fortnite status reporter.
-            OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
-            Output valid JSON only: {isOnline:boolean, messages:Object, news:Array}.
-            Languages: en, bg, es, de, fr, it, ru.`
-        }, { apiVersion: 'v1beta' });
-
-        const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: "Check Fortnite status and provide 3 detailed news." }] }],
-            generationConfig: { responseMimeType: "application/json" },
-            // @ts-ignore
-            tools: [{ googleSearch: {} }]
+            apiVersion: "v1beta" // v1beta is often needed for search grounding
         });
 
-        const text = result.response.text();
-        const firstBrace = text.indexOf('{');
-        const lastBrace = text.lastIndexOf('}');
+        console.log("Service: Querying via client.models.generateContent...");
+
+        const systemPrompt = `You are a professional Fortnite status reporter.
+        OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
+        Output valid JSON only: {isOnline:boolean, messages:Object, news:Array}.
+        Languages: en, bg, es, de, fr, it, ru.`;
+
+        // The NEW SDK uses models.generateContent directly on the client
+        const result = await client.models.generateContent({
+            model: "gemini-1.5-flash",
+            contents: [{ role: "user", parts: [{ text: "Check Fortnite status and provide 3 detailed news summaries (3-4 sentences each) for all languages." }] }],
+            config: {
+                // @ts-ignore
+                system_instruction: systemPrompt,
+                max_output_tokens: 8192,
+                response_mime_type: "application/json",
+                // @ts-ignore
+                tools: [{ googleSearch: {} }]
+            }
+        });
+
+        // Result handling in new SDK
+        const responseText = result.response.text();
+        const firstBrace = responseText.indexOf('{');
+        const lastBrace = responseText.lastIndexOf('}');
         if (firstBrace === -1) throw new Error("JSON_ERROR");
 
-        const parsedData = JSON.parse(text.substring(firstBrace, lastBrace + 1));
+        const parsedData = JSON.parse(responseText.substring(firstBrace, lastBrace + 1));
 
         const messages = parsedData.messages || fallbackMap;
         const finalIsOnline = isOfficiallyOnline || !!parsedData.isOnline;
@@ -107,12 +110,12 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         return { isOnline: finalIsOnline, messages, rumorMessages: {}, news: parsedData.news || [], sources: [] };
 
     } catch (error: any) {
-        console.error("Gemini Critical Error:", error.message);
+        console.error("Gemini New SDK Error:", error.message);
 
-        // Detailed error tracing for the UI
+        // Detailed error diagnostic
         let diagnostic = "ERR";
-        if (error.message.includes("API Key")) diagnostic = "KEY_ERROR";
-        else if (error.message === "EMPTY_KEY") diagnostic = "NO_KEY_FOUND";
+        if (error.message.includes("API Key")) diagnostic = "KEY_ERR";
+        else if (error.message === "EMPTY_KEY") diagnostic = "NO_KEY";
         else diagnostic = error.message.substring(0, 10);
 
         const errorMap: Record<Language, string> = {} as any;
