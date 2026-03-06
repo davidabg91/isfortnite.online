@@ -52,10 +52,11 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
 
         console.log("Service: Direct Connection (No SDK) for maximum stability...");
 
-        const prompt = `You are a professional Fortnite status reporter.
+        const prompt = `You are a professional Fortnite status reporter and leaker.
         OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
-        1. Find 3 latest Fortnite news.
-        2. Output MUST BE valid, parseable JSON exactly matching this structure:
+        1. Find 3 latest Fortnite news (patch notes, events, etc.).
+        2. Provide 1 interesting Fortnite rumor, leak, or upcoming update for the 'rumorMessages' field. DO NOT say there are no rumors.
+        3. Output MUST BE valid, parseable JSON exactly matching this structure:
         {
             "isOnline": boolean,
             "messages": {"en": "...", "bg": "..."},
@@ -69,8 +70,8 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
                 }
             ]
         }
-        3. Translate ALL text fields (messages, rumorMessages, title, summary) into: en, bg, es, de, fr, it, ru.
-        4. Provide RAW JSON. No markdown (\`\`\`). No trailing commas. Check your string escaping.`;
+        4. Translate ALL text fields (messages, rumorMessages, title, summary) into: en, bg, es, de, fr, it, ru.
+        5. Provide RAW JSON. No markdown (\`\`\`). No trailing commas. Check your string escaping.`;
 
         // Using direct FETCH to avoid SDK 404 bugs.
         // Updated to gemini-2.5-flash as 2.0-flash is not available to new users.
