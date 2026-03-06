@@ -21,7 +21,7 @@ const s_dec = (s: string) => {
 
 const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/status.json";
 
-export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckResult> => {
+export const checkFortniteServerStatus = async (skipAI = false, skipNews = false): Promise<CheckResult> => {
     const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
     const apiKey = s_dec(rawKey).trim();
 
@@ -53,14 +53,14 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         const prompt = `You are a professional Fortnite status reporter and leaker.
         TODAY\'S DATE: ${new Date().toISOString().split('T')[0]}
         OFFICIAL API STATUS IS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
-        1. Find 3 latest Fortnite news (patch notes, events, etc.) strictly from the last 24h of TODAY\'S DATE.
+        ${skipNews ? "" : "1. Find 3 latest Fortnite news (patch notes, events, etc.) strictly from the last 24h of TODAY\'S DATE."}
         2. Give a brief Community Report for the 'messages' field. DO NOT just say "Servers are online". Instead, summarize what real players on DownDetector, Twitter, or Reddit are currently reporting. E.g. "Matchmaking is perfectly stable with zero complaints," or "Some players are reporting minor login queues." Give 1-2 sentences of community sentiment.
         3. Provide 1 interesting Fortnite rumor, leak, or upcoming update for the 'rumorMessages' field. DO NOT say there are no rumors.
         4. Output MUST BE valid, parseable JSON exactly matching this structure:
         {
             "isOnline": boolean,
             "messages": {"en": "...", "bg": "..."},
-            "rumorMessages": {"en": "...", "bg": "..."},
+            "rumorMessages": {"en": "...", "bg": "..."}${skipNews ? "" : `,
             "news": [
                 {
                     "title": {"en": "...", "bg": "..."},
@@ -68,7 +68,7 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
                     "url": "https://...",
                     "date": "YYYY-MM-DD"
                 }
-            ]
+            ]`}
         }
         4. Translate ALL text fields (messages, rumorMessages, title, summary) into: en, bg, es, de, fr, it, ru.
         5. Provide RAW JSON. No markdown (\`\`\`). No trailing commas. Check your string escaping.`;

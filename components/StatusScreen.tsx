@@ -350,25 +350,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                 <Info className="w-5 h-5" />
               </button>
 
-              {/* Info Modal/Tooltip */}
-              {showStatusInfo && (
-                <div className="absolute inset-x-4 top-14 md:inset-auto md:top-auto md:bottom-20 z-30 p-6 bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl animate-fade-in text-center max-w-lg mx-auto">
-                  <button
-                    onClick={() => setShowStatusInfo(false)}
-                    className="absolute top-3 right-3 p-1 bg-white/5 hover:bg-white/20 rounded-full transition-all text-white/50 hover:text-white"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <Info className="w-8 h-8 text-blue-400 mx-auto mb-3" />
-                  <h3 className="font-burbank text-2xl text-white tracking-widest uppercase mb-2">
-                    {t.status_info_title}
-                  </h3>
-                  <p className="text-sm md:text-base text-white/70 font-medium leading-relaxed">
-                    {t.status_info_desc}
-                  </p>
-                </div>
-              )}
-
               <div className="flex justify-center mb-1 relative z-10">
                 {status === ServerStatus.CHECKING && <RefreshCw className="w-14 h-14 md:w-16 md:h-16 text-yellow-400 animate-spin" />}
                 {status === ServerStatus.ONLINE && <CheckCircle2 className="w-14 h-14 md:w-16 md:h-16 text-green-400 animate-bounce" />}
@@ -473,6 +454,39 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
               )}
               <p className="text-sm text-center">{t.next_check} {Math.ceil(nextCheckTime / 60)} {t.min}</p>
             </div>
+
+            {/* Global Fixed Info Modal */}
+            {showStatusInfo && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+                <div className="bg-black border border-white/20 rounded-3xl shadow-2xl p-8 max-w-lg w-full text-center relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600"></div>
+
+                  <button
+                    onClick={() => setShowStatusInfo(false)}
+                    className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all text-white/50 hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+
+                  <Info className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+
+                  <h3 className="font-burbank text-3xl text-white tracking-widest uppercase mb-4">
+                    {t.status_info_title}
+                  </h3>
+
+                  <p className="text-base text-white/80 font-medium leading-relaxed mb-6">
+                    {t.status_info_desc}
+                  </p>
+
+                  <button
+                    onClick={() => setShowStatusInfo(false)}
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-burbank text-xl px-8 py-3 rounded-xl transition-all w-full tracking-widest uppercase"
+                  >
+                    {t.buy_username_help_btn}
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
 

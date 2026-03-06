@@ -7,17 +7,20 @@ import { getTranslation, LANGUAGE_NAMES } from './translations';
 import { checkPremiumCode } from './premiumCodes';
 
 const STATUS_CHECK_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes for fast API check
-const CACHE_AGE_LIMIT_MS = 60 * 60 * 1000;       // 60 minutes for AI generated content
+const CACHE_RUMOR_LIMIT_MS = 6 * 60 * 60 * 1000; // 6 hours for AI rumors
+const CACHE_NEWS_LIMIT_MS = 24 * 60 * 60 * 1000; // 24 hours for AI news
 
 const CACHE_KEY = 'fortnite_status_cache_v3';
 
 interface CachedData {
   status: ServerStatus;
   messages: Record<Language, string>;
-  rumorMessages: Record<Language, string>;
+  rumorMessages?: Record<Language, string>;
   news: NewsItem[];
-  sources: { uri: string; title: string }[];
+  sources?: { uri: string; title: string }[];
   timestamp: number;
+  rumorTimestamp?: number;
+  newsTimestamp?: number;
 }
 
 export default function App() {
@@ -175,32 +178,30 @@ export default function App() {
 
     // AI Economy Logic
     const cached = localStorage.getItem(CACHE_KEY);
-    let shouldSkipAI = true;
+    let cachedObj: CachedData | null = null;
+    let shouldSkipAI = false;
+    let shouldSkipNews = false;
 
-    if (isManual) {
-      shouldSkipAI = false;
-    } else if (cached) {
+    if (!isManual && cached) {
       try {
-        const parsed: CachedData = JSON.parse(cached);
-        const age = nowTimestamp - parsed.timestamp;
+        cachedObj = JSON.parse(cached);
+        const rumorAge = nowTimestamp - (cachedObj!.rumorTimestamp || cachedObj!.timestamp);
+        const newsAge = nowTimestamp - (cachedObj!.newsTimestamp || cachedObj!.timestamp);
 
-        // 1. Data is fresh (< 60 minutes)
-        // 2. We actually have news saved (don't skip if news are empty!)
-        // 3. Servers were online last check
-        if (age < CACHE_AGE_LIMIT_MS && parsed.news.length > 0 && parsed.status === ServerStatus.ONLINE) {
+        // 1. Skip AI completely if rumors are fresh (< 6 hours) AND we have actual rumor content
+        if (rumorAge < CACHE_RUMOR_LIMIT_MS && cachedObj!.rumorMessages && Object.keys(cachedObj!.rumorMessages).length > 0 && cachedObj!.status === ServerStatus.ONLINE) {
           shouldSkipAI = true;
-        } else {
-          shouldSkipAI = false;
         }
-      } catch (e) {
-        shouldSkipAI = false;
-      }
-    } else {
-      // No cache at all? Must run AI.
-      shouldSkipAI = false;
+
+        // 2. Skip News if news are fresh (< 24 hours) AND we have news content
+        // Even if shouldSkipAI is false (meaning we fetch new rumors), we might not need news.
+        if (newsAge < CACHE_NEWS_LIMIT_MS && cachedObj!.news && cachedObj!.news.length > 0) {
+          shouldSkipNews = true;
+        }
+      } catch (e) { }
     }
 
-    const result = await checkFortniteServerStatus(shouldSkipAI);
+    const result = await checkFortniteServerStatus(shouldSkipAI, shouldSkipNews);
     const checkTime = new Date();
 
     setLastChecked(checkTime);
@@ -215,23 +216,26 @@ export default function App() {
 
     // Update state
     setStatus(newStatus);
-    setMessagesMap(result.messages); // Always update messages to avoid "..."
+    setMessagesMap(result.messages); // Always update official/community API-based message map
 
-    // Update AI-heavy objects only if not skipped
-    if (!shouldSkipAI) {
-      setRumorMessagesMap(result.rumorMessages);
-      setNews(result.news || []);
-      if (result.sources) setSources(result.sources);
-    }
+    const finalRumors = shouldSkipAI ? (cachedObj?.rumorMessages || rumorsRef.current) : (result.rumorMessages || {} as Record<Language, string>);
+    const finalNews = (shouldSkipAI || shouldSkipNews) ? (cachedObj?.news || newsRef.current) : (result.news || []);
+
+    // Update UI states
+    setRumorMessagesMap(finalRumors);
+    setNews(finalNews);
+    if (!shouldSkipAI && result.sources) setSources(result.sources);
 
     // Save to Cache
     const cacheData: CachedData = {
       status: newStatus,
-      messages: !shouldSkipAI ? result.messages : messagesRef.current,
-      rumorMessages: !shouldSkipAI ? result.rumorMessages : rumorsRef.current,
-      news: !shouldSkipAI ? (result.news || []) : newsRef.current,
-      sources: !shouldSkipAI ? (result.sources || []) : sourcesRef.current,
-      timestamp: !shouldSkipAI ? checkTime.getTime() : (cached ? JSON.parse(cached).timestamp : checkTime.getTime()),
+      messages: result.messages,
+      rumorMessages: finalRumors,
+      news: finalNews,
+      sources: shouldSkipAI ? (cachedObj?.sources || sourcesRef.current) : (result.sources || []),
+      timestamp: checkTime.getTime(),
+      rumorTimestamp: shouldSkipAI ? (cachedObj?.rumorTimestamp || cachedObj?.timestamp || checkTime.getTime()) : checkTime.getTime(),
+      newsTimestamp: (shouldSkipAI || shouldSkipNews) ? (cachedObj?.newsTimestamp || cachedObj?.timestamp || checkTime.getTime()) : checkTime.getTime(),
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
 
@@ -250,9 +254,9 @@ export default function App() {
           if (age < STATUS_CHECK_INTERVAL_MS) {
             setStatus(parsed.status);
             setMessagesMap(parsed.messages);
-            setRumorMessagesMap(parsed.rumorMessages || {});
+            setRumorMessagesMap(parsed.rumorMessages || {} as Record<Language, string>);
             setNews(parsed.news || []);
-            setSources(parsed.sources);
+            setSources(parsed.sources || []);
             setLastChecked(new Date(parsed.timestamp));
             setNextCheckTime(parsed.timestamp + STATUS_CHECK_INTERVAL_MS);
             return true;
