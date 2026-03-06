@@ -9,61 +9,38 @@ import { getTranslation, LANGUAGE_NAMES } from "../translations";
  */
 const s_dec = (s: string) => {
     try {
-        if (!s) return s;
+        if (!s) return "";
         const cleaned = s.trim();
-        // If it looks like base64 (long and NOT starting with AIza which is cleartext key format)
-        if (cleaned.length > 20 && !cleaned.startsWith("AIza")) {
+        // If it looks like base64 (long and NOT starting with AIza)
+        if (cleaned.length > 20 && !cleaned.startsWith("AIza") && !cleaned.includes("-")) {
             return atob(cleaned);
         }
         return cleaned;
     } catch (e) {
-        console.warn("Service: Decoding failed", e);
-        return s;
+        return s || "";
     }
 };
 
 const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/status.json";
 
-/**
- * Main function to check Fortnite server status and fetch news.
- */
 export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckResult> => {
-    const rawEnvKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-    const FINAL_API_KEY = s_dec(rawEnvKey.trim());
-
-    // Safe timestamp and timezone detection
-    let currentLocalTime = "N/A";
-    let userTimezone = "UTC";
-    try {
-        userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-        currentLocalTime = new Date().toLocaleString('en-US', {
-            timeZone: userTimezone,
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
-    } catch (e) { }
+    // 1. Load and decode key immediately
+    const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+    const FINAL_API_KEY = s_dec(rawKey).trim();
 
     const fallbackMap: Record<Language, string> = {} as any;
     (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
         fallbackMap[lang] = getTranslation(lang).fallback_message;
     });
 
-    let rawStatusData = null;
     let isOfficiallyOnline = false;
-
-    // Phase 1: Direct Status Check (Official API)
     try {
         const statusReq = await fetch(EPIC_STATUS_API);
         if (statusReq.ok) {
             const data = await statusReq.json();
-            rawStatusData = data;
             isOfficiallyOnline = data.status?.indicator === "none";
-            console.log("Service: Status indicator:", data.status?.indicator);
         }
-    } catch (e) {
-        console.warn("Service: EPIC API skipped:", e.message);
-    }
+    } catch (e) { }
 
     // ECONOMIC MODE
     if (skipAI && isOfficiallyOnline) {
@@ -74,51 +51,41 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         return { isOnline: true, messages: onlineMap, rumorMessages: {} as any, news: [], sources: [] };
     }
 
-    // Phase 2: AI Research (Intel & News)
+    // 2. AI RESEARCH PHASE
     try {
-        if (!FINAL_API_KEY || FINAL_API_KEY.includes("PLACEHOLDER")) {
-            throw new Error("API_KEY_MISSING");
+        // Critical Key Check
+        if (!FINAL_API_KEY || FINAL_API_KEY.length < 10) {
+            throw new Error("KEY_MISSING");
         }
 
-        console.log("Service: Initiating AI inquiry...");
-
-        // Use v1beta for widest availability of Google Search grounding
+        console.log("Service: AI Inquiry (v1beta grounding)...");
         const genAI = new GoogleGenAI(FINAL_API_KEY);
 
-        const systemPrompt = `You are a professional Fortnite status reporter.
-        OFFICIAL EPIC STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES/OFFLINE"}.
-        1. Find 3 latest Fortnite news updates from the last 24h.
-        2. Write 3-4 detailed sentences per news summary.
-        3. Output valid JSON: {isOnline:boolean, messages:Object, news:Array}.
-        4. Languages to translate: en, bg, es, de, fr, it, ru.`;
+        const systemPrompt = `You are a Fortnite status reporter. 
+        OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
+        1. Find 3 news from last 24h. 
+        2. Detailed summaries (3-4 sentences). 
+        3. Output VALID JSON ONLY: {isOnline:boolean, messages:Object, news:Array}.`;
 
         const model = genAI.getGenerativeModel({
             model: "gemini-1.5-flash",
             // @ts-ignore
             systemInstruction: systemPrompt
-        });
+        }, { apiVersion: 'v1beta' });
 
         const result = await model.generateContent({
-            contents: [{
-                role: "user",
-                parts: [{ text: "Report Fortnite status and detailed news. Use JSON format." }]
-            }],
-            generationConfig: {
-                maxOutputTokens: 8192,
-                responseMimeType: "application/json",
-            },
+            contents: [{ role: "user", parts: [{ text: "Gather Fortnite status and news for: en, bg, es, de, fr, it, ru." }] }],
+            generationConfig: { responseMimeType: "application/json" },
             // @ts-ignore
             tools: [{ googleSearch: {} }]
         });
 
-        const responseText = result.response.text();
-        const firstBrace = responseText.indexOf('{');
-        const lastBrace = responseText.lastIndexOf('}');
+        const text = result.response.text();
+        const firstBrace = text.indexOf('{');
+        const lastBrace = text.lastIndexOf('}');
+        if (firstBrace === -1) throw new Error("INVALID_DATA");
 
-        if (firstBrace === -1) throw new Error("INVALID_AI_RESPONSE");
-
-        const jsonString = responseText.substring(firstBrace, lastBrace + 1);
-        const parsedData = JSON.parse(jsonString);
+        const parsedData = JSON.parse(text.substring(firstBrace, lastBrace + 1));
 
         const finalIsOnline = isOfficiallyOnline || !!parsedData.isOnline;
         const messages = parsedData.messages || fallbackMap;
@@ -128,23 +95,16 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
             if (!messages[lang]) messages[lang] = finalIsOnline ? getTranslation(lang).inference_online : getTranslation(lang).inference_offline;
         });
 
-        return {
-            isOnline: finalIsOnline,
-            messages,
-            rumorMessages: parsedData.rumorMessages || {},
-            news: news,
-            sources: []
-        };
+        return { isOnline: finalIsOnline, messages, rumorMessages: {}, news, sources: [] };
 
     } catch (error: any) {
-        console.error("Service: Gemini failure:", error.message);
+        console.error("Gemini Error:", error.message);
+        const errCode = error.message === "KEY_MISSING" ? "KEY_MISSING" : error.message?.substring(0, 10);
 
         const errorMap: Record<Language, string> = {} as any;
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
-            const baseMsg = getTranslation(lang).error_gemini;
-            errorMap[lang] = `${baseMsg} (${error.message?.substring(0, 15)})`;
+            errorMap[lang] = `${getTranslation(lang).error_gemini} (${errCode})`;
         });
-
-        return { isOnline: isOfficiallyOnline, messages: errorMap, rumorMessages: {} as any, news: [] };
+        return { isOnline: isOfficiallyOnline, messages: errorMap, rumorMessages: {}, news: [] };
     }
 };
