@@ -8,7 +8,6 @@ const s_dec = (s: string) => {
     try {
         if (!s) return s;
         const cleaned = s.trim();
-        // If it's a base64 encoded string from GitHub Secrets, decode it
         if (cleaned.length > 20 && !cleaned.startsWith("AIza")) return atob(cleaned);
         return cleaned;
     } catch (e) {
@@ -19,23 +18,22 @@ const s_dec = (s: string) => {
 
 const FINAL_API_KEY = s_dec((import.meta.env.VITE_GEMINI_API_KEY || "").trim());
 
-if (!FINAL_API_KEY || FINAL_API_KEY === "PLACEHOLDER_API_KEY") {
-    console.warn("Gemini API Key is missing!");
-} else {
-    console.log("Gemini API Key detected.");
-}
-
-const ai = new GoogleGenAI({ apiKey: FINAL_API_KEY, apiVersion: "v1" });
+// Initializing the new v1 SDK client
+const ai = new GoogleGenAI({
+    apiKey: FINAL_API_KEY,
+    apiVersion: "v1"
+});
 
 const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/status.json";
 
 export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckResult> => {
-    // ... rest of the code stays same ...
     console.log(`Service: Starting Fortnite Server Check (AI Skip: ${skipAI})...`);
+
     const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const now = new Date();
     const currentLocalTime = now.toLocaleString('en-US', { timeZone: userTimezone, hour: '2-digit', minute: '2-digit', hour12: false });
 
+    // Fallback translations
     const fallbackMap: Record<Language, string> = {} as any;
     (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
         fallbackMap[lang] = getTranslation(lang).fallback_message;
@@ -49,127 +47,77 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         if (statusReq.ok) {
             const data = await statusReq.json();
             rawStatusData = data;
-            console.log("Service: Epic Status Data:", data.status?.description);
-            const indicator = data.status?.indicator;
-            isOfficiallyOnline = indicator === "none";
-        } else {
-            console.warn(`Direct Epic API failed with status: ${statusReq.status}. Falling back to AI only.`);
+            isOfficiallyOnline = data.status?.indicator === "none";
         }
     } catch (e) {
-        console.warn("Failed to fetch direct Epic API or proxy is down", e);
+        console.warn("Epic API failed", e);
     }
 
-    console.log("Service: Official Status (via Epic):", isOfficiallyOnline ? "ONLINE" : "ISSUES/OFFLINE");
-
-    // ECONOMIC MODE: If servers are fine and we are skipping AI, return now
     if (skipAI && isOfficiallyOnline) {
-        console.log("Service: Economy mode active. Skipping AI research.");
-
-        // Generate a clean 'Online' message map from translations
         const onlineMap: Record<Language, string> = {} as any;
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
             onlineMap[lang] = getTranslation(lang).inference_online;
         });
-
-        return {
-            isOnline: isOfficiallyOnline,
-            messages: onlineMap,
-            rumorMessages: {} as any,
-            news: [],
-            sources: []
-        };
+        return { isOnline: true, messages: onlineMap, rumorMessages: {} as any, news: [], sources: [] };
     }
 
     try {
-        console.log("Service: Calling Gemini AI (v1)...");
-        const systemInstruction = `You are a strict server status reporter for Fortnite.
-    CONTEXT:
-    - User Timezone: ${userTimezone}
-    - Current User Time: ${currentLocalTime}
-    - **OFFICIAL API DATA**: ${rawStatusData ? JSON.stringify(rawStatusData) : "Not available (Search manually)"}
-    
-    1. If "OFFICIAL API DATA" is provided, trust it 100%. (indicator "none" = ONLINE)
-    2. Only use Google Search for "Rumors" or details about outages/news.
-    3. Find top 3 trending Fortnite news from last 24h.
-    4. For each news 'summary', provide a DETAILED update (3-4 sentences long).
-    5. Output MUST BE VALID JSON ONLY.`;
+        console.log("Service: Requesting AI with snake_case config...");
 
-        // Using standard naming for v1 API (sometimes v1 is pickier about camelCase vs snake_case)
-        const response = await ai.models.generateContent({
+        const systemPrompt = `You are a Fortnite server status reporter. 
+        OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "OFFLINE"}.
+        Provide status messages and 3 latest news in Bulgarian and English. 
+        Output JSON: {isOnline:boolean, messages:Object, news:Array}`;
+
+        // IMPORTANT: The @google/genai SDK (v1.x) REQUIRES snake_case for config fields!
+        const result = await ai.models.generateContent({
             model: "gemini-1.5-flash-8b",
             contents: [{
                 role: "user",
-                parts: [{ text: `Search for Fortnite status. Return JSON with keys: isOnline (boolean), messages (obj), rumorMessages (obj), news (array). Translate to: en, bg, es, de, fr, it, ru.` }]
+                parts: [{ text: "Check Fortnite status and provide detailed news summaries (3-4 sentences each) for all languages." }]
             }],
             config: {
-                systemInstruction: { parts: [{ text: systemInstruction }] } as any,
-                maxOutputTokens: 8192,
-                responseMimeType: "application/json",
+                system_instruction: systemPrompt,
+                max_output_tokens: 8192,
+                response_mime_type: "application/json",
             } as any
         });
 
+        // The response structure in @google/genai is response.candidates[0].content.parts[0].text
         let text = "";
         try {
             // @ts-ignore
-            text = response.text || response.response?.text?.() || "";
-            if (!text) {
-                // @ts-ignore
-                text = response.candidates?.[0]?.content?.parts?.[0]?.text || "";
-            }
+            text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
         } catch (e) {
-            console.warn("Text extraction failed", e);
+            console.error("Failed to extract JSON from AI response", e);
         }
 
-        console.log("Service: AI Raw text length:", text.length);
+        if (!text) throw new Error("Empty AI response");
 
-        const sources: { uri: string; title: string }[] = [];
-        try {
-            // @ts-ignore
-            const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || response.response?.candidates?.[0]?.groundingMetadata?.groundingChunks;
-            if (Array.isArray(chunks)) {
-                chunks.forEach((chunk: any) => {
-                    if (chunk.web) sources.push({ uri: chunk.web.uri, title: chunk.web.title || chunk.web.uri });
-                });
-            }
-        } catch (e) { }
+        const parsedData = JSON.parse(text);
 
-        // Robust JSON finding
-        const firstBrace = text.indexOf('{');
-        const lastBrace = text.lastIndexOf('}');
-
-        if (firstBrace === -1 || lastBrace === -1) {
-            console.error("No JSON found in response");
-            return { isOnline: isOfficiallyOnline, messages: fallbackMap, rumorMessages: fallbackMap, news: [], sources };
-        }
-
-        const jsonString = text.substring(firstBrace, lastBrace + 1);
-        let parsedData = JSON.parse(jsonString);
-
-        let finalIsOnline = rawStatusData ? isOfficiallyOnline : !!parsedData.isOnline;
+        let finalIsOnline = isOfficiallyOnline || !!parsedData.isOnline;
         const messages = parsedData.messages || fallbackMap;
-        const rumorMessages = parsedData.rumorMessages || {};
         const news = parsedData.news || [];
 
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
             if (!messages[lang]) messages[lang] = finalIsOnline ? getTranslation(lang).inference_online : getTranslation(lang).inference_offline;
-            if (typeof rumorMessages[lang] !== 'string') rumorMessages[lang] = "";
         });
 
-        return { isOnline: finalIsOnline, messages, rumorMessages, news, sources };
+        return {
+            isOnline: finalIsOnline,
+            messages,
+            rumorMessages: parsedData.rumorMessages || {},
+            news: news,
+            sources: []
+        };
 
     } catch (error: any) {
-        console.error("Gemini Critical Error:", error);
-
-        const errorMessage = error?.message || "Unknown error";
-        const isRestricted = errorMessage.includes("API_KEY_HTTP_REFERRER_BLOCKED") || error?.status === 403;
-        const isKeyError = errorMessage.includes("API_KEY_INVALID");
-
+        console.error("Gemini Error:", error);
         const errorMap: Record<Language, string> = {} as any;
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
-            if (isRestricted) errorMap[lang] = getTranslation(lang).error_restricted;
-            else if (isKeyError) errorMap[lang] = "API Key Invalid. Check encoding.";
-            else errorMap[lang] = `${getTranslation(lang).error_gemini} (${errorMessage.substring(0, 20)}...)`;
+            errorMap[lang] = `${getTranslation(lang).error_gemini} (${error.message?.substring(0, 20)})`;
         });
-        return { isOnline: false, messages: errorMap, rumorMessages: {} as any, news: [] };
+        return { isOnline: isOfficiallyOnline, messages: errorMap, rumorMessages: {} as any, news: [] };
     }
 };
