@@ -11,32 +11,35 @@ export const FortniteLogo: React.FC<{ subtitle: string }> = ({ subtitle }) => {
         FORTNITE
       </h1>
 
-      {/* Re-designed Official Badge / Sign */}
-      <div className="absolute -top-6 -right-10 md:-top-10 md:-right-16 z-20 group-hover:scale-110 transition-transform duration-500">
+      {/* Re-designed Cyber/Hacker Official Badge */}
+      <div className="absolute -bottom-4 right-0 md:-bottom-6 md:right-4 z-20 group-hover:scale-105 transition-transform duration-500">
         <div className="relative">
-          {/* Animated Glow Backplate */}
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-orange-500 to-yellow-600 rounded-xl blur-md opacity-50 animate-pulse"></div>
+          {/* Neon Glow Backplate */}
+          <div className="absolute inset-0 bg-cyan-500 blur-lg opacity-40 animate-pulse"></div>
 
-          {/* Main Badge Body */}
-          <div className="relative bg-yellow-400 border-[3px] border-black px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.4)] transform rotate-6 hover:rotate-0 transition-all duration-300 min-w-[100px] md:min-w-[120px] flex flex-col items-center justify-center">
-            {/* Technological Details */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-black/10"></div>
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-black/10"></div>
+          {/* Main Badge Body - Sci-Fi / Cyberpunk themed */}
+          <div className="relative bg-slate-900 border border-cyan-400 px-4 py-2 md:px-6 md:py-2.5 shadow-[0_0_15px_rgba(34,211,238,0.5)] transform -skew-x-[20deg] flex items-center justify-center gap-3 overflow-hidden">
 
-            <div className="absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 border-black"></div>
-            <div className="absolute top-1 right-1 w-2 h-2 border-t-2 border-r-2 border-black"></div>
-            <div className="absolute bottom-1 left-1 w-2 h-2 border-b-2 border-l-2 border-black"></div>
-            <div className="absolute bottom-1 right-1 w-2 h-2 border-b-2 border-r-2 border-black"></div>
+            {/* Subtle scanline overlay */}
+            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] pointer-events-none"></div>
 
-            <span className="font-burbank text-black text-xl md:text-2xl leading-none text-center whitespace-pre-line relative z-10 italic font-black tracking-tight">
-              {subtitle}
-            </span>
+            {/* Glowing Accent Strike */}
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-300 to-transparent"></div>
 
-            {/* Small 'Certified' or 'Live' dot */}
-            <div className="mt-1 flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-black rounded-full animate-ping"></div>
-              <span className="text-[8px] font-black text-black uppercase tracking-tighter">OFFICIAL</span>
+            <div className="flex flex-col items-end transform skew-x-[20deg]">
+              <span className="font-burbank text-cyan-50 text-sm md:text-xl leading-none text-right tracking-widest relative z-10 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]">
+                {subtitle}
+              </span>
+
+              {/* Technological Sub-Accent */}
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-sm animate-ping"></div>
+                <span className="text-[7px] md:text-[9px] font-mono text-cyan-400 uppercase tracking-widest opacity-80">SYS.ONLINE // OFFICIAL</span>
+              </div>
             </div>
+
+            {/* Decorative Side Accents */}
+            <div className="h-full w-1 border-l-2 border-dashed border-cyan-500/50 absolute left-2 transform skew-x-[20deg]"></div>
           </div>
         </div>
       </div>
