@@ -160,41 +160,55 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
         <FortniteLogo subtitle={t.logo_subtitle} />
 
         {/* --- TAB NAVIGATION --- */}
-        <div className="flex gap-4 mb-10 bg-black/40 backdrop-blur-md p-2 rounded-2xl border border-white/10 shadow-xl">
+        <div className="relative z-30 mt-8 md:mt-16 mb-12 flex gap-3 md:gap-6">
           <button
             onClick={() => onTabChange('status')}
             className={`
-              flex items-center gap-2 px-6 py-3 rounded-xl font-burbank text-xl transition-all
-              ${activeTab === 'status' ? 'bg-blue-600 text-white shadow-lg scale-105' : 'text-white/60 hover:text-white hover:bg-white/10'}
+              group relative flex items-center justify-center px-6 md:px-10 py-3 md:py-4 font-burbank text-xl md:text-3xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300
+              ${activeTab === 'status'
+                ? 'bg-blue-600 text-white border-b-4 border-blue-900 shadow-[0_0_25px_rgba(37,99,235,0.8)] scale-105'
+                : 'bg-black/80 text-white/60 border-b-4 border-gray-900 hover:bg-white/10 hover:text-white'}
             `}
           >
-            <Activity className="w-5 h-5" />
-            {t.tab_status}
+            <div className="flex items-center gap-2 transform skew-x-12">
+              <Activity className="w-5 h-5 md:w-7 md:h-7" />
+              {t.tab_status}
+            </div>
           </button>
+
           <button
             onClick={() => onTabChange('shop')}
             className={`
-              flex items-center gap-2 px-6 py-3 rounded-xl font-burbank text-xl transition-all relative
-              ${activeTab === 'shop' ? 'bg-yellow-400 text-black shadow-lg scale-105' : 'text-white/60 hover:text-white hover:bg-white/10'}
+              group relative flex items-center justify-center px-6 md:px-10 py-3 md:py-4 font-burbank text-xl md:text-3xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300
+              ${activeTab === 'shop'
+                ? 'bg-yellow-400 text-black border-b-4 border-orange-600 shadow-[0_0_25px_rgba(250,204,21,0.8)] scale-105'
+                : 'bg-black/80 text-white/60 border-b-4 border-gray-900 hover:bg-white/10 hover:text-white'}
             `}
           >
-            <ShoppingBag className={`w-5 h-5 ${activeTab === 'shop' ? 'fill-black' : ''}`} />
-            {t.tab_shop}
+            <div className="flex items-center gap-2 transform skew-x-12">
+              <ShoppingBag className={`w-5 h-5 md:w-7 md:h-7 ${activeTab === 'shop' ? 'fill-black' : ''}`} />
+              {t.tab_shop}
 
-            {/* Promotion Badge */}
-            <div className="absolute -top-2 -right-3 bg-red-600 text-white text-[10px] md:text-xs font-black px-1.5 py-0.5 rounded-lg border-2 border-black shadow-xl animate-bounce italic skew-x-[-15deg] whitespace-nowrap z-20">
-              -50%
+              {/* Promotion Badge */}
+              <div className="absolute -top-4 -right-4 md:-top-5 md:-right-6 bg-red-600 text-white text-xs md:text-sm font-black px-2 py-1 rounded-sm border-2 border-black shadow-xl animate-bounce italic whitespace-nowrap z-30">
+                -50%
+              </div>
             </div>
           </button>
+
           <button
             onClick={() => onTabChange('giveaway')}
             className={`
-              flex items-center gap-2 px-6 py-3 rounded-xl font-burbank text-xl transition-all relative
-              ${activeTab === 'giveaway' ? 'bg-purple-600 text-white shadow-lg scale-105' : 'text-white/60 hover:text-white hover:bg-white/10'}
+              group relative flex items-center justify-center px-6 md:px-10 py-3 md:py-4 font-burbank text-xl md:text-3xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300
+              ${activeTab === 'giveaway'
+                ? 'bg-purple-600 text-white border-b-4 border-purple-900 shadow-[0_0_25px_rgba(147,51,234,0.8)] scale-105'
+                : 'bg-black/80 text-white/60 border-b-4 border-gray-900 hover:bg-white/10 hover:text-white'}
             `}
           >
-            <Zap className={`w-5 h-5 ${activeTab === 'giveaway' ? 'fill-white' : ''}`} />
-            {t.tab_giveaway}
+            <div className="flex items-center gap-2 transform skew-x-12">
+              <Zap className={`w-5 h-5 md:w-7 md:h-7 ${activeTab === 'giveaway' ? 'fill-white' : ''}`} />
+              {t.tab_giveaway}
+            </div>
           </button>
         </div>
 
