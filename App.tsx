@@ -6,8 +6,9 @@ import { StatusScreen } from './components/StatusScreen';
 import { getTranslation, LANGUAGE_NAMES } from './translations';
 import { checkPremiumCode } from './premiumCodes';
 
-// 15 Minutes in milliseconds
-const CHECK_INTERVAL_MS = 30 * 60 * 1000;
+const STATUS_CHECK_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes for fast API check
+const CACHE_AGE_LIMIT_MS = 60 * 60 * 1000;       // 60 minutes for AI generated content
+
 const CACHE_KEY = 'fortnite_status_cache_v3';
 
 interface CachedData {
@@ -43,7 +44,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'status' | 'shop' | 'giveaway'>('status');
   const [sources, setSources] = useState<{ uri: string; title: string }[]>([]);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
-  const [nextCheckTime, setNextCheckTime] = useState<number>(Date.now() + CHECK_INTERVAL_MS);
+  const [nextCheckTime, setNextCheckTime] = useState<number>(Date.now() + STATUS_CHECK_INTERVAL_MS);
   const [secondsUntilNext, setSecondsUntilNext] = useState<number>(30 * 60);
 
   // Use refs for "latest" values in the callback to keep it stable
@@ -168,7 +169,7 @@ export default function App() {
     const isManual = typeof isManualParam === 'boolean' ? isManualParam : !!isManualParam;
 
     const nowTimestamp = Date.now();
-    setNextCheckTime(nowTimestamp + CHECK_INTERVAL_MS);
+    setNextCheckTime(nowTimestamp + STATUS_CHECK_INTERVAL_MS);
 
     setStatus(ServerStatus.CHECKING);
 
@@ -183,11 +184,10 @@ export default function App() {
         const parsed: CachedData = JSON.parse(cached);
         const age = nowTimestamp - parsed.timestamp;
 
-        // ECONOMY: Skip AI if:
-        // 1. Data is fresh (< 12h)
+        // 1. Data is fresh (< 60 minutes)
         // 2. We actually have news saved (don't skip if news are empty!)
         // 3. Servers were online last check
-        if (age < 12 * 60 * 60 * 1000 && parsed.news.length > 0 && parsed.status === ServerStatus.ONLINE) {
+        if (age < CACHE_AGE_LIMIT_MS && parsed.news.length > 0 && parsed.status === ServerStatus.ONLINE) {
           shouldSkipAI = true;
         } else {
           shouldSkipAI = false;
@@ -247,14 +247,14 @@ export default function App() {
           const parsed: CachedData = JSON.parse(cached);
           const age = Date.now() - parsed.timestamp;
 
-          if (age < CHECK_INTERVAL_MS) {
+          if (age < STATUS_CHECK_INTERVAL_MS) {
             setStatus(parsed.status);
             setMessagesMap(parsed.messages);
             setRumorMessagesMap(parsed.rumorMessages || {});
             setNews(parsed.news || []);
             setSources(parsed.sources);
             setLastChecked(new Date(parsed.timestamp));
-            setNextCheckTime(parsed.timestamp + CHECK_INTERVAL_MS);
+            setNextCheckTime(parsed.timestamp + STATUS_CHECK_INTERVAL_MS);
             return true;
           }
         } catch (e) {

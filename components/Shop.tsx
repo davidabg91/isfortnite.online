@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { ShopItem, ShopResponse, Language } from '../types';
 import { fetchFortniteShop } from '../services/fortniteShopService';
 import { getTranslation } from '../translations';
-import { Loader2, AlertCircle, X, ShoppingCart, CheckCircle, Info, Clock, Zap, CheckCircle2 } from 'lucide-react';
+import { Loader2, AlertCircle, X, ShoppingCart, CheckCircle, Info, Clock, Zap, CheckCircle2, ChevronUp } from 'lucide-react';
 
 const VBUCK_RATE = 0.0049; // 0.49 euro cents per V-Buck
 
@@ -658,11 +658,30 @@ export const Shop: React.FC<ShopProps> = ({ language }) => {
     const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
     const [buyItem, setBuyItem] = useState<ShopItem | null>(null);
     const [activeCategory, setActiveCategory] = useState<string>('All');
+    const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            // Check scroll position. If > 500px, show button.
+            if (window.scrollY > 500) {
+                setShowScrollTop(true);
+            } else {
+                setShowScrollTop(false);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     const t = getTranslation(language);
 
     const [showHowItWorks, setShowHowItWorks] = useState(false);
     const [showContactModal, setShowContactModal] = useState(false);
-    const [timeLeft, setTimeLeft] = useState("");
+    const [timeLeft, setTimeLeft] = useState<string>("");
 
     const getShop = useCallback(async (showLoading = false) => {
         if (showLoading) setLoading(true);
@@ -890,6 +909,17 @@ export const Shop: React.FC<ShopProps> = ({ language }) => {
                 <p className="text-[10px] text-white/50 uppercase tracking-[0.3em] font-bold">Powered by</p>
                 <img src="https://fortnite-api.com/assets/logo.png" alt="Fortnite API" className="h-6" />
             </div>
+
+            {/* Scroll to Top Button */}
+            {showScrollTop && (
+                <button
+                    onClick={scrollToTop}
+                    className="fixed bottom-8 right-8 z-50 p-4 rounded-full bg-yellow-400 text-black shadow-[0_0_20px_rgba(250,204,21,0.5)] transform transition-all duration-300 hover:scale-110 active:scale-95 animate-fade-in-up"
+                    aria-label="Scroll to top"
+                >
+                    <ChevronUp className="w-8 h-8" />
+                </button>
+            )}
         </div>
     );
 };
