@@ -1,9 +1,10 @@
 
-import { GoogleGenAI } from "@google/genai";
 import { CheckResult, Language } from "../types";
 import { getTranslation, LANGUAGE_NAMES } from "../translations";
 
-// SECURITY STRATEGY: OBFUSCATED FALLBACK ASSEMBLY
+/**
+ * SECURITY STRATEGY: OBFUSCATED FALLBACK ASSEMBLY
+ */
 const s_dec = (s: string) => {
     try {
         if (!s || s.length < 10) return s || "";
@@ -22,7 +23,7 @@ const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status
 
 export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckResult> => {
     const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-    const FINAL_API_KEY = s_dec(rawKey).trim();
+    const apiKey = s_dec(rawKey).trim();
 
     const fallbackMap: Record<Language, string> = {} as any;
     (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
@@ -47,35 +48,40 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
     }
 
     try {
-        if (!FINAL_API_KEY || FINAL_API_KEY.length < 10) throw new Error("MISSING_KEY");
+        if (!apiKey || apiKey.length < 10) throw new Error("KEY_MISSING");
 
-        // Use ONLY the stable pattern that worked before
-        const client = new GoogleGenAI({ apiKey: FINAL_API_KEY });
+        console.log("Service: Direct Connection (No SDK) for maximum stability...");
 
         const prompt = `You are a professional Fortnite status reporter.
-        OFFICIAL EPIC STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES/OFFLINE"}.
-        
-        TASK:
-        1. Find 3 latest Fortnite news from the last 24h.
-        2. Write 3-4 detailed sentences per news summary.
-        3. Output valid JSON: {"isOnline":boolean, "messages":Object, "news":Array}.
+        OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
+        1. Find 3 news from last 24h.
+        2. Detailed summaries (3-4 sentences each).
+        3. Output VALID JSON ONLY: {"isOnline":boolean, "messages":Object, "news":Array}.
         4. Languages: en, bg, es, de, fr, it, ru.`;
 
-        console.log("Service: Reverting to working model (gemini-1.5-flash-8b)...");
-
-        const result = await client.models.generateContent({
-            model: "gemini-1.5-flash-8b",
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            config: {
-                max_output_tokens: 8192,
-                response_mime_type: "application/json"
-            }
+        // Using direct FETCH to avoid SDK 404 bugs
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    maxOutputTokens: 8192,
+                    responseMimeType: "application/json"
+                }
+            })
         });
 
-        const responseText = result.response.text();
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error?.message || "API_ERROR");
+        }
+
+        const result = await response.json();
+        const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
         const firstBrace = responseText.indexOf('{');
         const lastBrace = responseText.lastIndexOf('}');
-
         if (firstBrace === -1) throw new Error("JSON_NOT_FOUND");
 
         const parsedData = JSON.parse(responseText.substring(firstBrace, lastBrace + 1));
@@ -92,8 +98,7 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
 
     } catch (error: any) {
         console.error("Gemini Error:", error.message);
-
-        let diag = error.message.includes("404") ? "RETRY_404" : error.message.substring(0, 10);
+        const diag = error.message.substring(0, 10);
 
         const errorMap: Record<Language, string> = {} as any;
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
