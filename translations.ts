@@ -113,6 +113,13 @@ interface TranslationData {
   giveaway_fb_requirement: string;
   giveaway_vbucks_title: string;
   giveaway_monthly_title: string;
+  giveaway_vbucks_2000_title: string;
+  giveaway_vbucks_2000_prize: string;
+  giveaway_vbucks_2000_step1: string;
+  giveaway_vbucks_2000_step2: string;
+  giveaway_vbucks_2000_bonus: string;
+  giveaway_vbucks_2000_deadline: string;
+  giveaway_vbucks_2000_winner_info: string;
 }
 
 export const LANGUAGE_NAMES: Record<Language, { label: string; flag: string }> = {
@@ -238,7 +245,14 @@ const translations: Record<Language, TranslationData> = {
     giveaway_valid_all: "Valid for everyone",
     giveaway_fb_requirement: "Follow our Facebook page",
     giveaway_vbucks_title: "13,500 V-BUCKS GIVEAWAY",
-    giveaway_monthly_title: "MONTHLY PRIZE GIVEAWAY"
+    giveaway_monthly_title: "MONTHLY PRIZE GIVEAWAY",
+    giveaway_vbucks_2000_title: "SUPER GIVEAWAY!",
+    giveaway_vbucks_2000_prize: "2000 V-BUCKS",
+    giveaway_vbucks_2000_step1: "FOLLOW our Facebook page",
+    giveaway_vbucks_2000_step2: "TAG 3 FRIENDS in the comments of this post",
+    giveaway_vbucks_2000_bonus: "Bonus: Share the post publicly to be noticed faster!",
+    giveaway_vbucks_2000_deadline: "Deadline: 31.03.2026",
+    giveaway_vbucks_2000_winner_info: "The winner will be drawn live and announced on our page!"
   },
   bg: {
     status_checking: "ПРОВЕРЯВА СЕ...",
@@ -352,7 +366,14 @@ const translations: Record<Language, TranslationData> = {
     giveaway_valid_all: "валидно за всички",
     giveaway_fb_requirement: "Последвайте страницата ни във Facebook",
     giveaway_vbucks_title: "ТОМБОЛА ЗА 13,500 V-BUCKS",
-    giveaway_monthly_title: "МЕСЕЧНА ТОМБОЛА ЗА НАГРАДИ"
+    giveaway_monthly_title: "МЕСЕЧНА ТОМБОЛА ЗА НАГРАДИ",
+    giveaway_vbucks_2000_title: "СУПЕР ТОМБОЛА!",
+    giveaway_vbucks_2000_prize: "2000 V-BUCKS",
+    giveaway_vbucks_2000_step1: "ПОСЛЕДВАЙ нашата Facebook страница",
+    giveaway_vbucks_2000_step2: "ТАГНИ 3-МА ПРИЯТЕЛИ в коментарите под този пост",
+    giveaway_vbucks_2000_bonus: "Бонус: Сподели поста публично, за да те забележим по-бързо!",
+    giveaway_vbucks_2000_deadline: "Срок: 31.03.2026 г.",
+    giveaway_vbucks_2000_winner_info: "Победителят ще бъде изтеглен на живо и обявен на страницата ни!"
   },
   es: {
     status_checking: "COMPROBANDO...",
@@ -466,7 +487,14 @@ const translations: Record<Language, TranslationData> = {
     giveaway_valid_all: "Válido para todos",
     giveaway_fb_requirement: "Síguenos en Facebook",
     giveaway_vbucks_title: "SORTEO DE 13,500 V-BUCKS",
-    giveaway_monthly_title: "SORTEO MENSUAL DE PREMIOS"
+    giveaway_monthly_title: "SORTEO MENSUAL DE PREMIOS",
+    giveaway_vbucks_2000_title: "¡SÚPER SORTEO!",
+    giveaway_vbucks_2000_prize: "2000 V-BUCKS",
+    giveaway_vbucks_2000_step1: "SIGUE nuestra página de Facebook",
+    giveaway_vbucks_2000_step2: "ETIQUETA A 3 AMIGOS en los comentarios de esta publicación",
+    giveaway_vbucks_2000_bonus: "Bono: ¡Comparte la publicación públicamente para ser notado más rápido!",
+    giveaway_vbucks_2000_deadline: "Fecha límite: 31.03.2026",
+    giveaway_vbucks_2000_winner_info: "¡El ganador será sorteado en vivo y anunciado en nuestra página!"
   },
   de: {
     status_checking: "PRÜFUNG...",
@@ -580,7 +608,14 @@ const translations: Record<Language, TranslationData> = {
     giveaway_valid_all: "Gültig für alle",
     giveaway_fb_requirement: "Folge uns auf Facebook",
     giveaway_vbucks_title: "13.500 V-BUCKS GIVEAWAY",
-    giveaway_monthly_title: "MONATLICHE PREISVERLOSUNG"
+    giveaway_monthly_title: "MONATLICHE PREISVERLOSUNG",
+    giveaway_vbucks_2000_title: "SUPER GEWINNSPIEL!",
+    giveaway_vbucks_2000_prize: "2000 V-BUCKS",
+    giveaway_vbucks_2000_step1: "FOLGE unserer Facebook-Seite",
+    giveaway_vbucks_2000_step2: "MARKIERE 3 FREUNDE in den Kommentaren zu diesem Beitrag",
+    giveaway_vbucks_2000_bonus: "Bonus: Teile den Beitrag öffentlich, um schneller bemerkt zu werden!",
+    giveaway_vbucks_2000_deadline: "Einsendeschluss: 31.03.2026",
+    giveaway_vbucks_2000_winner_info: "Der Gewinner wird live gezogen und auf unserer Seite bekannt gegeben!"
   },
   fr: {
     status_checking: "VÉRIFICATION...",
@@ -694,7 +729,14 @@ const translations: Record<Language, TranslationData> = {
     giveaway_valid_all: "Valide pour tous",
     giveaway_fb_requirement: "Suivez-nous sur Facebook",
     giveaway_vbucks_title: "CONCOURS 13 500 V-BUCKS",
-    giveaway_monthly_title: "CONCOURS MENSUEL DE PRIX"
+    giveaway_monthly_title: "CONCOURS MENSUEL DE PRIX",
+    giveaway_vbucks_2000_title: "SUPER CONCOURS !",
+    giveaway_vbucks_2000_prize: "2000 V-BUCKS",
+    giveaway_vbucks_2000_step1: "SUIVEZ notre page Facebook",
+    giveaway_vbucks_2000_step2: "IDENTIFIEZ 3 AMIS dans les commentaires de ce post",
+    giveaway_vbucks_2000_bonus: "Bonus : Partagez le post publiquement pour être remarqué plus vite !",
+    giveaway_vbucks_2000_deadline: "Date limite : 31.03.2026",
+    giveaway_vbucks_2000_winner_info: "Le gagnant sera tiré au sort en direct et annoncé sur notre page !"
   },
   it: {
     status_checking: "CONTROLLO...",
@@ -808,7 +850,14 @@ const translations: Record<Language, TranslationData> = {
     giveaway_valid_all: "Valido per tutti",
     giveaway_fb_requirement: "Seguici su Facebook",
     giveaway_vbucks_title: "GIVEAWAY 13.500 V-BUCKS",
-    giveaway_monthly_title: "ESTRAZIONE PREMI MENSILE"
+    giveaway_monthly_title: "ESTRAZIONE PREMI MENSILE",
+    giveaway_vbucks_2000_title: "SUPER GIVEAWAY!",
+    giveaway_vbucks_2000_prize: "2000 V-BUCKS",
+    giveaway_vbucks_2000_step1: "SEGUI la nostra pagina Facebook",
+    giveaway_vbucks_2000_step2: "TAGGA 3 AMICI nei commenti di questo post",
+    giveaway_vbucks_2000_bonus: "Bonus: condividi il post pubblicamente per farti notare più velocemente!",
+    giveaway_vbucks_2000_deadline: "Scadenza: 31.03.2026",
+    giveaway_vbucks_2000_winner_info: "Il vincitore sarà estratto dal vivo e annunciato sulla nostra pagina!"
   },
   ru: {
     status_checking: "ПРОВЕРКА...",
@@ -922,7 +971,14 @@ const translations: Record<Language, TranslationData> = {
     giveaway_valid_all: "Доступно для всех",
     giveaway_fb_requirement: "Подпишитесь на нашу страницу в Facebook",
     giveaway_vbucks_title: "РОЗЫГРЫШ 13,500 V-BUCKS",
-    giveaway_monthly_title: "ЕЖЕМЕСЯЧНЫЙ РОЗЫГРЫШ ПРИЗОВ"
+    giveaway_monthly_title: "ЕЖЕМЕСЯЧНЫЙ РОЗЫГРЫШ ПРИЗОВ",
+    giveaway_vbucks_2000_title: "СУПЕР РОЗЫГРЫШ!",
+    giveaway_vbucks_2000_prize: "2000 V-BUCKS",
+    giveaway_vbucks_2000_step1: "ПОДПИШИТЕСЬ на нашу страницу в Facebook",
+    giveaway_vbucks_2000_step2: "ОТМЕТЬТЕ 3 ДРУЗЕЙ в комментариях к этому посту",
+    giveaway_vbucks_2000_bonus: "Бонус: поделитесь постом публично, чтобы вас заметили быстрее!",
+    giveaway_vbucks_2000_deadline: "Срок: 31.03.2026",
+    giveaway_vbucks_2000_winner_info: "Победитель будет выбран в прямом эфире и объявлен на нашей странице!"
   }
 };
 
