@@ -24,10 +24,9 @@ const s_dec = (s: string) => {
 const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/status.json";
 
 export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckResult> => {
+    // 1. Load and decode key
     const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
     const FINAL_API_KEY = s_dec(rawKey).trim();
-
-    console.log("Service: Initializing Gemini SDK (Default Version)...");
 
     const fallbackMap: Record<Language, string> = {} as any;
     (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
@@ -40,11 +39,8 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         if (statusReq.ok) {
             const data = await statusReq.json();
             isOfficiallyOnline = data.status?.indicator === "none";
-            console.log("Service: Epic Status:", data.status?.description);
         }
-    } catch (e) {
-        console.warn("Service: Epic API failed", e);
-    }
+    } catch (e) { }
 
     if (skipAI && isOfficiallyOnline) {
         const onlineMap: Record<Language, string> = {} as any;
@@ -54,27 +50,31 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         return { isOnline: true, messages: onlineMap, rumorMessages: {}, news: [], sources: [] };
     }
 
+    // 2. AI RESEARCH PHASE (FORCING V1 STABLE)
     try {
-        if (!FINAL_API_KEY || FINAL_API_KEY.length < 10) throw new Error("MISSING_KEY");
+        if (!FINAL_API_KEY || FINAL_API_KEY.length < 10) throw new Error("KEY_EMPTY");
 
-        // Use the native SDK defaults (no manually forced v1beta/v1 in constructor)
-        const client = new GoogleGenAI({ apiKey: FINAL_API_KEY });
+        // Force STABLE V1 to avoid 404 in v1beta
+        const client = new GoogleGenAI({
+            apiKey: FINAL_API_KEY,
+            // @ts-ignore
+            apiVersion: "v1"
+        });
 
-        console.log("Service: Requesting gemini-1.5-flash (Standard mode)...");
+        console.log("Service: Querying Gemini v1 (Stable)...");
 
-        const systemPrompt = `You are a professional Fortnite status reporter.
-        OFFICIAL STATUS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
-        Output ONLY valid JSON.
-        JSON format: {"isOnline":boolean, "messages":{"en":"...", "bg":"..."}, "news":[]}.
-        Translate to: en, bg, es, de, fr, it, ru.`;
+        const systemPrompt = `You are a Fortnite news reporter. 
+        OFFICIAL: ${isOfficiallyOnline ? "ONLINE" : "OFFLINE"}.
+        Identify 3 trending news. Output valid JSON only.
+        Format: {"isOnline":boolean, "messages":Object, "news":Array}
+        Translate EVERYTHING to: en, bg, es, de, fr, it, ru.`;
 
-        // The new SDK v1.x pattern
         const result = await client.models.generateContent({
             model: "gemini-1.5-flash",
-            contents: [{ role: "user", parts: [{ text: "Gather status and 3 detailed news." }] }],
+            contents: [{ role: "user", parts: [{ text: "Provide status and 3 news summaries." }] }],
             config: {
                 // @ts-ignore
-                system_instruction: systemPrompt,
+                system_instruction: { parts: [{ text: systemPrompt }] },
                 max_output_tokens: 8192,
                 response_mime_type: "application/json"
             }
@@ -83,8 +83,7 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         const responseText = result.response.text();
         const firstBrace = responseText.indexOf('{');
         const lastBrace = responseText.lastIndexOf('}');
-
-        if (firstBrace === -1) throw new Error("JSON_NOT_FOUND");
+        if (firstBrace === -1) throw new Error("DATA_ERR");
 
         const parsedData = JSON.parse(responseText.substring(firstBrace, lastBrace + 1));
 
@@ -99,16 +98,17 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         return { isOnline: finalIsOnline, messages, rumorMessages: {}, news, sources: [] };
 
     } catch (error: any) {
-        console.error("Service: AI Error State:", error.message);
+        console.error("Gemini Error:", error.message);
 
-        let diag = error.message.includes("404") ? "MODEL_404" : error.message.substring(0, 10);
-        if (error.message.includes("Key")) diag = "API_KEY_ERR";
+        let diag = "ERR";
+        if (error.message.includes("404")) diag = "NOT_FOUND";
+        else if (error.message.includes("403")) diag = "FORBIDDEN";
+        else diag = error.message.substring(0, 10);
 
         const errorMap: Record<Language, string> = {} as any;
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
             errorMap[lang] = `${getTranslation(lang).error_gemini} (${diag})`;
         });
-
         return { isOnline: isOfficiallyOnline, messages: errorMap, rumorMessages: {}, news: [] };
     }
 };
