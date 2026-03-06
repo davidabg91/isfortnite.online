@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ServerStatus, Language, NewsItem } from '../types';
-import { AlertCircle, CheckCircle2, RefreshCw, Clock, ExternalLink, Heart, Lock, X, KeyRound, Zap, Info, Flame, Facebook } from 'lucide-react';
+import { AlertCircle, CheckCircle2, RefreshCw, Clock, ExternalLink, Heart, Lock, X, KeyRound, Zap, Info, Facebook } from 'lucide-react';
 import { FortniteLogo } from './FortniteLogo';
 import { getTranslation, LANGUAGE_NAMES } from '../translations';
 import { NewsSection } from './NewsSection';
@@ -235,11 +235,11 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                 {/* Image Section */}
                 <div className="md:w-1/2 relative group overflow-hidden">
                   <img
-                    src="https://imgur.com/vHq0F2h.jpg"
+                    src="https://i.imgur.com/vHq0F2h.png"
                     alt="2000 V-Bucks Giveaway"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     onError={(e) => {
-                      e.currentTarget.src = "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80&w=1074";
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1627483298235-f3bac2567c1c?auto=format&fit=crop&q=80&w=1000";
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
