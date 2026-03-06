@@ -235,12 +235,9 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                 {/* Image Section */}
                 <div className="md:w-1/2 relative group overflow-hidden">
                   <img
-                    src="https://i.imgur.com/vHq0F2h.png"
+                    src="https://fortnite-api.com/images/vbuck.png"
                     alt="2000 V-Bucks Giveaway"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    onError={(e) => {
-                      e.currentTarget.src = "https://fortnite-api.com/images/vbuck.png";
-                    }}
+                    className="w-full h-full object-contain p-8 transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
                   <div className="absolute bottom-6 left-6 right-6">
