@@ -184,14 +184,14 @@ export const predictRarityTrend = async (item: any): Promise<any> => {
         
         1. Predict 'rarityScore' (100 = rarest, 0 = common).
         2. Give 'trend' (Up/Down/Stable).
-        3. Predict 'nextAppearance' (estimated days or "Vaulted").
+        3. Predict 'nextAppearance' (estimated days or translate "Vaulted" as "Неизвестно/Рядко").
         4. Give 'investVerdict' (Bulgarian & English) - why buy this now?
         
         Output JSON:
         {
             "rarityScore": 85,
             "trend": "Up",
-            "nextAppearance": "150+ days",
+            "nextAppearance": "Около 30 дни / Неизвестно",
             "investVerdict": { "en": "...", "bg": "..." }
         }
         Keep verdict under 15 words.`;

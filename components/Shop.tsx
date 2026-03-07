@@ -189,7 +189,7 @@ const ItemModal = ({
 
                                         <div className="space-y-4 relative z-10">
                                             <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
-                                                <span className="text-[10px] text-emerald-500/60 font-bold uppercase tracking-widest block mb-2">{language === 'bg' ? 'ПРОГНОЗА ЗА ВРЪЩАНЕ' : 'RETURN ESTIMATE'}</span>
+                                                <span className="text-[10px] text-emerald-500/60 font-bold uppercase tracking-widest block mb-2">{language === 'bg' ? 'ВЪЗМОЖНО ЗАВРЪЩАНЕ' : 'RETURN ESTIMATE'}</span>
                                                 <p className="text-white font-burbank text-2xl italic tracking-wide">{trendData.nextAppearance}</p>
                                             </div>
 
