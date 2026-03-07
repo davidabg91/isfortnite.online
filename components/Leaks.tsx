@@ -62,10 +62,13 @@ const LeakModal = ({
 
     return (
         <div
-            className="fixed inset-0 flex items-start md:items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-md animate-fade-in overflow-y-auto"
-            style={{ zIndex: 999990 }}
+            className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in z-[999999]"
+            onClick={onClose}
         >
-            <div className="relative w-full max-w-5xl max-h-[85vh] bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
+            <div
+                className="relative w-full max-w-5xl max-h-[90vh] bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+                onClick={e => e.stopPropagation()}
+            >
                 <button
                     onClick={onClose}
                     className="absolute top-6 right-6 z-[210] p-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white transition-all hover:rotate-90 active:scale-95"
@@ -80,7 +83,7 @@ const LeakModal = ({
                         <img
                             src={imgUrl}
                             alt={item.name}
-                            className="max-w-full max-h-[450px] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-transform duration-700"
+                            className="max-w-full max-h-[300px] md:max-h-[450px] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-transform duration-700"
                             onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 target.src = 'https://fortnite-api.com/images/vbuck.png';
@@ -112,6 +115,16 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [buildVersion, setBuildVersion] = useState('');
+
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (selectedItem) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+        return () => { document.body.style.overflow = 'auto'; };
+    }, [selectedItem]);
 
     const fetchLeaks = async () => {
         setLoading(true);
