@@ -39,10 +39,17 @@ export interface ShopItem {
   price: number;
   imageUrl: string;
   isBundle: boolean;
+  aiAnalysis?: {
+    score: number; // 1-10
+    reason: Record<Language, string>;
+    rarityScore: number;
+    recommendedCombos?: string[];
+  };
 }
 
 export interface ShopResponse {
   date: string;
   vbuckIcon: string;
   items: ShopItem[];
+  aiOverallAnalysis?: Record<Language, string>;
 }

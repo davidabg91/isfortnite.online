@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchFortniteShop } from '../services/fortniteShopService';
+import { analyzeShopItems } from '../services/geminiService';
 import { ShopItem, ShopResponse as ShopData, Language } from '../types';
 import { getTranslation } from '../translations';
-import { X, Clock, Loader2, AlertCircle, ChevronUp } from 'lucide-react';
+import { X, Clock, Loader2, AlertCircle, ChevronUp, Sparkles, Heart, TrendingUp, Zap, Bot } from 'lucide-react';
 
 const getRarityColor = (rarity: string) => {
     const r = rarity.toLowerCase();
@@ -10,91 +11,208 @@ const getRarityColor = (rarity: string) => {
     if (r.includes('epic')) return 'from-purple-600 to-indigo-700 border-purple-400';
     if (r.includes('rare')) return 'from-blue-500 to-cyan-600 border-blue-400';
     if (r.includes('uncommon')) return 'from-green-500 to-emerald-600 border-green-400';
-    return 'from-gray-500 to-gray-700 border-gray-400'; // common
+    return 'from-gray-500 to-gray-700 border-gray-400';
 };
 
-const ItemModal = ({ item, vbuckIcon, onClose }: { item: ShopItem; vbuckIcon?: string; onClose: () => void }) => {
+const ItemModal = ({
+    item,
+    vbuckIcon,
+    onClose,
+    language,
+    isWishlisted,
+    onToggleWishlist
+}: {
+    item: ShopItem;
+    vbuckIcon?: string;
+    onClose: () => void;
+    language: Language;
+    isWishlisted: boolean;
+    onToggleWishlist: (e: React.MouseEvent, id: string) => void;
+}) => {
+    const t = getTranslation(language);
+
     return (
         <div
-            className="fixed inset-0 flex items-start md:items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-md animate-fade-in overflow-y-auto"
+            className="fixed inset-0 flex items-start md:items-center justify-center p-4 md:p-8 bg-black/95 backdrop-blur-xl animate-fade-in overflow-y-auto"
             style={{ zIndex: 999990 }}
         >
-            <div className="relative w-full max-w-5xl bg-gradient-to-br from-gray-900 to-black rounded-3xl border-2 border-white/10 overflow-hidden shadow-[0_0_100px_rgba(255,255,255,0.1)] flex flex-col md:flex-row my-auto">
+            <div className="relative w-full max-w-6xl bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 md:top-6 md:right-6 z-[210] p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all hover:rotate-90"
+                    className="absolute top-6 right-6 z-[210] p-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white transition-all hover:rotate-90 active:scale-95"
                 >
-                    <X className="w-6 h-6 md:w-8 md:h-8" />
+                    <X className="w-8 h-8" />
                 </button>
 
-                <div className={`w-full md:w-3/5 min-h-[300px] md:h-auto bg-gradient-to-br ${getRarityColor(item.rarity)} p-4 md:p-8 flex items-center justify-center relative`}>
+                {/* Left Side: Image */}
+                <div className={`w-full md:w-1/2 min-h-[400px] bg-gradient-to-br ${getRarityColor(item.rarity)} p-8 flex items-center justify-center relative`}>
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
                     <img
                         src={item.imageUrl}
                         alt={item.name}
-                        className="max-w-full max-h-[350px] md:max-h-full object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform hover:scale-105 transition-transform duration-500"
+                        className="max-w-full max-h-[450px] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-transform duration-700"
                     />
+
+                    {/* Worth It Overlay */}
+                    {item.aiAnalysis && item.aiAnalysis.score >= 8 && (
+                        <div className="absolute bottom-8 left-8 bg-white text-black px-6 py-3 rounded-2xl font-black text-xl flex items-center gap-2 shadow-2xl animate-bounce">
+                            <Zap className="w-6 h-6 fill-yellow-400 text-yellow-500" />
+                            WORTH IT! {item.aiAnalysis.score}/10
+                        </div>
+                    )}
                 </div>
 
-                <div className="w-full md:w-2/5 p-6 md:p-8 flex flex-col justify-center">
-                    <div className="mb-4 md:mb-6">
-                        <p className="text-yellow-400 font-bold uppercase tracking-[0.2em] text-[10px] md:text-sm mb-2">{item.rarity} {item.type}</p>
-                        <h2 className="font-burbank text-4xl md:text-6xl text-white uppercase leading-none mb-3 md:mb-4 italic tracking-tight">{item.name}</h2>
-                        <div className="h-1 w-16 md:w-20 bg-yellow-400 mb-4 md:mb-6"></div>
-                        <p className="text-white/70 text-base md:text-lg leading-relaxed">{item.description}</p>
+                {/* Right Side: Info & AI */}
+                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar">
+                    <div className="mb-8">
+                        <div className="flex justify-between items-start mb-4">
+                            <span className="text-yellow-400 font-bold uppercase tracking-[0.3em] text-xs">{item.rarity} {item.type}</span>
+                            <button
+                                onClick={(e) => onToggleWishlist(e, item.id)}
+                                className={`p-3 rounded-xl border transition-all ${isWishlisted ? 'bg-red-500/20 border-red-500 text-red-500' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'}`}
+                            >
+                                <Heart className={`w-6 h-6 ${isWishlisted ? 'fill-current' : ''}`} />
+                            </button>
+                        </div>
+                        <h2 className="font-burbank text-5xl md:text-7xl text-white uppercase leading-none mb-6 italic tracking-tight">{item.name}</h2>
+
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="flex items-center gap-3 bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
+                                {vbuckIcon && <img src={vbuckIcon} alt="V-Bucks" className="w-8 h-8" />}
+                                <span className="text-white font-burbank text-4xl">{item.price.toLocaleString()}</span>
+                            </div>
+                            {item.isBundle && (
+                                <span className="bg-yellow-400 text-black px-5 py-2 rounded-xl font-black uppercase text-sm italic skew-x-[-12deg]">BUNDLE SAVINGS</span>
+                            )}
+                        </div>
+
+                        <p className="text-slate-300 text-lg leading-relaxed mb-10 font-medium">{item.description}</p>
                     </div>
 
-                    <div className="mt-auto flex items-center gap-4 flex-wrap">
-                        <div className="flex flex-col items-end gap-1">
-                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                {vbuckIcon && <img src={vbuckIcon} alt="V-Bucks" className="w-6 h-6 md:w-8 md:h-8" />}
-                                <span className="text-white font-burbank text-2xl md:text-4xl">{item.price.toLocaleString()}</span>
+                    {/* AI Analysis Section */}
+                    {item.aiAnalysis && (
+                        <div className="space-y-6 pt-8 border-t border-white/10">
+                            <div className="flex items-center gap-3 text-purple-400">
+                                <Sparkles className="w-6 h-6" />
+                                <h3 className="font-bold uppercase tracking-widest text-sm">{t.ai_worth_it}</h3>
                             </div>
+
+                            <div className="bg-white/5 rounded-3xl p-6 border border-white/10">
+                                <p className="text-slate-100 text-lg italic mb-4">"{item.aiAnalysis.reason[language]}"</p>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
+                                        <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Deal Score</span>
+                                        <div className="flex items-end gap-1">
+                                            <span className="text-2xl font-bold text-white">{item.aiAnalysis.score}</span>
+                                            <span className="text-slate-600 font-bold mb-1">/10</span>
+                                        </div>
+                                    </div>
+                                    <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
+                                        <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Rarity Score</span>
+                                        <div className="flex items-end gap-1">
+                                            <span className="text-2xl font-bold text-white">{item.aiAnalysis.rarityScore}</span>
+                                            <span className="text-slate-600 font-bold mb-1">/10</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Combos */}
+                            {item.aiAnalysis.recommendedCombos && (
+                                <div className="space-y-3">
+                                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                        <TrendingUp className="w-3 h-3" /> {t.ai_combos}
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {item.aiAnalysis.recommendedCombos.map((combo, i) => (
+                                            <span key={i} className="px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-xs font-bold text-purple-300 uppercase italic">
+                                                {combo}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        {item.isBundle && (
-                            <span className="bg-yellow-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-bold uppercase text-xs md:text-base italic skew-x-[-12deg] whitespace-nowrap">BUNDLE</span>
-                        )}
-                    </div>
+                    )}
                 </div>
             </div>
         </div>
     );
 };
 
-const ShopItemCard = ({ item, vbuckIcon, onSelect }: { item: ShopItem; vbuckIcon?: string; onSelect: (item: ShopItem) => void }) => {
+const ShopItemCard = ({
+    item,
+    vbuckIcon,
+    onSelect,
+    isWishlisted,
+    onToggleWishlist,
+}: {
+    item: ShopItem;
+    vbuckIcon?: string;
+    onSelect: (item: ShopItem) => void;
+    isWishlisted: boolean;
+    onToggleWishlist: (e: React.MouseEvent, id: string) => void;
+}) => {
     return (
         <div
             onClick={() => onSelect(item)}
-            className="group relative flex flex-col bg-black/40 border-2 border-white/10 rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] cursor-pointer"
+            className="group relative flex flex-col bg-slate-900/40 border border-white/10 rounded-3xl overflow-hidden transform transition-all duration-500 hover:scale-[1.05] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] cursor-pointer"
         >
-            <div className={`h-48 w-full bg-gradient-to-b ${getRarityColor(item.rarity)} relative overflow-hidden`}>
+            <div className={`h-56 w-full bg-gradient-to-b ${getRarityColor(item.rarity)} relative overflow-hidden`}>
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
                 <img
                     src={item.imageUrl}
                     alt={item.name}
-                    className="w-full h-full object-contain p-2 drop-shadow-2xl"
+                    className="w-full h-full object-contain p-4 drop-shadow-2xl relative z-10"
                     loading="lazy"
                 />
+
+                {/* Wishlist Button */}
+                <button
+                    onClick={(e) => onToggleWishlist(e, item.id)}
+                    className="absolute top-4 right-4 z-20 p-2 bg-black/50 backdrop-blur-md rounded-xl border border-white/10 text-white/60 hover:text-white transition-all active:scale-90"
+                >
+                    <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
+                </button>
+
+                {/* Hot Label */}
+                {item.aiAnalysis && item.aiAnalysis.score >= 8 && (
+                    <div className="absolute top-4 left-4 z-20 bg-yellow-400 text-black px-3 py-1 rounded-lg font-black text-[10px] uppercase shadow-lg border border-yellow-500">
+                        🔥 HOT
+                    </div>
+                )}
             </div>
 
-            <div className="p-4 flex flex-col flex-grow bg-gradient-to-b from-black/60 to-black/80">
-                <div className="flex justify-between items-start mb-1">
-                    <h3 className="font-burbank text-xl text-white uppercase tracking-tight truncate flex-grow mr-2">
+            <div className="p-5 flex flex-col flex-grow bg-slate-900">
+                <div className="flex justify-between items-start mb-2 gap-2">
+                    <h3 className="font-burbank text-2xl text-white uppercase tracking-tight truncate leading-none">
                         {item.name}
                     </h3>
-                    <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-lg border border-white/10 flex-shrink-0">
-                        {vbuckIcon && <img src={vbuckIcon} alt="V-Bucks" className="w-4 h-4" />}
-                        <span className="text-white font-burbank text-lg leading-none">
+                </div>
+
+                <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-1.5">
+                        {vbuckIcon && <img src={vbuckIcon} alt="V" className="w-5 h-5" />}
+                        <span className="text-white font-burbank text-2xl">
                             {item.price.toLocaleString()}
                         </span>
                     </div>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase bg-white/5 px-2 py-1 rounded-md">{item.type}</span>
                 </div>
-                <p className="text-white/50 text-xs font-medium uppercase mb-2">{item.rarity}</p>
-                <p className="text-white/70 text-sm line-clamp-2 italic leading-tight">{item.description}</p>
-                {item.isBundle && (
-                    <div className="mt-2 text-[10px] bg-yellow-400/20 text-yellow-400 px-2 py-0.5 rounded border border-yellow-400/30 w-fit font-bold uppercase">Bundle</div>
+
+                {item.aiAnalysis && (
+                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-purple-400">
+                            <Sparkles className="w-3 h-3" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">AI Score</span>
+                        </div>
+                        <span className="text-xs font-black text-white px-2 py-0.5 bg-purple-500/20 rounded-md border border-purple-500/30">
+                            {item.aiAnalysis.score}/10
+                        </span>
+                    </div>
                 )}
             </div>
-            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity"></div>
         </div>
     );
 };
@@ -102,9 +220,11 @@ const ShopItemCard = ({ item, vbuckIcon, onSelect }: { item: ShopItem; vbuckIcon
 const Shop = ({ language }: { language: Language }) => {
     const [shopData, setShopData] = useState<ShopData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [analyzing, setAnalyzing] = useState(false);
     const [error, setError] = useState(false);
     const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
     const [activeCategory, setActiveCategory] = useState<string>('All');
+    const [wishlist, setWishlist] = useState<string[]>(JSON.parse(localStorage.getItem('fn_wishlist') || '[]'));
     const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
 
     const bgCategoryNames: Record<string, string> = {
@@ -126,12 +246,59 @@ const Shop = ({ language }: { language: Language }) => {
     const t = getTranslation(language);
     const [timeLeft, setTimeLeft] = useState<string>("");
 
+    // Toggle Wishlist
+    const handleToggleWishlist = (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        const newWishlist = wishlist.includes(id)
+            ? wishlist.filter(wid => wid !== id)
+            : [...wishlist, id];
+        setWishlist(newWishlist);
+        localStorage.setItem('fn_wishlist', JSON.stringify(newWishlist));
+    };
+
     const getShop = useCallback(async (showLoading = false) => {
         if (showLoading) setLoading(true);
         try {
             const data = await fetchFortniteShop(language);
             if (data) {
-                setShopData(data);
+                // Check for cached AI analysis
+                const cacheKey = `ai_shop_${data.date}`;
+                const cached = localStorage.getItem(cacheKey);
+
+                let enrichedItems = data.items;
+                let aiOverall: Record<Language, string> | undefined;
+
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    enrichedItems = data.items.map(item => ({
+                        ...item,
+                        aiAnalysis: parsed.itemsAnalysis.find((a: any) => a.name === item.name)
+                    }));
+                    aiOverall = parsed.aiOverallAnalysis;
+                } else {
+                    // Trigger AI Analysis asynchronously to not block UI
+                    setAnalyzing(true);
+                    analyzeShopItems(data.items).then(result => {
+                        if (result) {
+                            localStorage.setItem(cacheKey, JSON.stringify(result));
+                            setShopData(prev => prev ? {
+                                ...prev,
+                                items: prev.items.map(item => ({
+                                    ...item,
+                                    aiAnalysis: result.itemsAnalysis.find((a: any) => a.name === item.name)
+                                })),
+                                aiOverallAnalysis: result.aiOverallAnalysis
+                            } : null);
+                        }
+                        setAnalyzing(false);
+                    }).catch(() => setAnalyzing(false));
+                }
+
+                setShopData({
+                    ...data,
+                    items: enrichedItems,
+                    aiOverallAnalysis: aiOverall
+                });
                 setError(false);
             } else {
                 setError(true);
@@ -152,20 +319,13 @@ const Shop = ({ language }: { language: Language }) => {
 
     useEffect(() => {
         if (!shopData?.date) return;
-        // The current service doesn't provide a nextRefresh timestamp directly via API, 
-        // it just provides the shop items. We reset at 02:00 BG time (00:00 UTC).
         const updateTimer = () => {
             const now = new Date();
             const target = new Date();
             target.setUTCHours(0, 0, 0, 0);
-            if (now >= target) {
-                target.setUTCDate(target.getUTCDate() + 1);
-            }
+            if (now >= target) target.setUTCDate(target.getUTCDate() + 1);
             const diff = target.getTime() - now.getTime();
-            if (diff <= 0) {
-                setTimeLeft("00:00:00");
-                return;
-            }
+            if (diff <= 0) { setTimeLeft("00:00:00"); return; }
             const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
             const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
             const s = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
@@ -187,17 +347,22 @@ const Shop = ({ language }: { language: Language }) => {
     const categorizedItems = useMemo(() => {
         if (!shopData) return {};
         const cats: Record<string, ShopItem[]> = { 'All': shopData.items };
+        // Add Wishlist pseudo-category
+        if (wishlist.length > 0) {
+            cats['Wishlist'] = shopData.items.filter(it => wishlist.includes(it.id));
+        }
+
         shopData.items.forEach(item => {
             if (!cats[item.type]) cats[item.type] = [];
             cats[item.type].push(item);
         });
         return cats;
-    }, [shopData]);
+    }, [shopData, wishlist]);
 
     const sortedCategories = useMemo(() => {
-        const cats = Object.keys(categorizedItems).filter(c => c !== 'All');
+        const cats = Object.keys(categorizedItems).filter(c => c !== 'All' && c !== 'Wishlist');
         const order = ['Featured', 'Daily', 'Bundles', 'Special'];
-        return cats.sort((a, b) => {
+        const sorted = cats.sort((a, b) => {
             const idxA = order.indexOf(a);
             const idxB = order.indexOf(b);
             if (idxA !== -1 && idxB !== -1) return idxA - idxB;
@@ -205,13 +370,14 @@ const Shop = ({ language }: { language: Language }) => {
             if (idxB !== -1) return 1;
             return a.localeCompare(b);
         });
-    }, [categorizedItems]);
+        return wishlist.length > 0 ? ['Wishlist', ...sorted] : sorted;
+    }, [categorizedItems, wishlist]);
 
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
                 <Loader2 className="w-16 h-16 text-yellow-400 animate-spin" />
-                <p className="font-burbank text-2xl text-white/50 animate-pulse tracking-widest">LOADING SHOP...</p>
+                <p className="font-burbank text-2xl text-white/50 animate-pulse tracking-widest uppercase">SYPHONING SHOP DATA...</p>
             </div>
         );
     }
@@ -220,57 +386,134 @@ const Shop = ({ language }: { language: Language }) => {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4 text-white">
                 <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
-                <h2 className="font-burbank text-4xl mb-2">SHOP UNAVAILABLE</h2>
-                <button onClick={() => getShop(true)} className="bg-white text-black font-burbank text-2xl px-10 py-3 rounded-xl">RETRY</button>
+                <h2 className="font-burbank text-4xl mb-2">LOOP BREACH: SHOP DOWN</h2>
+                <button onClick={() => getShop(true)} className="bg-white text-black font-burbank text-2xl px-10 py-3 rounded-xl border-b-4 border-gray-400">RESTORE CONNECTION</button>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col items-center w-full max-w-7xl mx-auto px-4 py-8">
-            <div className="w-full flex justify-end mb-8">
-                <div className="bg-black/40 backdrop-blur-md border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-4 shadow-xl text-white">
-                    <Clock className="w-5 h-5 text-yellow-400" />
+        <div className="flex flex-col items-center w-full max-w-7xl mx-auto px-4 py-8 relative">
+            {/* Header Timer */}
+            <div className="w-full flex justify-between items-center mb-12">
+                <div className="flex items-center gap-4">
+                    <div className="bg-purple-600/20 px-6 py-3 rounded-2xl border border-purple-500/30 flex items-center gap-3">
+                        {analyzing ? (
+                            <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
+                        ) : (
+                            <Sparkles className="w-5 h-5 text-purple-400" />
+                        )}
+                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
+                            {analyzing ? t.ai_analyzing : "AI Engine 2.0 Active"}
+                        </span>
+                    </div>
+                </div>
+                <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-4 shadow-xl text-white">
+                    <Clock className="w-6 h-6 text-yellow-500 animate-pulse" />
                     <div className="flex flex-col items-end">
-                        <span className="text-[10px] text-white/50 uppercase font-bold">NEXT REFRESH</span>
-                        <span className="font-mono text-xl text-yellow-400 font-bold">{timeLeft}</span>
+                        <span className="text-[10px] text-white/40 uppercase font-black tracking-tighter">REBOOTING IN</span>
+                        <span className="font-mono text-2xl text-yellow-400 font-bold tabular-nums">{timeLeft}</span>
                     </div>
                 </div>
             </div>
 
-            <div className="w-full space-y-12">
-                <div className="relative w-full overflow-hidden rounded-[2rem] bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 p-8 md:p-12 mb-12 shadow-2xl border border-white/10 text-center">
-                    <h2 className="font-burbank text-5xl md:text-7xl text-white italic uppercase mb-2 tracking-tight">{t.shop_banner_title}</h2>
-                    <p className="text-white/80 text-lg md:text-xl font-medium max-w-2xl mx-auto italic">{t.shop_banner_desc}</p>
+            <div className="w-full space-y-16">
+                {/* Hero Banner with AI Summary */}
+                <div className="relative w-full overflow-hidden rounded-[3rem] bg-slate-900 shadow-2xl border border-white/10">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20"></div>
+                    <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/10 blur-[100px] rounded-full"></div>
+
+                    <div className="relative p-8 md:p-16 text-center z-10">
+                        <h2 className="font-burbank text-6xl md:text-8xl text-white italic uppercase mb-6 tracking-tighter drop-shadow-lg">
+                            {t.shop_banner_title}
+                        </h2>
+
+                        {shopData.aiOverallAnalysis ? (
+                            <div className="max-w-3xl mx-auto bg-black/40 backdrop-blur-md rounded-[2rem] p-6 border border-white/5 shadow-inner">
+                                <div className="flex items-center justify-center gap-3 mb-3 text-purple-400">
+                                    <Bot className="w-5 h-5" />
+                                    <span className="text-xs font-bold uppercase tracking-[0.3em]">AI Shop Verdict</span>
+                                </div>
+                                <p className="text-slate-200 text-lg md:text-xl font-medium leading-relaxed italic">
+                                    {shopData.aiOverallAnalysis[language]}
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-white/60 text-lg md:text-xl font-medium max-w-2xl mx-auto italic">
+                                {t.shop_banner_desc}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-2 mb-12">
+                {/* Categories */}
+                <div className="flex flex-wrap justify-center gap-3">
                     {['All', ...sortedCategories].map(cat => (
-                        <button key={cat} onClick={() => setActiveCategory(cat)} className={`px-4 py-2 rounded-xl font-bold uppercase transition-all flex items-center gap-2 border-b-4 ${activeCategory === cat ? 'bg-yellow-400 text-black border-orange-600' : 'bg-black/60 text-white/50 border-gray-800'}`}>
-                            <span>{categoryIcons[cat] || '📦'}</span>
-                            <span className="font-burbank text-lg">{language === 'bg' ? (bgCategoryNames[cat] || cat) : cat}</span>
+                        <button
+                            key={cat}
+                            onClick={() => setActiveCategory(cat)}
+                            className={`px-6 py-3 rounded-2xl font-bold uppercase transition-all duration-300 flex items-center gap-3 border-b-4 ${activeCategory === cat
+                                ? 'bg-yellow-400 text-black border-orange-600 scale-110 shadow-lg'
+                                : 'bg-slate-900/60 text-white/40 border-slate-800 hover:bg-slate-800'
+                                }`}
+                        >
+                            <span className="text-xl">
+                                {cat === 'Wishlist' ? '❤️' : (categoryIcons[cat] || '📦')}
+                            </span>
+                            <span className="font-burbank text-xl tracking-wide">
+                                {cat === 'Wishlist' ? t.wishlist_title : (language === 'bg' ? (bgCategoryNames[cat] || cat) : cat)}
+                            </span>
                         </button>
                     ))}
                 </div>
 
-                <div className="space-y-12 mb-20">
+                {/* Item Grids */}
+                <div className="space-y-20 pb-32">
                     {sortedCategories.map(cat => (categorizedItems[cat] && categorizedItems[cat].length > 0 && (activeCategory === 'All' || activeCategory === cat)) && (
-                        <div key={cat} className="space-y-6">
-                            <h2 className="font-burbank text-4xl text-white uppercase italic">{language === 'bg' ? bgCategoryNames[cat] : cat}</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div key={cat} className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                            <div className="flex items-center gap-6">
+                                <h2 className="font-burbank text-5xl text-white uppercase italic tracking-wide">
+                                    {cat === 'Wishlist' ? t.wishlist_title : (language === 'bg' ? bgCategoryNames[cat] : cat)}
+                                </h2>
+                                <div className="h-0.5 flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+                                <span className="bg-white/5 text-slate-500 px-3 py-1 rounded-full text-xs font-bold">
+                                    {categorizedItems[cat].length} ITEMS
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                                 {categorizedItems[cat].map((item, idx) => (
-                                    <ShopItemCard key={item.id + idx} item={item} vbuckIcon={shopData.vbuckIcon} onSelect={setSelectedItem} />
+                                    <ShopItemCard
+                                        key={item.id + idx}
+                                        item={item}
+                                        vbuckIcon={shopData.vbuckIcon}
+                                        onSelect={setSelectedItem}
+                                        isWishlisted={wishlist.includes(item.id)}
+                                        onToggleWishlist={handleToggleWishlist}
+                                    />
                                 ))}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {selectedItem && <ItemModal item={selectedItem} vbuckIcon={shopData.vbuckIcon} onClose={() => setSelectedItem(null)} />}
+                {selectedItem && (
+                    <ItemModal
+                        item={selectedItem}
+                        vbuckIcon={shopData.vbuckIcon}
+                        onClose={() => setSelectedItem(null)}
+                        language={language}
+                        isWishlisted={wishlist.includes(selectedItem.id)}
+                        onToggleWishlist={handleToggleWishlist}
+                    />
+                )}
             </div>
 
             {showScrollTop && (
-                <button onClick={scrollToTop} className="fixed bottom-8 right-8 z-50 p-4 rounded-full bg-yellow-400 text-black shadow-xl">
+                <button
+                    onClick={scrollToTop}
+                    className="fixed bottom-10 right-10 z-[100] p-5 rounded-[1.5rem] bg-yellow-400 text-black shadow-2xl hover:scale-110 active:scale-90 transition-all border-b-4 border-orange-600 animate-in slide-in-from-right-8"
+                >
                     <ChevronUp className="w-8 h-8" />
                 </button>
             )}

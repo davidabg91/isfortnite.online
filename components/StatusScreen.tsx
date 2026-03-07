@@ -1,10 +1,29 @@
 import React, { useState } from 'react';
 import { ServerStatus, Language, NewsItem } from '../types';
-import { AlertCircle, CheckCircle2, RefreshCw, Clock, ExternalLink, Heart, Lock, X, KeyRound, Zap, Info, Facebook, ShoppingBag, Activity } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  RefreshCcw,
+  Clock,
+  Heart,
+  Lock,
+  X,
+  KeyRound,
+  Zap,
+  Info,
+  Facebook,
+  ShoppingBag,
+  Activity,
+  TrendingUp,
+  Bot,
+  Sparkles,
+  RefreshCw
+} from 'lucide-react';
 import { FortniteLogo } from './FortniteLogo';
 import { getTranslation, LANGUAGE_NAMES } from '../translations';
 import { NewsSection } from './NewsSection';
 import Shop from './Shop';
+import { AIMentor } from './AIMentor';
 
 interface StatusScreenProps {
   status: ServerStatus;
@@ -18,8 +37,8 @@ interface StatusScreenProps {
   onLanguageChange: (lang: Language) => void;
   isPremium: boolean;
   onUnlockPremium: (code: string) => Promise<boolean>;
-  activeTab: 'status' | 'shop' | 'giveaway';
-  onTabChange: (tab: 'status' | 'shop' | 'giveaway') => void;
+  activeTab: 'status' | 'shop' | 'giveaway' | 'mentor';
+  onTabChange: (tab: 'status' | 'shop' | 'giveaway' | 'mentor') => void;
 }
 
 export const StatusScreen: React.FC<StatusScreenProps> = ({
@@ -27,7 +46,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
   message,
   rumorMessage,
   news,
-  sources,
   lastChecked,
   nextCheckTime,
   language,
@@ -55,8 +73,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
   };
 
   const isOnline = status === ServerStatus.ONLINE;
-  const hasRumors = rumorMessage && rumorMessage.length > 5;
-
   const handleDonate = () => window.open('https://revolut.me/deyvidp7g', '_blank');
 
   const handleVerifyCode = async () => {
@@ -115,14 +131,14 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
         <span className="hidden md:inline">{t.donate}</span>
       </button>
 
-      {isOnline && activeTab !== 'shop' && (
+      {isOnline && activeTab !== 'shop' && activeTab !== 'mentor' && (
         <div className="fixed top-0 left-0 w-full bg-yellow-400 text-black font-burbank text-center py-2 z-10 shadow-lg">{t.victory}</div>
       )}
 
       <div className="relative flex flex-col items-center min-h-screen py-20 px-4 md:px-8">
         <FortniteLogo subtitle={t.logo_subtitle} />
 
-        <div className="relative z-30 mt-8 md:mt-16 mb-8 flex gap-3 md:gap-4">
+        <div className="relative z-30 mt-8 md:mt-16 mb-8 flex flex-wrap justify-center gap-3 md:gap-4">
           <button onClick={() => onTabChange('status')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'status' ? 'bg-blue-600 text-white border-b-4 border-blue-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
             <div className="flex items-center gap-2 transform skew-x-12"><Activity className="w-4 h-4 md:w-5 md:h-5" />{t.tab_status}</div>
           </button>
@@ -131,6 +147,9 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           </button>
           <button onClick={() => onTabChange('giveaway')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'giveaway' ? 'bg-purple-600 text-white border-b-4 border-purple-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
             <div className="flex items-center gap-2 transform skew-x-12"><Zap className="w-4 h-4 md:w-5 md:h-5" />{t.tab_giveaway}</div>
+          </button>
+          <button onClick={() => onTabChange('mentor')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'mentor' ? 'bg-green-600 text-white border-b-4 border-green-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
+            <div className="flex items-center gap-2 transform skew-x-12"><Bot className="w-4 h-4 md:w-5 md:h-5" />{t.tab_mentor}</div>
           </button>
         </div>
 
@@ -150,12 +169,16 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
               </div>
             </div>
           </div>
+        ) : activeTab === 'mentor' ? (
+          <div className="w-full max-w-4xl">
+            <AIMentor language={language} />
+          </div>
         ) : (
           <>
             <div className="w-full max-w-4xl flex flex-col items-center justify-center gap-3 mb-8 backdrop-blur-md bg-black/20 p-6 md:p-8 rounded-[2rem] border border-white/5 relative">
               <button onClick={() => setShowStatusInfo(true)} className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/20 rounded-full text-white/50"><Info className="w-5 h-5" /></button>
               <div className="flex justify-center mb-1">
-                {status === ServerStatus.CHECKING && <RefreshCw className="w-14 h-14 text-yellow-400 animate-spin" />}
+                {status === ServerStatus.CHECKING && <RefreshCcw className="w-14 h-14 text-yellow-400 animate-spin" />}
                 {status === ServerStatus.ONLINE && <CheckCircle2 className="w-14 h-14 text-green-400 animate-bounce" />}
                 {(status === ServerStatus.OFFLINE || status === ServerStatus.ERROR) && <AlertCircle className="w-14 h-14 text-red-500 animate-pulse" />}
               </div>
@@ -163,19 +186,49 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                 {status === ServerStatus.CHECKING ? t.status_checking : status === ServerStatus.ONLINE ? t.status_online : t.status_offline}
               </h2>
             </div>
-            <div className={`w-full max-w-6xl grid grid-cols-1 gap-6 mb-8 ${hasRumors ? 'md:grid-cols-2' : ''}`}>
+
+            <div className="w-full max-w-6xl grid grid-cols-1 gap-6 mb-8">
               <div className="bg-gradient-to-br from-indigo-950/90 to-indigo-900/90 border-2 border-blue-400/40 rounded-[2rem] p-8 flex flex-col items-center justify-center text-center">
                 <p className="text-xl md:text-3xl text-white font-burbank italic uppercase tracking-wider">{message}</p>
+
+                {rumorMessage && (
+                  <div className="mt-8 w-full max-w-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-3xl p-6 border border-purple-500/20 shadow-lg relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <Sparkles className="w-16 h-16 text-purple-400" />
+                    </div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 bg-purple-500/20 rounded-lg">
+                        <TrendingUp className="w-5 h-5 text-purple-400" />
+                      </div>
+                      <h3 className="text-sm font-bold text-purple-300 tracking-widest uppercase">{t.rumor_label}</h3>
+                    </div>
+                    <p className="text-slate-100 text-lg leading-relaxed font-medium mb-6 relative z-10">
+                      {rumorMessage}
+                    </p>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[10px] font-bold text-slate-400 tracking-wider uppercase">
+                        <span>AI Probability</span>
+                        <span className="text-purple-400">85% Likely</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                        <div className="h-full bg-gradient-to-r from-purple-600 to-blue-500 w-[85%] rounded-full shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              {hasRumors && (
-                <div className="bg-cyan-900/40 border border-cyan-400/30 rounded-[2rem] p-8 flex flex-col items-center justify-center text-center">
-                  <p className="text-cyan-100 text-lg italic">"{rumorMessage}"</p>
+            </div>
+
+            {news && news.length > 0 && <NewsSection news={news} language={language} />}
+
+            <div className="flex flex-col items-center gap-2 text-white/60 font-medium pb-8 mt-8 text-center">
+              {lastChecked && (
+                <div className="bg-black/40 px-6 py-2 rounded-full border border-white/10 flex items-center gap-2 shadow-xl">
+                  <Clock className="w-4 h-4" />
+                  {t.last_check} {lastChecked.toLocaleTimeString()}
                 </div>
               )}
-            </div>
-            {news && news.length > 0 && <NewsSection news={news} language={language} />}
-            <div className="flex flex-col items-center gap-2 text-white/60 font-medium pb-8 mt-8">
-              {lastChecked && <div className="bg-black/40 px-6 py-2 rounded-full border border-white/10 flex items-center gap-2 shadow-xl"><Clock className="w-4 h-4" />{t.last_check} {lastChecked.toLocaleTimeString()}</div>}
               <p className="text-sm">{t.next_check} {Math.ceil(nextCheckTime / 60)} {t.min}</p>
             </div>
           </>
@@ -204,10 +257,22 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
             <div className="flex flex-col gap-3">
               <button onClick={handleDonate} className="bg-yellow-400 hover:bg-yellow-300 text-black font-burbank text-xl py-3 rounded-lg flex items-center justify-center gap-2"><Heart className="w-5 h-5 fill-red-500" />{t.unlock_fee}</button>
               <div className="bg-black/40 p-4 rounded-xl border border-white/10">
-                <input type="text" value={inputCode} onChange={(e) => { setInputCode(e.target.value.toUpperCase()); setCodeError(false); }} placeholder="FN-XXXX-XXXX" className={`w-full bg-black/50 text-white font-mono text-center p-2 rounded border-2 transition-colors ${codeError ? 'border-red-500' : 'border-white/20'}`} />
+                <input
+                  type="text"
+                  value={inputCode}
+                  onChange={(e) => { setInputCode(e.target.value.toUpperCase()); setCodeError(false); }}
+                  placeholder="FN-XXXX-XXXX"
+                  className={`w-full bg-black/50 text-white font-mono text-center p-2 rounded border-2 transition-colors ${codeError ? 'border-red-500' : 'border-white/20'}`}
+                />
                 {codeError && <span className="text-red-400 text-sm block mt-1">{t.invalid_code}</span>}
                 {unlockSuccess && <span className="text-green-400 text-sm block mt-1">{t.code_success}</span>}
-                <button onClick={handleVerifyCode} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-burbank text-lg py-2 rounded mt-2 flex items-center justify-center gap-2 shadow-lg">{isVerifying ? <RefreshCw className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}{t.verify_btn}</button>
+                <button
+                  onClick={handleVerifyCode}
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-burbank text-lg py-2 rounded mt-2 flex items-center justify-center gap-2 shadow-lg"
+                >
+                  {isVerifying ? <RefreshCw className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
+                  {t.verify_btn}
+                </button>
               </div>
             </div>
           </div>

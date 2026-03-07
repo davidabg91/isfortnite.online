@@ -127,3 +127,96 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
         return { isOnline: isOfficiallyOnline, messages: errorMap, rumorMessages: {} as any, news: [] };
     }
 };
+
+export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
+    const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+    const apiKey = s_dec(rawKey).trim();
+
+    if (!apiKey || apiKey.length < 10) return null;
+
+    // We only send basic info to save tokens and improve speed
+    const simplifiedItems = items.map(it => ({
+        name: it.name,
+        type: it.type,
+        rarity: it.rarity,
+        price: it.price,
+        isBundle: it.isBundle
+    }));
+
+    const prompt = `Analyze these Fortnite shop items.
+    ITEMS: ${JSON.stringify(simplifiedItems)}
+    
+    1. For each item, give:
+       - "score": (1-10) How good is this deal or how cool is the item?
+       - "reason": A brief 1-sentence explanation in Bulgarian and English.
+       - "rarityScore": (1-10) How rare is this skin/item?
+       - "recommendedCombos": Suggest 2 other item names (e.g. "Midas", "Ice King") that match this skin.
+    2. Provide an "aiOverallAnalysis": A 2-sentence summary of today's shop value.
+    
+    Output MUST be valid JSON:
+    {
+        "itemsAnalysis": [
+            {
+                "name": "...",
+                "score": 8,
+                "reason": {"en": "...", "bg": "..."},
+                "rarityScore": 5,
+                "recommendedCombos": ["...", "..."]
+            }
+        ],
+        "aiOverallAnalysis": {"en": "...", "bg": "..."}
+    }
+    Translate reasons to ALL: en, bg, es, de, fr, it, ru.
+    Provide RAW JSON.`;
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    maxOutputTokens: 8192,
+                    responseMimeType: "application/json"
+                }
+            })
+        });
+
+        if (!response.ok) return null;
+
+        const result = await response.json();
+        const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const cleanText = responseText.replace(/```json/gi, "").replace(/```/g, "").trim();
+
+        return JSON.parse(cleanText);
+    } catch (e) {
+        console.error("AI Analysis Error:", e);
+        return null;
+    }
+};
+
+export const getGameAdvice = async (query: string): Promise<Record<Language, string> | null> => {
+    const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+    const apiKey = s_dec(rawKey).trim();
+    if (!apiKey || apiKey.length < 10) return null;
+
+    const prompt = `You are a Pro Fortnite Mentor. Answer this query: "${query}"
+    Provide a professional, strategy-focused answer.
+    Translate to ALL: en, bg, es, de, fr, it, ru.
+    Output JSON: {"en": "...", "bg": "...", ...}`;
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: "application/json" }
+            })
+        });
+        if (!response.ok) return null;
+        const result = await response.json();
+        const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        return JSON.parse(text.replace(/```json/gi, "").replace(/```/g, "").trim());
+    } catch (e) { return null; }
+};
