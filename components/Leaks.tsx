@@ -62,12 +62,12 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
         setLoading(true);
         setError(false);
         try {
-            const res = await fetch('https://fortnite-api.com/v2/cosmetics/br/new?language=' + (language === 'bg' ? 'bg' : 'en'));
+            const res = await fetch('https://fortnite-api.com/v2/cosmetics/new?language=' + (language === 'bg' ? 'bg' : 'en'));
             if (!res.ok) throw new Error('Failed to fetch');
             const data = await res.json();
 
-            if (data.data?.items) {
-                setItems(data.data.items);
+            if (data.data?.items?.br) {
+                setItems(data.data.items.br);
                 setBuildVersion(data.data.build || 'Unknown');
             } else {
                 setItems([]);
