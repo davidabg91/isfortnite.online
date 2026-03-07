@@ -65,7 +65,7 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
             // Fetch newly added cosmetics
             const resCosmetics = await fetch('https://fortnite-api.com/v2/cosmetics/new?language=en');
             // Fetch current live shop
-            const resShop = await fetch('https://fortnite-api.com/v2/shop/br?language=en');
+            const resShop = await fetch('https://fortnite-api.com/v2/shop?language=en');
 
             if (!resCosmetics.ok || !resShop.ok) throw new Error('Failed to fetch data');
 
@@ -79,7 +79,14 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                 const currentShopIds = new Set<string>();
                 if (dataShop.data?.entries) {
                     dataShop.data.entries.forEach((entry: any) => {
-                        entry.items?.forEach((item: any) => currentShopIds.add(item.id));
+                        // The new shop API uses brItems, cars, tracks, etc.
+                        if (entry.brItems) {
+                            entry.brItems.forEach((item: any) => currentShopIds.add(item.id));
+                        }
+                        // Fallback just in case
+                        if (entry.items) {
+                            entry.items.forEach((item: any) => currentShopIds.add(item.id));
+                        }
                     });
                 }
 
