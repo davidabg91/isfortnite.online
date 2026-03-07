@@ -434,8 +434,8 @@ const Shop = ({ language }: { language: Language }) => {
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20"></div>
                     <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/10 blur-[100px] rounded-full"></div>
 
-                    <div className="relative p-8 md:p-10 text-center z-10">
-                        <h2 className="font-burbank text-4xl md:text-6xl text-white italic uppercase mb-4 tracking-tighter drop-shadow-lg">
+                    <div className="relative p-6 md:p-8 text-center z-10">
+                        <h2 className="font-burbank text-4xl md:text-5xl text-white italic uppercase mb-2 tracking-tight drop-shadow-md">
                             {t.shop_banner_title}
                         </h2>
 
