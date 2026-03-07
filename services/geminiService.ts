@@ -73,9 +73,8 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
         4. Translate ALL text fields (messages, rumorMessages, title, summary) into: en, bg, es, de, fr, it, ru.
         5. Provide RAW JSON. No markdown (\`\`\`). No trailing commas. Check your string escaping.`;
 
-        // Using direct FETCH to avoid SDK 404 bugs.
-        // Updated to gemini-2.5-flash as 2.0-flash is not available to new users.
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        // Using gemini-1.5-flash for maximum stability
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -182,7 +181,11 @@ export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
             })
         });
 
-        if (!response.ok) return null;
+        if (!response.ok) {
+            const err = await response.json();
+            console.error("Shop Analysis API Error:", err);
+            return null;
+        }
 
         const result = await response.json();
         const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
@@ -214,9 +217,16 @@ export const getGameAdvice = async (query: string): Promise<Record<Language, str
                 generationConfig: { responseMimeType: "application/json" }
             })
         });
-        if (!response.ok) return null;
+        if (!response.ok) {
+            const err = await response.json();
+            console.error("Mentor API Error:", err);
+            return null;
+        }
         const result = await response.json();
         const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
         return JSON.parse(text.replace(/```json/gi, "").replace(/```/g, "").trim());
-    } catch (e) { return null; }
+    } catch (e) {
+        console.error("Mentor Catch Error:", e);
+        return null;
+    }
 };
