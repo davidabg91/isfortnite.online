@@ -62,14 +62,36 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
         setLoading(true);
         setError(false);
         try {
-            // The new API endpoint does not support 'bg' language, forcing 'en' prevents 400 Error.
-            const res = await fetch('https://fortnite-api.com/v2/cosmetics/new?language=en');
-            if (!res.ok) throw new Error('Failed to fetch');
-            const data = await res.json();
+            // Fetch newly added cosmetics
+            const resCosmetics = await fetch('https://fortnite-api.com/v2/cosmetics/new?language=en');
+            // Fetch current live shop
+            const resShop = await fetch('https://fortnite-api.com/v2/shop/br?language=en');
 
-            if (data.data?.items?.br) {
-                setItems(data.data.items.br);
-                setBuildVersion(data.data.build || 'Unknown');
+            if (!resCosmetics.ok || !resShop.ok) throw new Error('Failed to fetch data');
+
+            const [dataCosmetics, dataShop] = await Promise.all([
+                resCosmetics.json(),
+                resShop.json()
+            ]);
+
+            if (dataCosmetics.data?.items?.br) {
+                // Get all item IDs currently in the shop
+                const currentShopIds = new Set<string>();
+                if (dataShop.data?.entries) {
+                    dataShop.data.entries.forEach((entry: any) => {
+                        entry.items?.forEach((item: any) => currentShopIds.add(item.id));
+                    });
+                }
+
+                // Filter out items that are currently in the shop, or have ever been in the shop (shopHistory exists)
+                const trulyUnreleased = dataCosmetics.data.items.br.filter((item: any) => {
+                    const inShopNow = currentShopIds.has(item.id);
+                    const hasAppearedBefore = item.shopHistory && item.shopHistory.length > 0;
+                    return !inShopNow && !hasAppearedBefore;
+                });
+
+                setItems(trulyUnreleased);
+                setBuildVersion(dataCosmetics.data.build || 'Unknown');
             } else {
                 setItems([]);
             }
