@@ -23,6 +23,7 @@ import { getTranslation, LANGUAGE_NAMES } from '../translations';
 import { NewsSection } from './NewsSection';
 import Shop from './Shop';
 import { SensConverter } from './SensConverter';
+import { Leaks } from './Leaks';
 
 interface StatusScreenProps {
   status: ServerStatus;
@@ -36,8 +37,8 @@ interface StatusScreenProps {
   onLanguageChange: (lang: Language) => void;
   isPremium: boolean;
   onUnlockPremium: (code: string) => Promise<boolean>;
-  activeTab: 'status' | 'shop' | 'giveaway' | 'sens';
-  onTabChange: (tab: 'status' | 'shop' | 'giveaway' | 'sens') => void;
+  activeTab: 'status' | 'shop' | 'giveaway' | 'sens' | 'leaks';
+  onTabChange: (tab: 'status' | 'shop' | 'giveaway' | 'sens' | 'leaks') => void;
 }
 
 export const StatusScreen: React.FC<StatusScreenProps> = ({
@@ -150,6 +151,9 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           <button onClick={() => onTabChange('sens')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'sens' ? 'bg-teal-600 text-white border-b-4 border-teal-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
             <div className="flex items-center gap-2 transform skew-x-12"><Activity className="w-4 h-4 md:w-5 md:h-5" />{language === 'bg' ? 'Сензитивност' : 'Sens Converter'}</div>
           </button>
+          <button onClick={() => onTabChange('leaks')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'leaks' ? 'bg-orange-600 text-white border-b-4 border-orange-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
+            <div className="flex items-center gap-2 transform skew-x-12"><Sparkles className="w-4 h-4 md:w-5 md:h-5" />{language === 'bg' ? 'Изтекли Скинове' : 'Leaks'}</div>
+          </button>
         </div>
 
         {activeTab === 'shop' ? (
@@ -171,6 +175,10 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
         ) : activeTab === 'sens' ? (
           <div className="w-full max-w-4xl animate-fade-in">
             <SensConverter language={language} />
+          </div>
+        ) : activeTab === 'leaks' ? (
+          <div className="w-full z-10 animate-fade-in min-h-screen">
+            <Leaks language={language} />
           </div>
         ) : (
           <>
