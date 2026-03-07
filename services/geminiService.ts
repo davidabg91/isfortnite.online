@@ -17,8 +17,8 @@ const s_dec = (s: string) => {
 };
 
 // Stable Gemini API Config
-const API_BASE = "https://generativelanguage.googleapis.com/v1";
-const MODEL = "gemini-1.5-flash";
+const API_BASE = "https://generativelanguage.googleapis.com/v1beta";
+const MODEL = "gemini-2.5-flash";
 
 const callGemini = async (prompt: string, isJson = true) => {
     const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
@@ -32,8 +32,8 @@ const callGemini = async (prompt: string, isJson = true) => {
         body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
-                max_output_tokens: 8192,
-                response_mime_type: isJson ? "application/json" : "text/plain"
+                maxOutputTokens: 8192,
+                responseMimeType: isJson ? "application/json" : "text/plain"
             }
         })
     });
