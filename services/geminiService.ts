@@ -176,3 +176,29 @@ export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
         return null;
     }
 };
+
+export const predictRarityTrend = async (item: any): Promise<any> => {
+    try {
+        const prompt = `Analyze this Fortnite item rarity & demand:
+        ITEM: ${JSON.stringify({ name: item.name, rarity: item.rarity?.displayValue, shopHistory: item.shopHistory })}
+        
+        1. Predict 'rarityScore' (100 = rarest, 0 = common).
+        2. Give 'trend' (Up/Down/Stable).
+        3. Predict 'nextAppearance' (estimated days or "Vaulted").
+        4. Give 'investVerdict' (Bulgarian & English) - why buy this now?
+        
+        Output JSON:
+        {
+            "rarityScore": 85,
+            "trend": "Up",
+            "nextAppearance": "150+ days",
+            "investVerdict": { "en": "...", "bg": "..." }
+        }
+        Keep verdict under 15 words.`;
+
+        return await callGemini(prompt, true);
+    } catch (e) {
+        console.error("[Gemini Rarity] Catch:", e);
+        return null;
+    }
+};

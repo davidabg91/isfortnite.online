@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Loader2, AlertCircle, Calendar, X } from 'lucide-react';
+import { Sparkles, Loader2, AlertCircle, Calendar, X, Bell, BellOff } from 'lucide-react';
 import { Language } from '../types';
 
 interface LeaksProps {
@@ -53,10 +53,14 @@ const getRarityColor = (rarity: string) => {
 
 const LeakModal = ({
     item,
-    onClose
+    onClose,
+    isWatched,
+    onToggleWatch
 }: {
     item: Cosmetic;
     onClose: () => void;
+    isWatched: boolean;
+    onToggleWatch: (item: Cosmetic) => void;
 }) => {
     const imgUrl = item.images.featured || item.images.icon || item.images.smallIcon;
 
@@ -102,6 +106,22 @@ const LeakModal = ({
                         <h2 className="font-burbank text-5xl md:text-7xl text-white uppercase leading-none mb-6 italic tracking-tight">{item.name}</h2>
                         <p className="text-slate-300 text-lg leading-relaxed mb-10 font-medium">{item.description}</p>
                     </div>
+
+                    <div className="mt-auto space-y-4">
+                        <button
+                            onClick={() => onToggleWatch(item)}
+                            className={`w-full py-4 rounded-2xl font-burbank text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all ${isWatched
+                                    ? 'bg-teal-500/20 text-teal-400 border-2 border-teal-500/50'
+                                    : 'bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-900/40'
+                                }`}
+                        >
+                            {isWatched ? <BellOff className="w-6 h-6" /> : <Bell className="w-6 h-6" />}
+                            {isWatched ? 'Unsubscribe' : 'Notify Me (Sniper)'}
+                        </button>
+                        <p className="text-teal-400/60 text-xs text-center font-medium uppercase tracking-widest">
+                            {isWatched ? 'You will be alerted when this drops' : 'Get a browser notification when this item is released'}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -115,6 +135,27 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [buildVersion, setBuildVersion] = useState('');
+    const [watchlist, setWatchlist] = useState<string[]>(() => {
+        return JSON.parse(localStorage.getItem('fn_item_watchlist') || '[]');
+    });
+
+    useEffect(() => {
+        localStorage.setItem('fn_item_watchlist', JSON.stringify(watchlist));
+    }, [watchlist]);
+
+    const toggleWatchlist = (item: Cosmetic) => {
+        setWatchlist(prev => {
+            const isExist = prev.includes(item.id);
+            if (isExist) return prev.filter(id => id !== item.id);
+
+            // Request notification permission if enabling
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+
+            return [...prev, item.id];
+        });
+    };
 
     // Lock body scroll when modal is open
     useEffect(() => {
@@ -266,9 +307,12 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
 
                                     {/* Bottom Info Bar */}
                                     <div className="absolute bottom-0 w-full bg-black/80 backdrop-blur-md p-2 md:p-3 flex flex-col justify-end border-t border-white/10 transform translate-y-1 transition-transform group-hover:translate-y-0">
-                                        <h3 className="font-burbank text-lg md:text-xl text-white uppercase italic leading-tight truncate drop-shadow-md">
-                                            {item.name}
-                                        </h3>
+                                        <div className="flex justify-between items-center mb-0.5">
+                                            <h3 className="font-burbank text-lg md:text-xl text-white uppercase italic leading-tight truncate drop-shadow-md flex-1">
+                                                {item.name}
+                                            </h3>
+                                            {watchlist.includes(item.id) && <Bell className="w-3 h-3 text-teal-400 animate-pulse" />}
+                                        </div>
                                         <p className="text-white/60 text-[10px] md:text-xs truncate" title={item.description}>
                                             {item.description || 'No description'}
                                         </p>
@@ -284,6 +328,8 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                 <LeakModal
                     item={selectedItem}
                     onClose={() => setSelectedItem(null)}
+                    isWatched={watchlist.includes(selectedItem.id)}
+                    onToggleWatch={toggleWatchlist}
                 />
             )}
         </div>

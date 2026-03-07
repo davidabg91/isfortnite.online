@@ -3,7 +3,8 @@ import { fetchFortniteShop } from '../services/fortniteShopService';
 import { analyzeShopItems } from '../services/geminiService';
 import { ShopItem, ShopResponse as ShopData, Language } from '../types';
 import { getTranslation } from '../translations';
-import { X, Clock, Loader2, AlertCircle, ChevronUp, Sparkles, Heart, TrendingUp, Zap } from 'lucide-react';
+import { X, Clock, Loader2, AlertCircle, ChevronUp, Sparkles, Heart, TrendingUp, Zap, BarChart3, Target } from 'lucide-react';
+import { predictRarityTrend } from '../services/geminiService';
 
 const getRarityColor = (rarity: string) => {
     const r = rarity.toLowerCase();
@@ -30,6 +31,16 @@ const ItemModal = ({
     onToggleWishlist: (e: React.MouseEvent, id: string) => void;
 }) => {
     const t = getTranslation(language);
+    const [trendData, setTrendData] = useState<any>(null);
+    const [loadingTrend, setLoadingTrend] = useState(false);
+
+    useEffect(() => {
+        setLoadingTrend(true);
+        predictRarityTrend(item).then(res => {
+            setTrendData(res);
+            setLoadingTrend(false);
+        }).catch(() => setLoadingTrend(false));
+    }, [item]);
 
     return (
         <div
@@ -138,6 +149,60 @@ const ItemModal = ({
                                     </div>
                                 </div>
                             )}
+
+                            {/* Rare Predictor (Monetization Feature) */}
+                            <div className="pt-8 border-t border-white/10 space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3 text-emerald-400">
+                                        <Target className="w-6 h-6" />
+                                        <h3 className="font-bold uppercase tracking-widest text-sm">{language === 'bg' ? 'ИНВЕСТИЦИОНЕН ИИ' : 'INVESTMENT AI'}</h3>
+                                    </div>
+                                    <span className="bg-emerald-500/10 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-black border border-emerald-500/20">PREMIUM PREDICTION</span>
+                                </div>
+
+                                {loadingTrend ? (
+                                    <div className="flex items-center gap-3 py-8 justify-center opacity-50">
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        <span className="text-xs uppercase font-bold tracking-[0.2em]">{language === 'bg' ? 'ПРЕСМЯТАНЕ НА РЯДКОСТ...' : 'CALCULATING TRENDS...'}</span>
+                                    </div>
+                                ) : trendData ? (
+                                    <div className="bg-gradient-to-br from-emerald-900/20 to-blue-900/10 rounded-3xl p-6 border border-emerald-500/20 shadow-xl relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                            <BarChart3 className="w-16 h-16 text-emerald-400" />
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 mb-6">
+                                            <div className="space-y-2">
+                                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Rarity Potential</span>
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className="text-3xl font-black text-emerald-400">{trendData.rarityScore}</span>
+                                                    <span className="text-emerald-900 font-bold text-sm">/100</span>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2 text-right">
+                                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Market Trend</span>
+                                                <div className={`text-xl font-black italic uppercase ${trendData.trend === 'Up' ? 'text-emerald-400' : 'text-blue-400'}`}>
+                                                    {trendData.trend}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4 relative z-10">
+                                            <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
+                                                <span className="text-[10px] text-emerald-500/60 font-bold uppercase tracking-widest block mb-2">{language === 'bg' ? 'ПРОГНОЗА ЗА ВРЪЩАНЕ' : 'RETURN ESTIMATE'}</span>
+                                                <p className="text-white font-burbank text-2xl italic tracking-wide">{trendData.nextAppearance}</p>
+                                            </div>
+
+                                            <div className="p-1">
+                                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block mb-1">{t.ai_worth_it} (AI VERDICT)</span>
+                                                <p className="text-slate-200 text-sm leading-relaxed font-medium">"{trendData.investVerdict[language]}"</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="py-8 text-center text-slate-500 text-xs italic">{language === 'bg' ? 'Няма достатъчно данни за прогноза' : 'Insufficient data for prediction'}</div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
