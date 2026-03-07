@@ -33,11 +33,11 @@ const ItemModal = ({
 
     return (
         <div
-            className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in z-[999999]"
+            className="fixed inset-0 flex items-center justify-center p-2 bg-black/95 backdrop-blur-xl animate-fade-in z-[999999] touch-none"
             onClick={onClose}
         >
             <div
-                className="relative w-full max-w-5xl max-h-[90vh] bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+                className="relative w-full max-w-5xl max-h-[90vh] bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row shadow-[0_0_50px_rgba(0,0,0,0.8)]"
                 onClick={e => e.stopPropagation()}
             >
                 <button
@@ -412,7 +412,15 @@ const Shop = ({ language }: { language: Language }) => {
             if (idxB !== -1) return 1;
             return a.localeCompare(b);
         });
-        return wishlist.length > 0 ? ['Wishlist', ...sorted] : sorted;
+
+        // Final sanity check: force 'Outfits' to front if it exists
+        const withWishlist = wishlist.length > 0 ? ['Wishlist', ...sorted] : sorted;
+        const outfitsIdx = withWishlist.findIndex(c => c.toLowerCase() === 'outfits');
+        if (outfitsIdx > 0) {
+            const [outfits] = withWishlist.splice(outfitsIdx, 1);
+            withWishlist.unshift(outfits);
+        }
+        return withWishlist;
     }, [categorizedItems, wishlist]);
 
     if (loading) {

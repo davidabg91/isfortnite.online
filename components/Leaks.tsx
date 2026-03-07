@@ -62,11 +62,11 @@ const LeakModal = ({
 
     return (
         <div
-            className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in z-[999999]"
+            className="fixed inset-0 flex items-center justify-center p-2 bg-black/95 backdrop-blur-xl animate-fade-in z-[999999] touch-none"
             onClick={onClose}
         >
             <div
-                className="relative w-full max-w-5xl max-h-[90vh] bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+                className="relative w-full max-w-5xl max-h-[90vh] bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row shadow-[0_0_50px_rgba(0,0,0,0.8)]"
                 onClick={e => e.stopPropagation()}
             >
                 <button
