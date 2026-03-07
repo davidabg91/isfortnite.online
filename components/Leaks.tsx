@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Loader2, AlertCircle, Calendar } from 'lucide-react';
+import { Sparkles, Loader2, AlertCircle, Calendar, X } from 'lucide-react';
 import { Language } from '../types';
 
 interface LeaksProps {
@@ -51,8 +51,63 @@ const getRarityColor = (rarity: string) => {
     return 'from-gray-500 to-gray-700 border-gray-400'; // Common / Unknown
 };
 
+const LeakModal = ({
+    item,
+    onClose
+}: {
+    item: Cosmetic;
+    onClose: () => void;
+}) => {
+    const imgUrl = item.images.featured || item.images.icon || item.images.smallIcon;
+
+    return (
+        <div
+            className="fixed inset-0 flex items-start md:items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-md animate-fade-in overflow-y-auto"
+            style={{ zIndex: 999990 }}
+        >
+            <div className="relative w-full max-w-5xl bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
+                <button
+                    onClick={onClose}
+                    className="absolute top-6 right-6 z-[210] p-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white transition-all hover:rotate-90 active:scale-95"
+                >
+                    <X className="w-8 h-8" />
+                </button>
+
+                {/* Left Side: Image */}
+                <div className={`w-full md:w-1/2 min-h-[400px] bg-gradient-to-br ${getRarityColor(item.rarity?.value)} p-8 flex items-center justify-center relative`}>
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+                    {imgUrl && (
+                        <img
+                            src={imgUrl}
+                            alt={item.name}
+                            className="max-w-full max-h-[450px] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-transform duration-700"
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = 'https://fortnite-api.com/images/vbuck.png';
+                                target.classList.add('opacity-50', 'scale-50');
+                            }}
+                        />
+                    )}
+                </div>
+
+                {/* Right Side: Info */}
+                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar">
+                    <div className="mb-8">
+                        <div className="flex justify-between items-start mb-4">
+                            <span className="text-yellow-400 font-bold uppercase tracking-[0.3em] text-xs">{item.rarity?.displayValue} {item.type?.displayValue}</span>
+                        </div>
+                        <h2 className="font-burbank text-5xl md:text-7xl text-white uppercase leading-none mb-6 italic tracking-tight">{item.name}</h2>
+                        <p className="text-slate-300 text-lg leading-relaxed mb-10 font-medium">{item.description}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export const Leaks: React.FC<LeaksProps> = ({ language }) => {
     const t = (labels as any)[language] || labels['en'];
+    const [selectedItem, setSelectedItem] = useState<Cosmetic | null>(null);
     const [items, setItems] = useState<Cosmetic[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -168,7 +223,7 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                             const imgUrl = item.images.featured || item.images.icon || item.images.smallIcon;
 
                             return (
-                                <div key={item.id} className={`group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b ${rarityStyle} border-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:z-10 aspect-[3/4]`}>
+                                <div onClick={() => setSelectedItem(item)} key={item.id} className={`cursor-pointer group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b ${rarityStyle} border-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:z-10 aspect-[3/4]`}>
                                     {/* Image Container */}
                                     <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/20">
                                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2)_0%,transparent_70%)] opacity-50"></div>
@@ -211,6 +266,13 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                     </div>
                 )}
             </div>
+
+            {selectedItem && (
+                <LeakModal
+                    item={selectedItem}
+                    onClose={() => setSelectedItem(null)}
+                />
+            )}
         </div>
     );
 };

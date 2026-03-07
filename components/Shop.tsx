@@ -33,10 +33,10 @@ const ItemModal = ({
 
     return (
         <div
-            className="fixed inset-0 flex items-start md:items-center justify-center p-4 md:p-8 bg-black/95 backdrop-blur-xl animate-fade-in overflow-y-auto"
+            className="fixed inset-0 flex items-start md:items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-md animate-fade-in overflow-y-auto"
             style={{ zIndex: 999990 }}
         >
-            <div className="relative w-full max-w-6xl bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
+            <div className="relative w-full max-w-5xl bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
                 <button
                     onClick={onClose}
                     className="absolute top-6 right-6 z-[210] p-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white transition-all hover:rotate-90 active:scale-95"
@@ -67,20 +67,22 @@ const ItemModal = ({
                     <div className="mb-8">
                         <div className="flex justify-between items-start mb-4">
                             <span className="text-yellow-400 font-bold uppercase tracking-[0.3em] text-xs">{item.rarity} {item.type}</span>
-                            <button
-                                onClick={(e) => onToggleWishlist(e, item.id)}
-                                className={`p-3 rounded-xl border transition-all ${isWishlisted ? 'bg-red-500/20 border-red-500 text-red-500' : 'bg-white/5 border-white/10 text-white/40 hover:text-white'}`}
-                            >
-                                <Heart className={`w-6 h-6 ${isWishlisted ? 'fill-current' : ''}`} />
-                            </button>
                         </div>
                         <h2 className="font-burbank text-5xl md:text-7xl text-white uppercase leading-none mb-6 italic tracking-tight">{item.name}</h2>
 
-                        <div className="flex items-center gap-4 mb-8">
+                        <div className="flex flex-wrap items-center gap-4 mb-8">
                             <div className="flex items-center gap-3 bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
                                 {vbuckIcon && <img src={vbuckIcon} alt="V-Bucks" className="w-8 h-8" />}
                                 <span className="text-white font-burbank text-4xl">{item.price.toLocaleString()}</span>
                             </div>
+
+                            <button
+                                onClick={(e) => onToggleWishlist(e, item.id)}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-2xl border transition-all font-bold uppercase text-sm ${isWishlisted ? 'bg-red-500/20 border-red-500 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-white/5 border-white/10 text-white/40 hover:text-white hover:bg-white/10'}`}
+                            >
+                                <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                            </button>
+
                             {item.isBundle && (
                                 <span className="bg-yellow-400 text-black px-5 py-2 rounded-xl font-black uppercase text-sm italic skew-x-[-12deg]">BUNDLE SAVINGS</span>
                             )}
@@ -240,7 +242,16 @@ const Shop = ({ language }: { language: Language }) => {
         'Featured': 'ОСНОВНИ',
         'Bundles': 'БЪНДЪЛИ',
         'Special': 'СПЕЦИАЛНИ',
-        'All': 'ВСИЧКИ'
+        'All': 'ВСИЧКИ',
+        'outfit': 'Скинове',
+        'backpack': 'Раници',
+        'pickaxe': 'Кирки',
+        'emote': 'Танци',
+        'glider': 'Глайдери',
+        'wrap': 'Окраски',
+        'music': 'Музика',
+        'loading': 'Екрани',
+        'bundle': 'Бъндъли'
     };
 
     const categoryIcons: Record<string, string> = {
@@ -248,7 +259,14 @@ const Shop = ({ language }: { language: Language }) => {
         'Featured': '⭐',
         'Bundles': '🎁',
         'Special': '🔥',
-        'All': '📦'
+        'All': '📦',
+        'outfit': '👕',
+        'backpack': '🎒',
+        'pickaxe': '⛏️',
+        'emote': '🕺',
+        'glider': '🪂',
+        'wrap': '🔫',
+        'bundle': '🎁'
     };
 
     const t = getTranslation(language);
@@ -374,10 +392,10 @@ const Shop = ({ language }: { language: Language }) => {
 
     const sortedCategories = useMemo(() => {
         const cats = Object.keys(categorizedItems).filter(c => c !== 'All' && c !== 'Wishlist');
-        const order = ['Featured', 'Daily', 'Bundles', 'Special'];
+        const order = ['outfit', 'bundle', 'emote', 'pickaxe', 'glider', 'backpack', 'wrap', 'music', 'loading'];
         const sorted = cats.sort((a, b) => {
-            const idxA = order.indexOf(a);
-            const idxB = order.indexOf(b);
+            const idxA = order.indexOf(a.toLowerCase());
+            const idxB = order.indexOf(b.toLowerCase());
             if (idxA !== -1 && idxB !== -1) return idxA - idxB;
             if (idxA !== -1) return -1;
             if (idxB !== -1) return 1;
