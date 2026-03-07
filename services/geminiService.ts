@@ -143,12 +143,10 @@ export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
             const prompt = `Analyze these Fortnite shop items: ${JSON.stringify(chunk)}
             
             1. For each item: score (1-10), reason (Bulgarian & English), recommendedCombos (max 2 item names).
-            ${index === 0 ? '2. Overall "aiOverallAnalysis" (2 sentences summarizing the shop value).' : ''}
             
             Output JSON:
             {
                 "itemsAnalysis": [{ "name": "...", "score": 8, "reason": {"en": "...", "bg": "..."}, "recommendedCombos": ["...", "..."] }]
-                ${index === 0 ? ',"aiOverallAnalysis": {"en": "...", "bg": "..."}' : ''}
             }
             IMPORTANT: Provide ONLY "en" and "bg" translations. Keep reasons under 15 words.`;
 
@@ -162,10 +160,6 @@ export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
                 if (result.value.itemsAnalysis) {
                     allAnalyses = allAnalyses.concat(result.value.itemsAnalysis);
                 }
-                if (index === 0 && result.value.aiOverallAnalysis) {
-                    aiOverallEn = result.value.aiOverallAnalysis.en || "";
-                    aiOverallBg = result.value.aiOverallAnalysis.bg || "";
-                }
             } else if (result.status === 'rejected') {
                 console.error(`[Gemini Shop] Chunk ${index} failed:`, result.reason);
             }
@@ -174,29 +168,11 @@ export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
         if (allAnalyses.length === 0) return null;
 
         return {
-            itemsAnalysis: allAnalyses,
-            aiOverallAnalysis: {
-                en: aiOverallEn || "The shop has been analyzed successfully.",
-                bg: aiOverallBg || "Магазинът беше анализиран успешно."
-            }
+            itemsAnalysis: allAnalyses
         };
 
     } catch (e) {
         console.error("[Gemini Shop] Catch:", e);
-        return null;
-    }
-};
-
-export const getGameAdvice = async (query: string): Promise<Record<Language, string> | null> => {
-    const prompt = `You are a Pro Fortnite Mentor. Answer this query: "${query}"
-    Provide a professional, strategy-focused answer. KEEP IT CONCISE AND SHORT (Under 50 words per language).
-    Translate to ALL: en, bg, es, de, fr, it, ru.
-    Output JSON: {"en": "...", "bg": "...", "es": "...", "de": "...", "fr": "...", "it": "...", "ru": "..."}`;
-
-    try {
-        return await callGemini(prompt);
-    } catch (e) {
-        console.error("[Gemini Mentor] Catch:", e);
         return null;
     }
 };

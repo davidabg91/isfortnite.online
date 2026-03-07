@@ -15,7 +15,6 @@ import {
   ShoppingBag,
   Activity,
   TrendingUp,
-  Bot,
   Sparkles,
   RefreshCw
 } from 'lucide-react';
@@ -23,7 +22,7 @@ import { FortniteLogo } from './FortniteLogo';
 import { getTranslation, LANGUAGE_NAMES } from '../translations';
 import { NewsSection } from './NewsSection';
 import Shop from './Shop';
-import { AIMentor } from './AIMentor';
+import { SensConverter } from './SensConverter';
 
 interface StatusScreenProps {
   status: ServerStatus;
@@ -37,8 +36,8 @@ interface StatusScreenProps {
   onLanguageChange: (lang: Language) => void;
   isPremium: boolean;
   onUnlockPremium: (code: string) => Promise<boolean>;
-  activeTab: 'status' | 'shop' | 'giveaway' | 'mentor';
-  onTabChange: (tab: 'status' | 'shop' | 'giveaway' | 'mentor') => void;
+  activeTab: 'status' | 'shop' | 'giveaway' | 'sens';
+  onTabChange: (tab: 'status' | 'shop' | 'giveaway' | 'sens') => void;
 }
 
 export const StatusScreen: React.FC<StatusScreenProps> = ({
@@ -131,7 +130,7 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
         <span className="hidden md:inline">{t.donate}</span>
       </button>
 
-      {isOnline && activeTab !== 'shop' && activeTab !== 'mentor' && (
+      {isOnline && activeTab !== 'shop' && activeTab !== 'sens' && (
         <div className="fixed top-0 left-0 w-full bg-yellow-400 text-black font-burbank text-center py-2 z-10 shadow-lg">{t.victory}</div>
       )}
 
@@ -148,8 +147,8 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           <button onClick={() => onTabChange('giveaway')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'giveaway' ? 'bg-purple-600 text-white border-b-4 border-purple-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
             <div className="flex items-center gap-2 transform skew-x-12"><Zap className="w-4 h-4 md:w-5 md:h-5" />{t.tab_giveaway}</div>
           </button>
-          <button onClick={() => onTabChange('mentor')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'mentor' ? 'bg-green-600 text-white border-b-4 border-green-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
-            <div className="flex items-center gap-2 transform skew-x-12"><Bot className="w-4 h-4 md:w-5 md:h-5" />{t.tab_mentor}</div>
+          <button onClick={() => onTabChange('sens')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'sens' ? 'bg-teal-600 text-white border-b-4 border-teal-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
+            <div className="flex items-center gap-2 transform skew-x-12"><Activity className="w-4 h-4 md:w-5 md:h-5" />{language === 'bg' ? 'Сензитивност' : 'Sens Converter'}</div>
           </button>
         </div>
 
@@ -169,9 +168,9 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
               </div>
             </div>
           </div>
-        ) : activeTab === 'mentor' ? (
-          <div className="w-full max-w-4xl">
-            <AIMentor language={language} />
+        ) : activeTab === 'sens' ? (
+          <div className="w-full max-w-4xl animate-fade-in">
+            <SensConverter language={language} />
           </div>
         ) : (
           <>

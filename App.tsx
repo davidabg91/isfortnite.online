@@ -44,7 +44,7 @@ export default function App() {
   // Store News
   const [news, setNews] = useState<NewsItem[]>([]);
   const [isPremium, setIsPremium] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'status' | 'shop' | 'giveaway' | 'mentor'>('status');
+  const [activeTab, setActiveTab] = useState<'status' | 'shop' | 'giveaway' | 'sens'>('status');
   const [sources, setSources] = useState<{ uri: string; title: string }[]>([]);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
   const [nextCheckTime, setNextCheckTime] = useState<number>(Date.now() + STATUS_CHECK_INTERVAL_MS);

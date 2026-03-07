@@ -3,7 +3,7 @@ import { fetchFortniteShop } from '../services/fortniteShopService';
 import { analyzeShopItems } from '../services/geminiService';
 import { ShopItem, ShopResponse as ShopData, Language } from '../types';
 import { getTranslation } from '../translations';
-import { X, Clock, Loader2, AlertCircle, ChevronUp, Sparkles, Heart, TrendingUp, Zap, Bot } from 'lucide-react';
+import { X, Clock, Loader2, AlertCircle, ChevronUp, Sparkles, Heart, TrendingUp, Zap } from 'lucide-react';
 
 const getRarityColor = (rarity: string) => {
     const r = rarity.toLowerCase();
@@ -438,22 +438,9 @@ const Shop = ({ language }: { language: Language }) => {
                         <h2 className="font-burbank text-3xl md:text-4xl text-white italic uppercase mb-1 tracking-tight drop-shadow-md">
                             {t.shop_banner_title}
                         </h2>
-
-                        {shopData.aiOverallAnalysis ? (
-                            <div className="max-w-3xl mx-auto bg-black/40 backdrop-blur-md rounded-[2rem] p-6 border border-white/5 shadow-inner">
-                                <div className="flex items-center justify-center gap-3 mb-3 text-purple-400">
-                                    <Bot className="w-5 h-5" />
-                                    <span className="text-xs font-bold uppercase tracking-[0.3em]">AI Shop Verdict</span>
-                                </div>
-                                <p className="text-slate-200 text-lg md:text-xl font-medium leading-relaxed italic">
-                                    {shopData.aiOverallAnalysis[language]}
-                                </p>
-                            </div>
-                        ) : (
-                            <p className="text-white/60 text-lg md:text-xl font-medium max-w-2xl mx-auto italic">
-                                {t.shop_banner_desc}
-                            </p>
-                        )}
+                        <p className="text-white/60 text-lg md:text-xl font-medium max-w-2xl mx-auto italic">
+                            {t.shop_banner_desc}
+                        </p>
                     </div>
                 </div>
 
