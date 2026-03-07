@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { getShopItems, ShopItem, ShopData } from '../services/fnService';
-import { getTranslation, Language } from '../translations';
+import { fetchFortniteShop } from '../services/fortniteShopService';
+import { ShopItem, ShopResponse as ShopData, Language } from '../types';
+import { getTranslation } from '../translations';
 import { X, Clock, Loader2, AlertCircle, ChevronUp } from 'lucide-react';
 
 const getRarityColor = (rarity: string) => {
@@ -128,7 +129,7 @@ const Shop = ({ language }: { language: Language }) => {
     const getShop = useCallback(async (showLoading = false) => {
         if (showLoading) setLoading(true);
         try {
-            const data = await getShopItems();
+            const data = await fetchFortniteShop(language);
             if (data) {
                 setShopData(data);
                 setError(false);
@@ -141,7 +142,7 @@ const Shop = ({ language }: { language: Language }) => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [language]);
 
     useEffect(() => {
         getShop(true);
@@ -150,11 +151,17 @@ const Shop = ({ language }: { language: Language }) => {
     }, [getShop]);
 
     useEffect(() => {
-        if (!shopData?.nextRefresh) return;
+        if (!shopData?.date) return;
+        // The current service doesn't provide a nextRefresh timestamp directly via API, 
+        // it just provides the shop items. We reset at 02:00 BG time (00:00 UTC).
         const updateTimer = () => {
             const now = new Date();
-            const next = new Date(shopData.nextRefresh);
-            const diff = next.getTime() - now.getTime();
+            const target = new Date();
+            target.setUTCHours(0, 0, 0, 0);
+            if (now >= target) {
+                target.setUTCDate(target.getUTCDate() + 1);
+            }
+            const diff = target.getTime() - now.getTime();
             if (diff <= 0) {
                 setTimeLeft("00:00:00");
                 return;
@@ -181,8 +188,8 @@ const Shop = ({ language }: { language: Language }) => {
         if (!shopData) return {};
         const cats: Record<string, ShopItem[]> = { 'All': shopData.items };
         shopData.items.forEach(item => {
-            if (!cats[item.category]) cats[item.category] = [];
-            cats[item.category].push(item);
+            if (!cats[item.type]) cats[item.type] = [];
+            cats[item.type].push(item);
         });
         return cats;
     }, [shopData]);
