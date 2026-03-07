@@ -26,6 +26,8 @@ const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status
 export const checkFortniteServerStatus = async (skipAI = false, skipNews = false): Promise<CheckResult> => {
     const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
     const apiKey = s_dec(rawKey).trim();
+    if (apiKey) console.log("[Gemini] API Key loaded:", apiKey.substring(0, 4) + "...");
+    else console.warn("[Gemini] API Key is MISSING in environment.");
 
     const fallbackMap: Record<Language, string> = {} as any;
     (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
