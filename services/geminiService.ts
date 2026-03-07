@@ -136,7 +136,7 @@ export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
         "itemsAnalysis": [{ "name": "...", "score": 8, "reason": {"en": "...", "bg": "..."}, "recommendedCombos": ["...", "..."] }],
         "aiOverallAnalysis": {"en": "...", "bg": "..."}
     }
-    Translate to: en, bg, es, de, fr, it, ru.`;
+    IMPORTANT: Provide ONLY "en" and "bg" translations to keep the response short. Never include other languages.`;
 
     try {
         return await callGemini(prompt);
@@ -148,9 +148,9 @@ export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
 
 export const getGameAdvice = async (query: string): Promise<Record<Language, string> | null> => {
     const prompt = `You are a Pro Fortnite Mentor. Answer this query: "${query}"
-    Provide a professional, strategy-focused answer.
+    Provide a professional, strategy-focused answer. KEEP IT CONCISE AND SHORT (Under 50 words per language).
     Translate to ALL: en, bg, es, de, fr, it, ru.
-    Output JSON: {"en": "...", "bg": "...", ...}`;
+    Output JSON: {"en": "...", "bg": "...", "es": "...", "de": "...", "fr": "...", "it": "...", "ru": "..."}`;
 
     try {
         return await callGemini(prompt);
