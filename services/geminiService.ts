@@ -51,8 +51,19 @@ const callGemini = async (prompt: string, isJson = true) => {
     const cleanText = text.replace(/```json/gi, "").replace(/```/g, "").trim();
     const firstBrace = cleanText.indexOf('{');
     const lastBrace = cleanText.lastIndexOf('}');
-    if (firstBrace === -1) throw new Error("JSON_NOT_FOUND");
-    return JSON.parse(cleanText.substring(firstBrace, lastBrace + 1));
+
+    if (firstBrace === -1 || lastBrace === -1 || lastBrace < firstBrace) {
+        console.error("[Gemini] Invalid JSON structure. Raw text:", text);
+        throw new Error("JSON_NOT_FOUND");
+    }
+
+    const jsonString = cleanText.substring(firstBrace, lastBrace + 1);
+    try {
+        return JSON.parse(jsonString);
+    } catch (e) {
+        console.error("[Gemini] JSON Parse Error. Raw string:", jsonString);
+        throw e;
+    }
 };
 
 const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/status.json";
