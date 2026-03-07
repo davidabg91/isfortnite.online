@@ -285,6 +285,26 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           </div>
         </div>
       )}
+
+      {/* Footer / Credits */}
+      <footer className="w-full py-10 flex flex-col items-center justify-center gap-2 relative z-10 border-t border-white/5 mt-auto">
+        <a
+          href="https://www.facebook.com/p/DavidaX-61578418701694/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex flex-col items-center gap-2 transition-all hover:scale-105"
+        >
+          <span className="text-white/40 text-[10px] font-bold uppercase tracking-[0.3em]">Built with Excellence</span>
+          <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 group-hover:border-blue-500/50 transition-all shadow-xl">
+            <span className="text-white/60 text-sm font-medium">Made by</span>
+            <span className="font-burbank text-2xl text-white italic tracking-wider transition-colors group-hover:text-blue-400">DavidaX</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-transform">
+              <Facebook className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        </a>
+        <p className="text-white/20 text-[10px] uppercase font-bold tracking-tighter mt-2">© 2026 ISFORTNITE.ONLINE | ALL RIGHTS RESERVED</p>
+      </footer>
     </div>
   );
 };
