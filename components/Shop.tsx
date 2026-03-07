@@ -36,7 +36,7 @@ const ItemModal = ({
             className="fixed inset-0 flex items-start md:items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-md animate-fade-in overflow-y-auto"
             style={{ zIndex: 999990 }}
         >
-            <div className="relative w-full max-w-5xl bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
+            <div className="relative w-full max-w-5xl max-h-[85vh] bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
                 <button
                     onClick={onClose}
                     className="absolute top-6 right-6 z-[210] p-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white transition-all hover:rotate-90 active:scale-95"
@@ -63,7 +63,7 @@ const ItemModal = ({
                 </div>
 
                 {/* Right Side: Info & AI */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar">
+                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col overflow-y-auto custom-scrollbar">
                     <div className="mb-8">
                         <div className="flex justify-between items-start mb-4">
                             <span className="text-yellow-400 font-bold uppercase tracking-[0.3em] text-xs">{item.rarity} {item.type}</span>
@@ -243,15 +243,14 @@ const Shop = ({ language }: { language: Language }) => {
         'Bundles': 'БЪНДЪЛИ',
         'Special': 'СПЕЦИАЛНИ',
         'All': 'ВСИЧКИ',
-        'outfit': 'Скинове',
-        'backpack': 'Раници',
-        'pickaxe': 'Кирки',
-        'emote': 'Танци',
-        'glider': 'Глайдери',
-        'wrap': 'Окраски',
-        'music': 'Музика',
-        'loading': 'Екрани',
-        'bundle': 'Бъндъли'
+        'Outfits': 'Скинове',
+        'Back Bling': 'Раници',
+        'Pickaxes': 'Кирки',
+        'Emotes': 'Танци',
+        'Gliders': 'Глайдери',
+        'Wraps': 'Окраски',
+        'Music': 'Музика',
+        'Loading Screens': 'Екрани'
     };
 
     const categoryIcons: Record<string, string> = {
@@ -260,13 +259,12 @@ const Shop = ({ language }: { language: Language }) => {
         'Bundles': '🎁',
         'Special': '🔥',
         'All': '📦',
-        'outfit': '👕',
-        'backpack': '🎒',
-        'pickaxe': '⛏️',
-        'emote': '🕺',
-        'glider': '🪂',
-        'wrap': '🔫',
-        'bundle': '🎁'
+        'Outfits': '👕',
+        'Back Bling': '🎒',
+        'Pickaxes': '⛏️',
+        'Emotes': '🕺',
+        'Gliders': '🪂',
+        'Wraps': '🔫'
     };
 
     const t = getTranslation(language);
@@ -392,7 +390,7 @@ const Shop = ({ language }: { language: Language }) => {
 
     const sortedCategories = useMemo(() => {
         const cats = Object.keys(categorizedItems).filter(c => c !== 'All' && c !== 'Wishlist');
-        const order = ['outfit', 'bundle', 'emote', 'pickaxe', 'glider', 'backpack', 'wrap', 'music', 'loading'];
+        const order = ['outfits', 'bundles', 'emotes', 'pickaxes', 'gliders', 'back bling', 'wraps', 'music', 'loading screens'];
         const sorted = cats.sort((a, b) => {
             const idxA = order.indexOf(a.toLowerCase());
             const idxB = order.indexOf(b.toLowerCase());

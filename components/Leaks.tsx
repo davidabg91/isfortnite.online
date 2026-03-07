@@ -65,7 +65,7 @@ const LeakModal = ({
             className="fixed inset-0 flex items-start md:items-center justify-center p-4 md:p-8 bg-black/60 backdrop-blur-md animate-fade-in overflow-y-auto"
             style={{ zIndex: 999990 }}
         >
-            <div className="relative w-full max-w-5xl bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
+            <div className="relative w-full max-w-5xl max-h-[85vh] bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row my-auto">
                 <button
                     onClick={onClose}
                     className="absolute top-6 right-6 z-[210] p-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white transition-all hover:rotate-90 active:scale-95"
@@ -91,7 +91,7 @@ const LeakModal = ({
                 </div>
 
                 {/* Right Side: Info */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar">
+                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col overflow-y-auto custom-scrollbar">
                     <div className="mb-8">
                         <div className="flex justify-between items-start mb-4">
                             <span className="text-yellow-400 font-bold uppercase tracking-[0.3em] text-xs">{item.rarity?.displayValue} {item.type?.displayValue}</span>
