@@ -287,7 +287,7 @@ const Shop = ({ language }: { language: Language }) => {
                     // Trigger AI Analysis asynchronously to not block UI
                     setAnalyzing(true);
                     analyzeShopItems(data.items).then(result => {
-                        if (result) {
+                        if (result && result.itemsAnalysis && result.itemsAnalysis.length > 0) {
                             localStorage.setItem(cacheKey, JSON.stringify(result));
                             setShopData(prev => prev ? {
                                 ...prev,
@@ -297,9 +297,14 @@ const Shop = ({ language }: { language: Language }) => {
                                 })),
                                 aiOverallAnalysis: result.aiOverallAnalysis
                             } : null);
+                        } else {
+                            console.warn("[Shop] AI Analysis returned empty or failed.");
                         }
                         setAnalyzing(false);
-                    }).catch(() => setAnalyzing(false));
+                    }).catch(err => {
+                        console.error("[Shop] AI Analysis Error:", err);
+                        setAnalyzing(false);
+                    });
                 }
 
                 setShopData({
@@ -405,16 +410,14 @@ const Shop = ({ language }: { language: Language }) => {
             {/* Header Timer */}
             <div className="w-full flex justify-between items-center mb-12">
                 <div className="flex items-center gap-4">
-                    <div className="bg-purple-600/20 px-6 py-3 rounded-2xl border border-purple-500/30 flex items-center gap-3">
-                        {analyzing ? (
-                            <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
-                        ) : (
-                            <Sparkles className="w-5 h-5 text-purple-400" />
-                        )}
-                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
-                            {analyzing ? t.ai_analyzing : "AI Engine 2.0 Active"}
-                        </span>
-                    </div>
+                    {analyzing && (
+                        <div className="bg-purple-600/20 px-4 py-2 rounded-2xl border border-purple-500/30 flex items-center gap-3">
+                            <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
+                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                                {t.ai_analyzing}
+                            </span>
+                        </div>
+                    )}
                 </div>
                 <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-4 shadow-xl text-white">
                     <Clock className="w-6 h-6 text-yellow-500 animate-pulse" />
@@ -431,8 +434,8 @@ const Shop = ({ language }: { language: Language }) => {
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20"></div>
                     <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/10 blur-[100px] rounded-full"></div>
 
-                    <div className="relative p-8 md:p-16 text-center z-10">
-                        <h2 className="font-burbank text-6xl md:text-8xl text-white italic uppercase mb-6 tracking-tighter drop-shadow-lg">
+                    <div className="relative p-8 md:p-10 text-center z-10">
+                        <h2 className="font-burbank text-4xl md:text-6xl text-white italic uppercase mb-4 tracking-tighter drop-shadow-lg">
                             {t.shop_banner_title}
                         </h2>
 

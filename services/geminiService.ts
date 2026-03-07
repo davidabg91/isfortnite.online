@@ -6,17 +6,19 @@ import { getTranslation, LANGUAGE_NAMES } from "../translations";
  * SECURITY STRATEGY: OBFUSCATED FALLBACK ASSEMBLY
  */
 const s_dec = (s: string) => {
+    if (!s) return "";
+    const cleaned = s.trim();
+    // If it looks like a raw Gemini key, return it immediately
+    if (cleaned.startsWith("AIza")) return cleaned;
+
     try {
-        if (!s || s.length < 10) return s || "";
-        const cleaned = s.trim();
-        if (cleaned.startsWith("AIza")) return cleaned;
-        const b64 = cleaned.replace(/-/g, '+').replace(/_/g, '/');
-        const decoded = atob(b64);
+        // Try base64 decoding if it doesn't look like a raw key
+        const decoded = atob(cleaned.replace(/-/g, '+').replace(/_/g, '/'));
         if (decoded.startsWith("AIza")) return decoded;
-        return cleaned;
     } catch (e) {
-        return s || "";
+        // If decoding fails, it's likely already a raw key (or garbage, but we'll try it anyway)
     }
+    return cleaned;
 };
 
 const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/status.json";
