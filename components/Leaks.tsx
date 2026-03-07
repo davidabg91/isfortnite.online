@@ -62,7 +62,8 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
         setLoading(true);
         setError(false);
         try {
-            const res = await fetch('https://fortnite-api.com/v2/cosmetics/new?language=' + (language === 'bg' ? 'bg' : 'en'));
+            // The new API endpoint does not support 'bg' language, forcing 'en' prevents 400 Error.
+            const res = await fetch('https://fortnite-api.com/v2/cosmetics/new?language=en');
             if (!res.ok) throw new Error('Failed to fetch');
             const data = await res.json();
 
