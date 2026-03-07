@@ -32,8 +32,8 @@ const callGemini = async (prompt: string, isJson = true) => {
         body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
-                maxOutputTokens: 8192,
-                responseMimeType: isJson ? "application/json" : "text/plain"
+                max_output_tokens: 8192,
+                response_mime_type: isJson ? "application/json" : "text/plain"
             }
         })
     });
