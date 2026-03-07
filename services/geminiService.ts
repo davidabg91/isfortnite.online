@@ -126,20 +126,61 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
 
 export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
     const simplifiedItems = items.map(it => ({ name: it.name, type: it.type, price: it.price }));
-    const prompt = `Analyze these Fortnite shop items: ${JSON.stringify(simplifiedItems)}
-    
-    1. For each item: score (1-10), reason (Bulgarian & English), recommendedCombos (2 item names).
-    2. Overall "aiOverallAnalysis" (2 sentences).
-    
-    Output JSON:
-    {
-        "itemsAnalysis": [{ "name": "...", "score": 8, "reason": {"en": "...", "bg": "..."}, "recommendedCombos": ["...", "..."] }],
-        "aiOverallAnalysis": {"en": "...", "bg": "..."}
+
+    // Split items into chunks of 30 to prevent Gemini 8192 token output cutoffs on huge shops
+    const CHUNK_SIZE = 30;
+    const itemChunks = [];
+    for (let i = 0; i < simplifiedItems.length; i += CHUNK_SIZE) {
+        itemChunks.push(simplifiedItems.slice(i, i + CHUNK_SIZE));
     }
-    IMPORTANT: Provide ONLY "en" and "bg" translations to keep the response short. Never include other languages.`;
+
+    let allAnalyses: any[] = [];
+    let aiOverallBg = "";
+    let aiOverallEn = "";
 
     try {
-        return await callGemini(prompt);
+        const promises = itemChunks.map(async (chunk, index) => {
+            const prompt = `Analyze these Fortnite shop items: ${JSON.stringify(chunk)}
+            
+            1. For each item: score (1-10), reason (Bulgarian & English), recommendedCombos (max 2 item names).
+            ${index === 0 ? '2. Overall "aiOverallAnalysis" (2 sentences summarizing the shop value).' : ''}
+            
+            Output JSON:
+            {
+                "itemsAnalysis": [{ "name": "...", "score": 8, "reason": {"en": "...", "bg": "..."}, "recommendedCombos": ["...", "..."] }]
+                ${index === 0 ? ',"aiOverallAnalysis": {"en": "...", "bg": "..."}' : ''}
+            }
+            IMPORTANT: Provide ONLY "en" and "bg" translations. Keep reasons under 15 words.`;
+
+            return await callGemini(prompt, true);
+        });
+
+        const results = await Promise.allSettled(promises);
+
+        results.forEach((result, index) => {
+            if (result.status === 'fulfilled' && result.value) {
+                if (result.value.itemsAnalysis) {
+                    allAnalyses = allAnalyses.concat(result.value.itemsAnalysis);
+                }
+                if (index === 0 && result.value.aiOverallAnalysis) {
+                    aiOverallEn = result.value.aiOverallAnalysis.en || "";
+                    aiOverallBg = result.value.aiOverallAnalysis.bg || "";
+                }
+            } else if (result.status === 'rejected') {
+                console.error(`[Gemini Shop] Chunk ${index} failed:`, result.reason);
+            }
+        });
+
+        if (allAnalyses.length === 0) return null;
+
+        return {
+            itemsAnalysis: allAnalyses,
+            aiOverallAnalysis: {
+                en: aiOverallEn || "The shop has been analyzed successfully.",
+                bg: aiOverallBg || "Магазинът беше анализиран успешно."
+            }
+        };
+
     } catch (e) {
         console.error("[Gemini Shop] Catch:", e);
         return null;
