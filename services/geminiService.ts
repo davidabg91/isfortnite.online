@@ -18,7 +18,7 @@ const s_dec = (s: string) => {
 
 // Stable Gemini API Config
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta";
-const MODEL = "gemini-1.5-flash";
+const MODEL = "gemini-2.5-flash";
 
 const callGemini = async (prompt: string, isJson = true) => {
     const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
