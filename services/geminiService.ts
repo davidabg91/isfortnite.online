@@ -115,7 +115,7 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
         const prompt = `You are a professional Fortnite status reporter and leaker.
         TODAY\'S DATE: ${new Date().toISOString().split('T')[0]}
         OFFICIAL API STATUS IS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
-        ${skipNews ? "" : "1. Find 3 latest Fortnite news (patch notes, events, etc.) strictly from the last 24h of TODAY\'S DATE."}
+        ${skipNews ? "" : "1. Find 3 latest Fortnite news (patch notes, events, etc.) from the current month."}
         2. Give a brief Community Report for the 'messages' field. Summarize what real players on Twitter/Reddit are reporting.
         3. Provide 1 interesting Fortnite rumor for 'rumorMessages'.
         4. Output MUST BE valid JSON:
@@ -141,6 +141,31 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
     } catch (error: any) {
         console.error("[Gemini Status] Catch:", error);
         return { isOnline: isOfficiallyOnline, messages: fallbackMap, rumorMessages: {} as any, news: [] };
+    }
+};
+
+export const getGameAdvice = async (userQuestion: string): Promise<Record<Language, string> | null> => {
+    try {
+        const prompt = `You are a Pro Fortnite Coach (DavidaX AI). 
+        User Question: "${userQuestion}"
+        
+        Provide high-level competitive advice or matching strategy.
+        Output MUST BE valid JSON:
+        {
+            "en": "...",
+            "bg": "...",
+            "es": "...",
+            "de": "...",
+            "fr": "...",
+            "it": "...",
+            "ru": "..."
+        }
+        Keep answer concise (max 40 words per language).`;
+
+        return await callGemini(prompt, true);
+    } catch (e) {
+        console.error("[Gemini Advisor] Catch:", e);
+        return null;
     }
 };
 
