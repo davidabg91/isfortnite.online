@@ -115,8 +115,17 @@ export default function App() {
     // session flag to avoid notification on every single refresh
     if (sessionStorage.getItem('notified_visit')) return;
 
-    const platform = (navigator as any).platform || "unknown";
-    const lang = navigator.language;
+    const escapeHtml = (unsafe: string) => {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    };
+
+    const platform = escapeHtml((navigator as any).platform || "unknown");
+    const lang = escapeHtml(navigator.language);
 
     const text =
       `👥 <b>НОВ ПОСЕТИТЕЛ</b>\n` +

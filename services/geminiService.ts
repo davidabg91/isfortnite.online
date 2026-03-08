@@ -18,7 +18,7 @@ const s_dec = (s: string) => {
 
 // Stable Gemini API Config
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta";
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-1.5-flash";
 
 const callGemini = async (prompt: string, isJson = true) => {
     const rawKey = import.meta.env.VITE_GEMINI_API_KEY || "";
@@ -33,6 +33,7 @@ const callGemini = async (prompt: string, isJson = true) => {
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
                 maxOutputTokens: 8192,
+                temperature: 0.1, // Lower temperature for more deterministic/stable JSON
                 responseMimeType: isJson ? "application/json" : "text/plain"
             }
         })
@@ -48,20 +49,39 @@ const callGemini = async (prompt: string, isJson = true) => {
     const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
     if (!isJson) return text;
 
-    const cleanText = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+    // Robust JSON extraction
+    const cleanText = text.trim();
     const firstBrace = cleanText.indexOf('{');
     const lastBrace = cleanText.lastIndexOf('}');
 
-    if (firstBrace === -1 || lastBrace === -1 || lastBrace < firstBrace) {
-        console.error("[Gemini] Invalid JSON structure. Raw text:", text);
+    if (firstBrace === -1) {
+        console.error("[Gemini] No JSON found. Raw text:", text);
         throw new Error("JSON_NOT_FOUND");
     }
 
-    const jsonString = cleanText.substring(firstBrace, lastBrace + 1);
+    let jsonString = cleanText.substring(firstBrace, (lastBrace === -1 ? cleanText.length : lastBrace + 1));
+
+    // If JSON is truncated (no closing brace), try to close it if it's very close or just fail gracefully
+    if (lastBrace === -1 || lastBrace < firstBrace) {
+        console.warn("[Gemini] Truncated JSON detected. Attempting to repair...");
+        // This is a naive repair, but for complex objects it's safer to just log and throw
+        // rather than trying to guess the missing parts.
+        throw new Error("JSON_TRUNCATED");
+    }
+
     try {
         return JSON.parse(jsonString);
     } catch (e) {
         console.error("[Gemini] JSON Parse Error. Raw string:", jsonString);
+        // Fallback: If parsing fails and it looks like a markdown block was returned despite request
+        const retryClean = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+        const f2 = retryClean.indexOf('{');
+        const l2 = retryClean.lastIndexOf('}');
+        if (f2 !== -1 && l2 !== -1 && l2 > f2) {
+            try {
+                return JSON.parse(retryClean.substring(f2, l2 + 1));
+            } catch (e2) { }
+        }
         throw e;
     }
 };
