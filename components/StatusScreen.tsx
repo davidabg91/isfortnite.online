@@ -194,37 +194,72 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
               </h2>
             </div>
 
-            <div className="w-full max-w-6xl grid grid-cols-1 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-indigo-950/90 to-indigo-900/90 border-2 border-blue-400/40 rounded-[2rem] p-8 flex flex-col items-center justify-center text-center">
-                <p className="text-xl md:text-3xl text-white font-burbank italic uppercase tracking-wider">{message}</p>
+            <div className="w-full max-w-6xl flex flex-col items-center gap-6 mb-8 px-2 md:px-0">
+              
+              {/* Information Panel */}
+              <div className="w-full md:w-4/5 lg:w-3/4 transform -skew-x-6 relative group">
+                {/* Outer Glow */}
+                <div className={`absolute -inset-1 rounded-3xl blur-md opacity-50 group-hover:opacity-100 transition duration-500 bg-gradient-to-r ${
+                  isOnline ? 'from-green-500 via-emerald-400 to-green-600' : 'from-red-600 via-orange-500 to-red-700'
+                }`}></div>
 
-                {rumorMessage && (
-                  <div className="mt-8 w-full max-w-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-3xl p-6 border border-purple-500/20 shadow-lg relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                      <Sparkles className="w-16 h-16 text-purple-400" />
+                <div className="relative bg-black/70 backdrop-blur-xl border-y-4 border-r-4 border-l-8 overflow-hidden rounded-r-2xl rounded-l-md flex flex-col items-center justify-center p-8 md:p-12 shadow-[0_0_30px_rgba(0,0,0,0.8)] z-10 
+                  border-l-indigo-500 border-t-white/10 border-b-white/10 border-r-white/10"
+                >
+                  <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                    <Activity className="w-24 h-24 text-white" />
+                  </div>
+
+                  <div className="flex flex-col items-center text-center gap-4 transform skew-x-6 relative z-10 w-full max-w-2xl">
+                    <div className="flex items-center gap-3 mb-2">
+                       <div className={`p-2 rounded-lg ${isOnline ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                         <Info className={`w-5 h-5 ${isOnline ? 'text-green-400' : 'text-red-400'}`} />
+                       </div>
+                       <h3 className="text-sm md:text-base font-bold text-gray-400 tracking-[0.2em] uppercase">{t.official_label}</h3>
                     </div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-purple-500/20 rounded-lg">
-                        <TrendingUp className="w-5 h-5 text-purple-400" />
-                      </div>
-                      <h3 className="text-sm font-bold text-purple-300 tracking-widest uppercase">{t.rumor_label}</h3>
-                    </div>
-                    <p className="text-slate-100 text-lg leading-relaxed font-medium mb-6 relative z-10">
-                      {rumorMessage}
+                    
+                    <p className="text-xl md:text-3xl text-white font-burbank italic uppercase tracking-wider leading-relaxed drop-shadow-lg">
+                      {message}
                     </p>
+                  </div>
+                </div>
+              </div>
 
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-[10px] font-bold text-slate-400 tracking-wider uppercase">
-                        <span>AI Probability</span>
-                        <span className="text-purple-400">85% Likely</span>
+              {/* Rumor Panel */}
+              {rumorMessage && (
+                <div className="w-full md:w-3/4 lg:w-2/3 transform skew-x-3 relative group mt-4">
+                  
+                  <div className="absolute -inset-1 rounded-3xl blur-md opacity-40 group-hover:opacity-70 transition duration-500 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-blue-600"></div>
+
+                  <div className="relative bg-gradient-to-br from-indigo-950/90 to-purple-900/90 border border-fuchsia-500/30 rounded-2xl p-6 md:p-8 shadow-2xl overflow-hidden z-10">
+                    <div className="absolute -top-4 -right-4 w-32 h-32 bg-fuchsia-500/20 rounded-full blur-3xl z-0"></div>
+                    <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl z-0"></div>
+
+                    <div className="transform -skew-x-3 relative z-10 flex flex-col gap-5">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-gradient-to-br from-fuchsia-600 to-purple-600 rounded-lg shadow-lg">
+                          <TrendingUp className="w-6 h-6 text-white" />
+                        </div>
+                        <h3 className="text-sm md:text-base font-bold text-fuchsia-300 tracking-[0.2em] uppercase">{t.rumor_label}</h3>
                       </div>
-                      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
-                        <div className="h-full bg-gradient-to-r from-purple-600 to-blue-500 w-[85%] rounded-full shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
+                      
+                      <p className="text-slate-100 text-lg md:text-xl leading-relaxed font-medium bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
+                        {rumorMessage}
+                      </p>
+
+                      <div className="space-y-2 mt-2">
+                        <div className="flex justify-between text-[10px] md:text-xs font-bold text-slate-400 tracking-wider uppercase">
+                          <span>AI Intelligence</span>
+                          <span className="text-fuchsia-400 animate-pulse">85% Likely</span>
+                        </div>
+                        <div className="h-2 w-full bg-black/60 rounded-full overflow-hidden border border-white/10 shadow-inner">
+                          <div className="h-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-blue-500 w-[85%] rounded-full shadow-[0_0_15px_rgba(217,70,239,0.7)]" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {news && news.length > 0 && <NewsSection news={news} language={language} />}
