@@ -62,11 +62,14 @@ const LeakModal = ({
     isWatched: boolean;
     onToggleWatch: (item: Cosmetic) => void;
 }) => {
-    const imgUrl = item.images.featured || item.images.icon || item.images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
-    const rarityLabel = item.rarity?.displayValue || 'Unknown';
-    const typeLabel = item.type?.displayValue || 'Item';
-    const nameLabel = item.name || 'Unnamed Leaked Item';
-    const descLabel = item.description && item.description !== 'null' ? item.description : 'No description available yet.';
+    // Defensive data extraction to prevent crashes
+    const images = item?.images || ({} as any);
+    const imgUrl = images.featured || images.icon || images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+    
+    const rarityLabel = (item.rarity?.displayValue && item.rarity.displayValue !== 'null') ? item.rarity.displayValue : 'Unknown';
+    const typeLabel = (item.type?.displayValue && item.type.displayValue !== 'null') ? item.type.displayValue : 'Item';
+    const nameLabel = item.name && item.name !== 'null' ? item.name : 'Unnamed Item';
+    const descLabel = (item.description && item.description !== 'null') ? item.description : 'No description available for this leaked item.';
 
     return (
         <div
@@ -93,8 +96,9 @@ const LeakModal = ({
                         className="max-w-full max-h-[300px] md:max-h-[450px] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-transform duration-700"
                         onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            if (target.src === item.images.featured) {
-                                target.src = item.images.icon || item.images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+                            const currentImages = item?.images || {};
+                            if (target.src === currentImages.featured && (currentImages.icon || currentImages.smallIcon)) {
+                                target.src = currentImages.icon || currentImages.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
                             } else {
                                 target.src = 'https://fortnite-api.com/images/vbuck.png';
                                 target.classList.add('opacity-50', 'scale-50');
@@ -280,10 +284,12 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5 w-full">
                         {items.map((item) => {
                             const rarityStyle = getRarityColor(item.rarity?.value);
-                            const imgUrl = item.images.featured || item.images.icon || item.images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
-                            const nameLabel = item.name || 'Item';
-                            const typeLabel = item.type?.displayValue && item.type.displayValue !== 'null' ? item.type.displayValue : 'COSMETIC';
-                            const descLabel = item.description && item.description !== 'null' ? item.description : '';
+                            const images = item?.images || ({} as any);
+                            const imgUrl = images.featured || images.icon || images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+                            
+                            const nameLabel = item.name && item.name !== 'null' ? item.name : 'Item';
+                            const typeLabel = (item.type?.displayValue && item.type.displayValue !== 'null') ? item.type.displayValue : 'COSMETIC';
+                            const descLabel = (item.description && item.description !== 'null') ? item.description : '';
 
                             return (
                                 <div onClick={() => setSelectedItem(item)} key={item.id} className={`cursor-pointer group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b ${rarityStyle} border-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:z-10 aspect-[3/4]`}>
@@ -297,8 +303,9 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                                             loading="lazy"
                                             onError={(e) => {
                                                 const target = e.target as HTMLImageElement;
-                                                if (target.src === item.images.featured) {
-                                                    target.src = item.images.icon || item.images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+                                                const currentImages = item?.images || {};
+                                                if (target.src === currentImages.featured && (currentImages.icon || currentImages.smallIcon)) {
+                                                    target.src = currentImages.icon || currentImages.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
                                                 } else {
                                                     target.src = 'https://fortnite-api.com/images/vbuck.png';
                                                     target.classList.add('opacity-50', 'scale-50');
