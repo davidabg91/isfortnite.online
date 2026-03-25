@@ -95,11 +95,14 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
     });
 
     let isOfficiallyOnline = false;
+    let officialIndicator = "unknown";
     try {
         const statusReq = await fetch(EPIC_STATUS_API);
         if (statusReq.ok) {
             const data = await statusReq.json();
-            isOfficiallyOnline = data.status?.indicator === "none";
+            officialIndicator = data.status?.indicator || "unknown";
+            // "none" and "minor" are generally playable. "major" and "critical" are downtime.
+            isOfficiallyOnline = officialIndicator === "none" || officialIndicator === "minor";
         }
     } catch (e) { }
 
@@ -112,11 +115,19 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
     }
 
     try {
+        // Map officialIndicator to more descriptive terms for Gemini
+        const statusForPrompt = officialIndicator === "none" ? "ONLINE (Perfect)" 
+                              : officialIndicator === "minor" ? "ONLINE (Minor Issues Reported)"
+                              : officialIndicator === "major" ? "ISSUES (Major Outage)"
+                              : officialIndicator === "critical" ? "OFFLINE (Critical Outage)"
+                              : "UNKNOWN (API Check Failed)";
+
         const prompt = `You are a professional Fortnite status reporter and leaker.
         TODAY\'S DATE: ${new Date().toISOString().split('T')[0]}
-        OFFICIAL API STATUS IS: ${isOfficiallyOnline ? "ONLINE" : "ISSUES"}.
+        OFFICIAL API STATUS IS: ${statusForPrompt}.
         ${skipNews ? "" : "1. Find 3 latest Fortnite news (patch notes, events, etc.) from the current month."}
-        2. Give a brief Community Report for the 'messages' field. Summarize what real players on Twitter/Reddit are reporting.
+        2. Give a brief Community Report for the 'messages' field. Summarize what real players on Twitter/Reddit are reporting. 
+        If status is "Minor Issues", note that playing is still possible but some services might be slow.
         3. Provide 1 interesting Fortnite rumor for 'rumorMessages'.
         4. Output MUST BE valid JSON:
         {
@@ -128,6 +139,7 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
         Translate ALL strings to: en, bg, es, de, fr, it, ru.`;
 
         const parsedData = await callGemini(prompt);
+        // If the Official API says it's online (none/minor), we trust it even if Gemini thinks otherwise based on "Minor Issues"
         const finalIsOnline = isOfficiallyOnline || !!parsedData.isOnline;
         const messages = parsedData.messages || fallbackMap;
         const rumorMessages = parsedData.rumorMessages || {};
@@ -180,11 +192,9 @@ export const analyzeShopItems = async (items: any[]): Promise<any | null> => {
     }
 
     let allAnalyses: any[] = [];
-    let aiOverallBg = "";
-    let aiOverallEn = "";
 
     try {
-        const promises = itemChunks.map(async (chunk, index) => {
+        const promises = itemChunks.map(async (chunk) => {
             const prompt = `Analyze these Fortnite shop items: ${JSON.stringify(chunk)}
             
             1. For each item: score (1-10), reason (Bulgarian & English), recommendedCombos (max 2 item names).
