@@ -167,16 +167,18 @@ export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckRe
         
         RULES:
         1. If API is "operational" or "none", "isOnline" MUST be true.
-        2. Be EXTREMELY BRIEF (max 15 words). NO NOVELS.
-        3. 1 short news item.
-        4. Output JSON:
+        2. "messages" = Official conclusion (e.g. "Servers Stable").
+        3. "rumorMessages" = USEFUL COMMUNITY INTEL (e.g. "Players reporting lag", "New leaks on Twitter", "Meta changes"). 
+        4. DO NOT repeat "Servers are online" in rumorMessages. Be unique.
+        5. Be EXTREMELY BRIEF (max 12 words per field).
+        6. Output JSON:
         {
           "isOnline": boolean,
-          "messages": {"en": "STATUS", "bg": "СТАТУС"},
-          "rumorMessages": {"en": "RUMOR", "bg": "СЛУХ"},
+          "messages": {"en": "..", "bg": ".."},
+          "rumorMessages": {"en": "..", "bg": ".."},
           "news": [{"title": {"en": ".."}, "summary": {"en": ".."}, "url": "..", "date": ".."}]
         }
-        Translate ALL to: en, bg, es, de, fr, it, ru.`;
+        Translate to: en, bg, es, de, fr, it, ru.`;
 
         const parsedData = await callGemini(prompt);
         // FORCE TRUST: Official API > Gemini

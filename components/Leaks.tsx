@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Loader2, AlertCircle, Calendar, X, Bell, BellOff } from 'lucide-react';
+import { Sparkles, Loader2, AlertCircle, Calendar, Bell } from 'lucide-react';
 import { Language } from '../types';
 
 interface LeaksProps {
@@ -51,103 +51,15 @@ const getRarityColor = (rarity: string) => {
     return 'from-gray-500 to-gray-700 border-gray-400'; // Common / Unknown
 };
 
-const LeakModal = ({
-    item,
-    onClose,
-    isWatched,
-    onToggleWatch
-}: {
-    item: Cosmetic;
-    onClose: () => void;
-    isWatched: boolean;
-    onToggleWatch: (item: Cosmetic) => void;
-}) => {
-    // Helper to filter out literal "null" or "undefined" strings from API
-    const safe = (val: any) => (val && val !== 'null' && val !== 'undefined') ? val : null;
-
-    const images = item?.images || ({} as any);
-    const imgUrl = safe(images.featured) || safe(images.icon) || safe(images.smallIcon) || 'https://fortnite-api.com/images/vbuck.png';
-    
-    const rarityLabel = safe(item.rarity?.displayValue) || 'Unknown';
-    const typeLabel = safe(item.type?.displayValue) || 'Item';
-    const nameLabel = safe(item.name) || 'Unnamed Item';
-    const descLabel = safe(item.description) || 'No description available for this leaked item.';
-
-    return (
-        <div
-            className="fixed inset-0 flex items-center justify-center p-2 bg-black/95 backdrop-blur-xl animate-fade-in z-[999999] touch-none"
-            onClick={onClose}
-        >
-            <div
-                className="relative w-full max-w-5xl max-h-[90vh] bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col md:flex-row shadow-[0_0_50px_rgba(0,0,0,0.8)]"
-                onClick={e => e.stopPropagation()}
-            >
-                <button
-                    onClick={onClose}
-                    className="absolute top-6 right-6 z-[210] p-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white transition-all hover:rotate-90 active:scale-95"
-                >
-                    <X className="w-8 h-8" />
-                </button>
-
-                {/* Left Side: Image */}
-                <div className={`w-full md:w-1/2 min-h-[400px] bg-gradient-to-br ${getRarityColor(item.rarity?.value)} p-8 flex items-center justify-center relative`}>
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
-                    <img
-                        src={imgUrl}
-                        alt={nameLabel}
-                        className="max-w-full max-h-[300px] md:max-h-[450px] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-transform duration-700"
-                        onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            const currentImages = item?.images || {};
-                            if (target.src === currentImages.featured && (currentImages.icon || currentImages.smallIcon)) {
-                                target.src = currentImages.icon || currentImages.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
-                            } else {
-                                target.src = 'https://fortnite-api.com/images/vbuck.png';
-                                target.classList.add('opacity-50', 'scale-50');
-                            }
-                        }}
-                    />
-                </div>
-
-                {/* Right Side: Info */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col overflow-y-auto custom-scrollbar text-white">
-                    <div className="mb-8">
-                        <div className="flex justify-between items-start mb-4">
-                            <span className="text-yellow-400 font-bold uppercase tracking-[0.3em] text-xs">{rarityLabel} {typeLabel}</span>
-                        </div>
-                        <h2 className="font-burbank text-5xl md:text-7xl text-white uppercase leading-none mb-6 italic tracking-tight">{nameLabel}</h2>
-                        <p className="text-slate-300 text-lg leading-relaxed mb-10 font-medium">{descLabel}</p>
-                    </div>
-
-                    <div className="mt-auto space-y-4">
-                        <button
-                            onClick={() => onToggleWatch(item)}
-                            className={`w-full py-4 rounded-2xl font-burbank text-2xl uppercase tracking-wider flex items-center justify-center gap-3 transition-all ${isWatched
-                                    ? 'bg-teal-500/20 text-teal-400 border-2 border-teal-500/50'
-                                    : 'bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-900/40'
-                                }`}
-                        >
-                            {isWatched ? <BellOff className="w-6 h-6" /> : <Bell className="w-6 h-6" />}
-                            {isWatched ? 'Unsubscribe' : 'Notify Me (Sniper)'}
-                        </button>
-                        <p className="text-teal-400/60 text-xs text-center font-medium uppercase tracking-widest">
-                            {isWatched ? 'You will be alerted when this drops' : 'Get a browser notification when this item is released'}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
+// Modal removed for stability (requested by user)
 
 export const Leaks: React.FC<LeaksProps> = ({ language }) => {
     const t = (labels as any)[language] || labels['en'];
-    const [selectedItem, setSelectedItem] = useState<Cosmetic | null>(null);
     const [items, setItems] = useState<Cosmetic[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [buildVersion, setBuildVersion] = useState('');
-    const [watchlist, setWatchlist] = useState<string[]>(() => {
+    const [watchlist] = useState<string[]>(() => {
         return JSON.parse(localStorage.getItem('fn_item_watchlist') || '[]');
     });
 
@@ -155,29 +67,7 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
         localStorage.setItem('fn_item_watchlist', JSON.stringify(watchlist));
     }, [watchlist]);
 
-    const toggleWatchlist = (item: Cosmetic) => {
-        setWatchlist(prev => {
-            const isExist = prev.includes(item.id);
-            if (isExist) return prev.filter(id => id !== item.id);
-
-            // Request notification permission if enabling
-            if ("Notification" in window && Notification.permission !== "granted") {
-                Notification.requestPermission();
-            }
-
-            return [...prev, item.id];
-        });
-    };
-
-    // Lock body scroll when modal is open
-    useEffect(() => {
-        if (selectedItem) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'auto';
-        }
-        return () => { document.body.style.overflow = 'auto'; };
-    }, [selectedItem]);
+    // No scroll lock or toggleWatchlist needed without modal
 
     const fetchLeaks = async () => {
         setLoading(true);
@@ -211,11 +101,15 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                     });
                 }
 
-                // Filter out items that are currently in the shop, or have ever been in the shop (shopHistory exists)
+                // Filter out broken items and currently live shop items
                 const trulyUnreleased = dataCosmetics.data.items.br.filter((item: any) => {
                     const inShopNow = currentShopIds.has(item.id);
                     const hasAppearedBefore = item.shopHistory && item.shopHistory.length > 0;
-                    return !inShopNow && !hasAppearedBefore;
+                    
+                    // NEW: Filter out items with missing names or pure placeholder data
+                    const isBroken = !item.name || item.name === 'null' || item.name === 'Unnamed Item' || (!item.images?.featured && !item.images?.icon);
+                    
+                    return !inShopNow && !hasAppearedBefore && !isBroken;
                 });
 
                 setItems(trulyUnreleased);
@@ -295,7 +189,7 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                             const descLabel = safe(item.description) || '';
 
                             return (
-                                <div onClick={() => setSelectedItem(item)} key={item.id} className={`cursor-pointer group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b ${rarityStyle} border-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:z-10 aspect-[3/4]`}>
+                                <div key={item.id} className={`group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b ${rarityStyle} border-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] aspect-[3/4]`}>
                                     {/* Image Container */}
                                     <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/20">
                                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2)_0%,transparent_70%)] opacity-50"></div>
@@ -345,14 +239,7 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                 )}
             </div>
 
-            {selectedItem && (
-                <LeakModal
-                    item={selectedItem}
-                    onClose={() => setSelectedItem(null)}
-                    isWatched={watchlist.includes(selectedItem.id)}
-                    onToggleWatch={toggleWatchlist}
-                />
-            )}
+            {/* Modal removed as requested */}
         </div>
     );
 };
