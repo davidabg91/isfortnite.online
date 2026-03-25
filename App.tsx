@@ -10,7 +10,7 @@ const STATUS_CHECK_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes for fast API chec
 const CACHE_RUMOR_LIMIT_MS = 6 * 60 * 60 * 1000; // 6 hours for AI rumors
 const CACHE_NEWS_LIMIT_MS = 24 * 60 * 60 * 1000; // 24 hours for AI news
 
-const CACHE_KEY = 'fortnite_status_cache_v3';
+const CACHE_KEY = 'fortnite_status_cache_v4';
 
 interface CachedData {
   status: ServerStatus;
