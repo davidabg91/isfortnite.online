@@ -86,7 +86,7 @@ const callGemini = async (prompt: string, isJson = true) => {
     }
 };
 
-const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/status.json";
+const EPIC_STATUS_API = "https://api.codetabs.com/v1/proxy/?quest=https://status.epicgames.com/api/v2/summary.json";
 
 export const checkFortniteServerStatus = async (skipAI = false, skipNews = false): Promise<CheckResult> => {
     const fallbackMap: Record<Language, string> = {} as any;
@@ -100,9 +100,29 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
         const statusReq = await fetch(EPIC_STATUS_API);
         if (statusReq.ok) {
             const data = await statusReq.json();
+            
+            // Fallback global indicator just in case
             officialIndicator = data.status?.indicator || "unknown";
-            // "none" and "minor" are generally playable. "major" and "critical" are downtime.
-            isOfficiallyOnline = officialIndicator === "none" || officialIndicator === "minor";
+
+            // Find specific Fortnite component
+            if (data.components && Array.isArray(data.components)) {
+                // We look for the exact component named "Fortnite" or fallback to the general status if not found
+                const fnComponent = data.components.find((c: any) => c.name === "Fortnite");
+                
+                if (fnComponent) {
+                    officialIndicator = fnComponent.status;
+                    // According to Epic API, "operational" means it's fully online.
+                    // "degraded_performance" or "partial_outage" means it's playable but rough (equivalent to minor).
+                    // "major_outage" or "under_maintenance" means offline.
+                    isOfficiallyOnline = fnComponent.status === "operational" || 
+                                         fnComponent.status === "degraded_performance" || 
+                                         fnComponent.status === "partial_outage";
+                } else {
+                    isOfficiallyOnline = officialIndicator === "none" || officialIndicator === "minor";
+                }
+            } else {
+                isOfficiallyOnline = officialIndicator === "none" || officialIndicator === "minor";    
+            }
         }
     } catch (e) { }
 
@@ -115,12 +135,17 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
     }
 
     try {
-        // Map officialIndicator to more descriptive terms for Gemini
-        const statusForPrompt = officialIndicator === "none" ? "ONLINE (Perfect)" 
-                              : officialIndicator === "minor" ? "ONLINE (Minor Issues Reported)"
-                              : officialIndicator === "major" ? "ISSUES (Major Outage)"
-                              : officialIndicator === "critical" ? "OFFLINE (Critical Outage)"
-                              : "UNKNOWN (API Check Failed)";
+        // Map officialIndicator to more descriptive terms for Gemini based on component status OR global status
+        let statusForPrompt = "UNKNOWN (API Check Failed)";
+        if (officialIndicator === "operational" || officialIndicator === "none") {
+            statusForPrompt = "ONLINE (Perfect)";
+        } else if (officialIndicator === "degraded_performance" || officialIndicator === "partial_outage" || officialIndicator === "minor") {
+            statusForPrompt = "ONLINE (Minor Issues Reported)";
+        } else if (officialIndicator === "major_outage" || officialIndicator === "major") {
+            statusForPrompt = "ISSUES (Major Outage)";
+        } else if (officialIndicator === "under_maintenance" || officialIndicator === "critical") {
+            statusForPrompt = "OFFLINE (Under Maintenance / Critical Outage)";
+        }
 
         const prompt = `You are a professional Fortnite status reporter and leaker.
         TODAY\'S DATE: ${new Date().toISOString().split('T')[0]}
