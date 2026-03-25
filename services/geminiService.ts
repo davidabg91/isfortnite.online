@@ -193,7 +193,7 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
         Translate ALL strings to: en, bg, es, de, fr, it, ru.`;
 
         const parsedData = await callGemini(prompt);
-        // If the Official API says it's online (none/minor), we trust it even if Gemini thinks otherwise based on "Minor Issues"
+        // CRITICAL: We trust the Official API isOnline more than Gemini's interpretation
         const finalIsOnline = isOfficiallyOnline || !!parsedData.isOnline;
         const messages = parsedData.messages || fallbackMap;
         const rumorMessages = parsedData.rumorMessages || {};
@@ -202,6 +202,11 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
             if (!messages[lang]) messages[lang] = finalIsOnline ? getTranslation(lang).inference_online : getTranslation(lang).inference_offline;
         });
+
+        // Debug info visible to us but hopefully not distracting to user
+        if (messages['en']) {
+            messages['en'] = `${messages['en']} [API: ${officialIndicator.toUpperCase()}]`;
+        }
 
         return { isOnline: finalIsOnline, messages, rumorMessages, news, sources: [] };
     } catch (error: any) {

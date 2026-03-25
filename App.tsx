@@ -6,11 +6,11 @@ import { StatusScreen } from './components/StatusScreen';
 import { getTranslation, LANGUAGE_NAMES } from './translations';
 import { checkPremiumCode } from './premiumCodes';
 
-const STATUS_CHECK_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes for fast API check
+const STATUS_CHECK_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes for faster diagnostic updates
 const CACHE_RUMOR_LIMIT_MS = 6 * 60 * 60 * 1000; // 6 hours for AI rumors
 const CACHE_NEWS_LIMIT_MS = 24 * 60 * 60 * 1000; // 24 hours for AI news
 
-const CACHE_KEY = 'fortnite_status_cache_v6';
+const CACHE_KEY = 'fortnite_status_cache_v7';
 
 interface CachedData {
   status: ServerStatus;
