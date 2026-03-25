@@ -97,45 +97,54 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
         fallbackMap[lang] = getTranslation(lang).fallback_message;
     });
 
-    let isOfficiallyOnline = true; // Default to online if we can't confirm offline
-    let officialIndicator = "unknown";
+    let isOfficiallyOnline = true; // Bias towards Online
+    let officialIndicator = "none"; 
     
     // Try each proxy until one works
     for (const proxyUrl of PROXIES) {
         try {
-            const statusReq = await fetch(`${proxyUrl}&nocache=${Date.now()}`);
+            // Add t=${Date.now()} to bust any proxy-level caching
+            const statusReq = await fetch(`${proxyUrl}&t=${Date.now()}`);
             if (statusReq.ok) {
                 const data = await statusReq.json();
                 
                 // Fallback global indicator
-                officialIndicator = data.status?.indicator || "unknown";
+                officialIndicator = (data.status?.indicator || "none").toLowerCase();
 
                 // Map of Fortnite-relevant components to check
                 if (data.components && Array.isArray(data.components)) {
-                    const fnComponents = data.components.filter((c: any) => 
-                        c.name.toLowerCase().includes("fortnite") || 
-                        c.name.toLowerCase().includes("battle royale")
-                    );
+                    // 1. Try to find the EXACT core "Fortnite" component first
+                    const coreFn = data.components.find((c: any) => c.name === "Fortnite");
                     
-                    if (fnComponents.length > 0) {
-                        // Find the "most offline" status among Fortnite components
-                        const statuses = fnComponents.map((c: any) => c.status);
-                        
-                        if (statuses.includes("major_outage") || statuses.includes("under_maintenance")) {
+                    if (coreFn) {
+                        const s = coreFn.status.toLowerCase();
+                        if (s === "major_outage" || s === "under_maintenance") {
                             isOfficiallyOnline = false;
-                            officialIndicator = statuses.includes("major_outage") ? "major_outage" : "under_maintenance";
-                        } else if (statuses.includes("partial_outage") || statuses.includes("degraded_performance")) {
-                            isOfficiallyOnline = true;
-                            officialIndicator = "minor";
+                            officialIndicator = s;
                         } else {
                             isOfficiallyOnline = true;
-                            officialIndicator = "operational";
+                            officialIndicator = s;
                         }
                     } else {
-                        // Use global status if no specific FN components found
-                        isOfficiallyOnline = officialIndicator === "none" || officialIndicator === "minor";
+                        // 2. Fallback: Check if ANY Fortnite-related component has a MAJOR issue
+                        const fnComponents = data.components.filter((c: any) => 
+                            c.name.toLowerCase().includes("fortnite") && 
+                            !c.name.toLowerCase().includes("china") // Ignore region-specific if global is up
+                        );
+                        
+                        if (fnComponents.length > 0) {
+                            const statuses = fnComponents.map((c: any) => c.status.toLowerCase());
+                            if (statuses.includes("major_outage") || statuses.includes("under_maintenance")) {
+                                isOfficiallyOnline = false;
+                            } else {
+                                isOfficiallyOnline = true;
+                            }
+                        } else {
+                            // 3. Last fallback: Global status (only offline if major or critical)
+                            isOfficiallyOnline = officialIndicator !== "major" && officialIndicator !== "critical";
+                        }
                     }
-                    // If we got here successfully, don't try the other proxies
+                    // If we got valid component data, we can stop trying proxies
                     break;
                 }
             }
