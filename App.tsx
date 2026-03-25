@@ -10,7 +10,7 @@ const STATUS_CHECK_INTERVAL_MS = 10 * 60 * 1000; // Stabilizing at 10 minutes
 const CACHE_RUMOR_LIMIT_MS = 6 * 60 * 60 * 1000; // 6 hours for AI rumors
 const CACHE_NEWS_LIMIT_MS = 24 * 60 * 60 * 1000; // 24 hours for AI news
 
-const CACHE_KEY = 'fortnite_status_cache_v8_1_3';
+const CACHE_KEY = 'fortnite_status_cache_v8_1_4';
 
 interface CachedData {
   status: ServerStatus;
@@ -82,12 +82,6 @@ export default function App() {
     const storedPremium = localStorage.getItem('isPremium');
     if (storedPremium === 'true') {
       setIsPremium(true);
-    }
-
-    // 🚨 DIAGNOSTIC ALERT 🚨
-    if (!sessionStorage.getItem('v813_alerted')) {
-      window.alert("V8.1.3 (DIAGNOSTIC) LOADED! If you see this, the update is working.");
-      sessionStorage.setItem('v813_alerted', 'true');
     }
 
     // Notify Telegram about new visitor
@@ -331,10 +325,6 @@ export default function App() {
 
   return (
     <>
-      {/* 🚨 EMERGENCY DEBUG BANNER 🚨 */}
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999999, backgroundColor: '#dc2626', color: 'white', fontSize: '12px', fontWeight: 'bold', textAlign: 'center', padding: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
-        [V8.1.3 DIAGNOSTIC ACTIVE] - YOUR SITE IS UPDATING. IF YOU SEE THIS, THE FIX IS IN!
-      </div>
       <StatusScreen
         status={status}
         message={displayMessage}

@@ -62,14 +62,16 @@ const LeakModal = ({
     isWatched: boolean;
     onToggleWatch: (item: Cosmetic) => void;
 }) => {
-    // Defensive data extraction to prevent crashes
+    // Helper to filter out literal "null" or "undefined" strings from API
+    const safe = (val: any) => (val && val !== 'null' && val !== 'undefined') ? val : null;
+
     const images = item?.images || ({} as any);
-    const imgUrl = images.featured || images.icon || images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+    const imgUrl = safe(images.featured) || safe(images.icon) || safe(images.smallIcon) || 'https://fortnite-api.com/images/vbuck.png';
     
-    const rarityLabel = (item.rarity?.displayValue && item.rarity.displayValue !== 'null') ? item.rarity.displayValue : 'Unknown';
-    const typeLabel = (item.type?.displayValue && item.type.displayValue !== 'null') ? item.type.displayValue : 'Item';
-    const nameLabel = item.name && item.name !== 'null' ? item.name : 'Unnamed Item';
-    const descLabel = (item.description && item.description !== 'null') ? item.description : 'No description available for this leaked item.';
+    const rarityLabel = safe(item.rarity?.displayValue) || 'Unknown';
+    const typeLabel = safe(item.type?.displayValue) || 'Item';
+    const nameLabel = safe(item.name) || 'Unnamed Item';
+    const descLabel = safe(item.description) || 'No description available for this leaked item.';
 
     return (
         <div
@@ -283,13 +285,14 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5 w-full">
                         {items.map((item) => {
+                            const safe = (val: any) => (val && val !== 'null' && val !== 'undefined') ? val : null;
                             const rarityStyle = getRarityColor(item.rarity?.value);
                             const images = item?.images || ({} as any);
-                            const imgUrl = images.featured || images.icon || images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+                            const imgUrl = safe(images.featured) || safe(images.icon) || safe(images.smallIcon) || 'https://fortnite-api.com/images/vbuck.png';
                             
-                            const nameLabel = item.name && item.name !== 'null' ? item.name : 'Item';
-                            const typeLabel = (item.type?.displayValue && item.type.displayValue !== 'null') ? item.type.displayValue : 'COSMETIC';
-                            const descLabel = (item.description && item.description !== 'null') ? item.description : '';
+                            const nameLabel = safe(item.name) || 'Item';
+                            const typeLabel = (safe(item.type?.displayValue)) || 'COSMETIC';
+                            const descLabel = safe(item.description) || '';
 
                             return (
                                 <div onClick={() => setSelectedItem(item)} key={item.id} className={`cursor-pointer group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b ${rarityStyle} border-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:z-10 aspect-[3/4]`}>
