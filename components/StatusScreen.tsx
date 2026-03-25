@@ -338,7 +338,7 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
             </div>
           </div>
         </a>
-        <p className="text-white/20 text-[10px] uppercase font-bold tracking-tighter mt-2">© 2026 ISFORTNITE.ONLINE | ALL RIGHTS RESERVED | Build: v7.0.2 (RELIABLE_MONITOR)</p>
+        <p className="text-white/20 text-[10px] uppercase font-bold tracking-tighter mt-2">© 2026 ISFORTNITE.ONLINE | ALL RIGHTS RESERVED | Build: v8.0.0 (ULTRA_STABLE)</p>
       </footer>
     </div>
   );

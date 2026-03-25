@@ -6,11 +6,11 @@ import { StatusScreen } from './components/StatusScreen';
 import { getTranslation, LANGUAGE_NAMES } from './translations';
 import { checkPremiumCode } from './premiumCodes';
 
-const STATUS_CHECK_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes for faster diagnostic updates
+const STATUS_CHECK_INTERVAL_MS = 10 * 60 * 1000; // Stabilizing at 10 minutes
 const CACHE_RUMOR_LIMIT_MS = 6 * 60 * 60 * 1000; // 6 hours for AI rumors
 const CACHE_NEWS_LIMIT_MS = 24 * 60 * 60 * 1000; // 24 hours for AI news
 
-const CACHE_KEY = 'fortnite_status_cache_v7';
+const CACHE_KEY = 'fortnite_status_cache_v8';
 
 interface CachedData {
   status: ServerStatus;
@@ -143,14 +143,18 @@ export default function App() {
     }
 
     try {
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' }),
       });
-      sessionStorage.setItem('notified_visit', 'true');
+      if (response.ok) {
+        sessionStorage.setItem('notified_visit', 'true');
+      } else {
+        console.warn('Telegram API error:', response.status);
+      }
     } catch (e) {
-      console.warn('Visit notify skipped');
+      console.warn('Visit notify failed');
     }
   };
 
@@ -213,7 +217,7 @@ export default function App() {
       } catch (e) { }
     }
 
-    const result = await checkFortniteServerStatus(shouldSkipAI, shouldSkipNews);
+    const result = await checkFortniteServerStatus(shouldSkipAI);
     const checkTime = new Date();
 
     setLastChecked(checkTime);

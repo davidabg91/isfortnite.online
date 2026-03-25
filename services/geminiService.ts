@@ -72,16 +72,16 @@ const callGemini = async (prompt: string, isJson = true) => {
     try {
         return JSON.parse(jsonString);
     } catch (e) {
-        console.error("[Gemini] JSON Parse Error. Raw string:", jsonString);
-        // Fallback: If parsing fails and it looks like a markdown block was returned despite request
-        const retryClean = text.replace(/```json/gi, "").replace(/```/g, "").trim();
-        const f2 = retryClean.indexOf('{');
-        const l2 = retryClean.lastIndexOf('}');
-        if (f2 !== -1 && l2 !== -1 && l2 > f2) {
-            try {
-                return JSON.parse(retryClean.substring(f2, l2 + 1));
-            } catch (e2) { }
-        }
+        console.warn("[Gemini] JSON Parse Error. Attempting repair...");
+        try {
+            const retryClean = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+            let repaired = retryClean;
+            if (!repaired.endsWith("}")) {
+                if (repaired.includes('"') && (repaired.match(/"/g) || []).length % 2 !== 0) repaired += '"';
+                repaired += "}";
+            }
+            return JSON.parse(repaired);
+        } catch (e2) { }
         throw e;
     }
 };
@@ -91,7 +91,7 @@ const PROXIES = [
     "https://corsproxy.io/?https://status.epicgames.com/api/v2/summary.json"
 ];
 
-export const checkFortniteServerStatus = async (skipAI = false, skipNews = false): Promise<CheckResult> => {
+export const checkFortniteServerStatus = async (skipAI = false): Promise<CheckResult> => {
     const fallbackMap: Record<Language, string> = {} as any;
     (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
         fallbackMap[lang] = getTranslation(lang).fallback_message;
@@ -162,50 +162,35 @@ export const checkFortniteServerStatus = async (skipAI = false, skipNews = false
     }
 
     try {
-        // Map officialIndicator to more descriptive terms for Gemini
-        let statusForPrompt = "UNKNOWN (API check in progress, assume active)";
-        if (officialIndicator === "operational" || officialIndicator === "none") {
-            statusForPrompt = "ONLINE (Operational)";
-        } else if (officialIndicator === "degraded_performance" || officialIndicator === "partial_outage" || officialIndicator === "minor") {
-            statusForPrompt = "ONLINE (Minor Issues Reported but playable)";
-        } else if (officialIndicator === "major_outage" || officialIndicator === "major") {
-            statusForPrompt = "OFFLINE (Major Outage)";
-        } else if (officialIndicator === "under_maintenance" || officialIndicator === "critical") {
-            statusForPrompt = "OFFLINE (Under Maintenance)";
-        }
-
-        const prompt = `You are a professional Fortnite status reporter and leaker.
-        TODAY\'S DATE: ${new Date().toISOString().split('T')[0]}
-        OFFICIAL API STATUS IS: ${statusForPrompt}.
-        IMPORTANT: If API status says "Operational" or "Minor Issues", tell users they can play!
-        If API status is Unknown, assume servers ARE ONLINE unless you have confirmed maintenance news.
+        const prompt = `You are a pro Fortnite reporter. 
+        EPIC API STATUS: ${officialIndicator.toUpperCase()}.
         
-        ${skipNews ? "" : "1. Find 3 latest Fortnite news (patch notes, events, etc.) from the current month."}
-        2. Give a brief Community Report for the 'messages' field. Summarize what real players on Twitter/Reddit are reporting. 
-        3. Provide 1 interesting Fortnite rumor for 'rumorMessages'.
-        4. Output MUST BE valid JSON:
+        RULES:
+        1. If API is "operational" or "none", "isOnline" MUST be true.
+        2. Be EXTREMELY BRIEF (max 15 words). NO NOVELS.
+        3. 1 short news item.
+        4. Output JSON:
         {
-            "isOnline": boolean,
-            "messages": {"en": "...", "bg": "..."},
-            "rumorMessages": {"en": "...", "bg": "..."},
-            "news": [{"title": {"en": "..."}, "summary": {"en": "..."}, "url": "...", "date": "..."}]
+          "isOnline": boolean,
+          "messages": {"en": "STATUS", "bg": "СТАТУС"},
+          "rumorMessages": {"en": "RUMOR", "bg": "СЛУХ"},
+          "news": [{"title": {"en": ".."}, "summary": {"en": ".."}, "url": "..", "date": ".."}]
         }
-        Translate ALL strings to: en, bg, es, de, fr, it, ru.`;
+        Translate ALL to: en, bg, es, de, fr, it, ru.`;
 
         const parsedData = await callGemini(prompt);
-        // CRITICAL: We trust the Official API isOnline more than Gemini's interpretation
-        const finalIsOnline = isOfficiallyOnline || !!parsedData.isOnline;
-        const messages = parsedData.messages || fallbackMap;
-        const rumorMessages = parsedData.rumorMessages || {};
-        const news = parsedData.news || [];
+        // FORCE TRUST: Official API > Gemini
+        const finalIsOnline = isOfficiallyOnline || (parsedData && parsedData.isOnline === true);
+        const messages = parsedData?.messages || fallbackMap;
+        const rumorMessages = parsedData?.rumorMessages || {};
+        const news = parsedData?.news || [];
 
         (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => {
             if (!messages[lang]) messages[lang] = finalIsOnline ? getTranslation(lang).inference_online : getTranslation(lang).inference_offline;
         });
 
-        // Debug info visible to us but hopefully not distracting to user
         if (messages['en']) {
-            messages['en'] = `${messages['en']} [API: ${officialIndicator.toUpperCase()}]`;
+            messages['en'] = `${messages['en']} [API:${officialIndicator.toUpperCase()}]`;
         }
 
         return { isOnline: finalIsOnline, messages, rumorMessages, news, sources: [] };
