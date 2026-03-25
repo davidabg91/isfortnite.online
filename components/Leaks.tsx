@@ -62,7 +62,11 @@ const LeakModal = ({
     isWatched: boolean;
     onToggleWatch: (item: Cosmetic) => void;
 }) => {
-    const imgUrl = item.images.featured || item.images.icon || item.images.smallIcon;
+    const imgUrl = item.images.featured || item.images.icon || item.images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+    const rarityLabel = item.rarity?.displayValue || 'Unknown';
+    const typeLabel = item.type?.displayValue || 'Item';
+    const nameLabel = item.name || 'Unnamed Leaked Item';
+    const descLabel = item.description && item.description !== 'null' ? item.description : 'No description available yet.';
 
     return (
         <div
@@ -83,28 +87,30 @@ const LeakModal = ({
                 {/* Left Side: Image */}
                 <div className={`w-full md:w-1/2 min-h-[400px] bg-gradient-to-br ${getRarityColor(item.rarity?.value)} p-8 flex items-center justify-center relative`}>
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
-                    {imgUrl && (
-                        <img
-                            src={imgUrl}
-                            alt={item.name}
-                            className="max-w-full max-h-[300px] md:max-h-[450px] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-transform duration-700"
-                            onError={(e) => {
-                                const target = e.target as HTMLImageElement;
+                    <img
+                        src={imgUrl}
+                        alt={nameLabel}
+                        className="max-w-full max-h-[300px] md:max-h-[450px] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-transform duration-700"
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            if (target.src === item.images.featured) {
+                                target.src = item.images.icon || item.images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+                            } else {
                                 target.src = 'https://fortnite-api.com/images/vbuck.png';
                                 target.classList.add('opacity-50', 'scale-50');
-                            }}
-                        />
-                    )}
+                            }
+                        }}
+                    />
                 </div>
 
                 {/* Right Side: Info */}
-                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col overflow-y-auto custom-scrollbar">
+                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col overflow-y-auto custom-scrollbar text-white">
                     <div className="mb-8">
                         <div className="flex justify-between items-start mb-4">
-                            <span className="text-yellow-400 font-bold uppercase tracking-[0.3em] text-xs">{item.rarity?.displayValue} {item.type?.displayValue}</span>
+                            <span className="text-yellow-400 font-bold uppercase tracking-[0.3em] text-xs">{rarityLabel} {typeLabel}</span>
                         </div>
-                        <h2 className="font-burbank text-5xl md:text-7xl text-white uppercase leading-none mb-6 italic tracking-tight">{item.name}</h2>
-                        <p className="text-slate-300 text-lg leading-relaxed mb-10 font-medium">{item.description}</p>
+                        <h2 className="font-burbank text-5xl md:text-7xl text-white uppercase leading-none mb-6 italic tracking-tight">{nameLabel}</h2>
+                        <p className="text-slate-300 text-lg leading-relaxed mb-10 font-medium">{descLabel}</p>
                     </div>
 
                     <div className="mt-auto space-y-4">
@@ -274,33 +280,36 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5 w-full">
                         {items.map((item) => {
                             const rarityStyle = getRarityColor(item.rarity?.value);
-                            const imgUrl = item.images.featured || item.images.icon || item.images.smallIcon;
+                            const imgUrl = item.images.featured || item.images.icon || item.images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+                            const nameLabel = item.name || 'Item';
+                            const typeLabel = item.type?.displayValue && item.type.displayValue !== 'null' ? item.type.displayValue : 'COSMETIC';
+                            const descLabel = item.description && item.description !== 'null' ? item.description : '';
 
                             return (
                                 <div onClick={() => setSelectedItem(item)} key={item.id} className={`cursor-pointer group relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b ${rarityStyle} border-2 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:z-10 aspect-[3/4]`}>
                                     {/* Image Container */}
                                     <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/20">
                                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2)_0%,transparent_70%)] opacity-50"></div>
-                                        {imgUrl ? (
-                                            <img
-                                                src={imgUrl}
-                                                alt={item.name}
-                                                className="w-full h-full object-contain p-2 drop-shadow-2xl transition-transform duration-500 group-hover:scale-110"
-                                                loading="lazy"
-                                                onError={(e) => {
-                                                    const target = e.target as HTMLImageElement;
+                                        <img
+                                            src={imgUrl}
+                                            alt={nameLabel}
+                                            className="w-full h-full object-contain p-2 drop-shadow-2xl transition-transform duration-500 group-hover:scale-110"
+                                            loading="lazy"
+                                            onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                if (target.src === item.images.featured) {
+                                                    target.src = item.images.icon || item.images.smallIcon || 'https://fortnite-api.com/images/vbuck.png';
+                                                } else {
                                                     target.src = 'https://fortnite-api.com/images/vbuck.png';
                                                     target.classList.add('opacity-50', 'scale-50');
-                                                }}
-                                            />
-                                        ) : (
-                                            <div className="text-white/30 text-xs">NO IMAGE</div>
-                                        )}
+                                                }
+                                            }}
+                                        />
 
                                         {/* Rarity & Type Badge */}
                                         <div className="absolute top-2 left-2 flex flex-col gap-1">
                                             <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider bg-black/60 text-white px-2 py-0.5 rounded backdrop-blur-sm border border-white/10">
-                                                {item.type?.displayValue || 'UNKNOWN'}
+                                                {typeLabel}
                                             </span>
                                         </div>
                                     </div>
@@ -309,13 +318,15 @@ export const Leaks: React.FC<LeaksProps> = ({ language }) => {
                                     <div className="absolute bottom-0 w-full bg-black/80 backdrop-blur-md p-2 md:p-3 flex flex-col justify-end border-t border-white/10 transform translate-y-1 transition-transform group-hover:translate-y-0">
                                         <div className="flex justify-between items-center mb-0.5">
                                             <h3 className="font-burbank text-lg md:text-xl text-white uppercase italic leading-tight truncate drop-shadow-md flex-1">
-                                                {item.name}
+                                                {nameLabel}
                                             </h3>
                                             {watchlist.includes(item.id) && <Bell className="w-3 h-3 text-teal-400 animate-pulse" />}
                                         </div>
-                                        <p className="text-white/60 text-[10px] md:text-xs truncate" title={item.description}>
-                                            {item.description || 'No description'}
-                                        </p>
+                                        {descLabel && (
+                                            <p className="text-white/60 text-[10px] md:text-xs truncate" title={descLabel}>
+                                                {descLabel}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             );
