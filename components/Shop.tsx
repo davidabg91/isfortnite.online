@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchFortniteShop } from '../services/fortniteShopService';
-import { analyzeShopItems } from '../services/geminiService';
 import { ShopItem, ShopResponse as ShopData, Language } from '../types';
 import { getTranslation } from '../translations';
-import { X, Clock, Loader2, AlertCircle, ChevronUp, Sparkles, Heart, TrendingUp, Zap, BarChart3, Target } from 'lucide-react';
-import { predictRarityTrend } from '../services/geminiService';
+import { X, Clock, Loader2, AlertCircle, ChevronUp, Heart } from 'lucide-react';
 
 const getRarityColor = (rarity: string) => {
     const r = rarity.toLowerCase();
@@ -30,18 +28,6 @@ const ItemModal = ({
     isWishlisted: boolean;
     onToggleWishlist: (e: React.MouseEvent, id: string) => void;
 }) => {
-    const t = getTranslation(language);
-    const [trendData, setTrendData] = useState<any>(null);
-    const [loadingTrend, setLoadingTrend] = useState(false);
-
-    useEffect(() => {
-        setLoadingTrend(true);
-        predictRarityTrend(item).then(res => {
-            setTrendData(res);
-            setLoadingTrend(false);
-        }).catch(() => setLoadingTrend(false));
-    }, [item]);
-
     return (
         <div
             className="fixed inset-0 flex items-center justify-center p-2 bg-black/95 backdrop-blur-xl animate-fade-in z-[999999] touch-none"
@@ -66,17 +52,9 @@ const ItemModal = ({
                         alt={item.name}
                         className="max-w-full max-h-[300px] md:max-h-[450px] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transform hover:scale-105 transition-transform duration-700"
                     />
-
-                    {/* Worth It Overlay */}
-                    {item.aiAnalysis && item.aiAnalysis.score >= 8 && (
-                        <div className="absolute bottom-8 left-8 bg-white text-black px-6 py-3 rounded-2xl font-black text-xl flex items-center gap-2 shadow-2xl animate-bounce">
-                            <Zap className="w-6 h-6 fill-yellow-400 text-yellow-500" />
-                            WORTH IT! {item.aiAnalysis.score}/10
-                        </div>
-                    )}
                 </div>
 
-                {/* Right Side: Info & AI */}
+                {/* Right Side: Info */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col overflow-y-auto custom-scrollbar">
                     <div className="mb-8">
                         <div className="flex justify-between items-start mb-4">
@@ -104,107 +82,6 @@ const ItemModal = ({
 
                         <p className="text-slate-300 text-lg leading-relaxed mb-10 font-medium">{item.description}</p>
                     </div>
-
-                    {/* AI Analysis Section */}
-                    {item.aiAnalysis && (
-                        <div className="space-y-6 pt-8 border-t border-white/10">
-                            <div className="flex items-center gap-3 text-purple-400">
-                                <Sparkles className="w-6 h-6" />
-                                <h3 className="font-bold uppercase tracking-widest text-sm">{t.ai_worth_it}</h3>
-                            </div>
-
-                            <div className="bg-white/5 rounded-3xl p-6 border border-white/10">
-                                <p className="text-slate-100 text-lg italic mb-4">"{item.aiAnalysis.reason[language]}"</p>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
-                                        <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Deal Score</span>
-                                        <div className="flex items-end gap-1">
-                                            <span className="text-2xl font-bold text-white">{item.aiAnalysis.score}</span>
-                                            <span className="text-slate-600 font-bold mb-1">/10</span>
-                                        </div>
-                                    </div>
-                                    <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
-                                        <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Rarity Score</span>
-                                        <div className="flex items-end gap-1">
-                                            <span className="text-2xl font-bold text-white">{item.aiAnalysis.rarityScore}</span>
-                                            <span className="text-slate-600 font-bold mb-1">/10</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Combos */}
-                            {item.aiAnalysis.recommendedCombos && (
-                                <div className="space-y-3">
-                                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                        <TrendingUp className="w-3 h-3" /> {t.ai_combos}
-                                    </h4>
-                                    <div className="flex flex-wrap gap-2">
-                                        {item.aiAnalysis.recommendedCombos.map((combo, i) => (
-                                            <span key={i} className="px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-xs font-bold text-purple-300 uppercase italic">
-                                                {combo}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Rare Predictor (Monetization Feature) */}
-                            <div className="pt-8 border-t border-white/10 space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3 text-emerald-400">
-                                        <Target className="w-6 h-6" />
-                                        <h3 className="font-bold uppercase tracking-widest text-sm">{language === 'bg' ? 'ИНВЕСТИЦИОНЕН ИИ' : 'INVESTMENT AI'}</h3>
-                                    </div>
-                                    <span className="bg-emerald-500/10 text-emerald-400 text-[10px] px-3 py-1 rounded-full font-black border border-emerald-500/20">PREMIUM PREDICTION</span>
-                                </div>
-
-                                {loadingTrend ? (
-                                    <div className="flex items-center gap-3 py-8 justify-center opacity-50">
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        <span className="text-xs uppercase font-bold tracking-[0.2em]">{language === 'bg' ? 'ПРЕСМЯТАНЕ НА РЯДКОСТ...' : 'CALCULATING TRENDS...'}</span>
-                                    </div>
-                                ) : trendData ? (
-                                    <div className="bg-gradient-to-br from-emerald-900/20 to-blue-900/10 rounded-3xl p-6 border border-emerald-500/20 shadow-xl relative overflow-hidden group">
-                                        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                            <BarChart3 className="w-16 h-16 text-emerald-400" />
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4 mb-6">
-                                            <div className="space-y-2">
-                                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Rarity Potential</span>
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className="text-3xl font-black text-emerald-400">{trendData.rarityScore}</span>
-                                                    <span className="text-emerald-900 font-bold text-sm">/100</span>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2 text-right">
-                                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Market Trend</span>
-                                                <div className={`text-xl font-black italic uppercase ${trendData.trend === 'Up' ? 'text-emerald-400' : 'text-blue-400'}`}>
-                                                    {trendData.trend}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-4 relative z-10">
-                                            <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
-                                                <span className="text-[10px] text-emerald-500/60 font-bold uppercase tracking-widest block mb-2">{language === 'bg' ? 'ВЪЗМОЖНО ЗАВРЪЩАНЕ' : 'RETURN ESTIMATE'}</span>
-                                                <p className="text-white font-burbank text-2xl italic tracking-wide">{trendData.nextAppearance}</p>
-                                            </div>
-
-                                            <div className="p-1">
-                                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block mb-1">{t.ai_worth_it} (AI VERDICT)</span>
-                                                <p className="text-slate-200 text-sm leading-relaxed font-medium">"{trendData.investVerdict[language]}"</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="py-8 text-center text-slate-500 text-xs italic">{language === 'bg' ? 'Няма достатъчно данни за прогноза' : 'Insufficient data for prediction'}</div>
-                                )}
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>
@@ -245,13 +122,6 @@ const ShopItemCard = ({
                 >
                     <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
                 </button>
-
-                {/* Hot Label */}
-                {item.aiAnalysis && item.aiAnalysis.score >= 8 && (
-                    <div className="absolute top-4 left-4 z-20 bg-yellow-400 text-black px-3 py-1 rounded-lg font-black text-[10px] uppercase shadow-lg border border-yellow-500">
-                        🔥 HOT
-                    </div>
-                )}
             </div>
 
             <div className="p-5 flex flex-col flex-grow bg-slate-900">
@@ -270,26 +140,6 @@ const ShopItemCard = ({
                     </div>
                     <span className="text-[10px] font-bold text-slate-500 uppercase bg-white/5 px-2 py-1 rounded-md">{item.type}</span>
                 </div>
-
-                {item.aiAnalysis && (
-                    <div className="mt-4 pt-4 border-t border-white/5 flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1.5 text-purple-400">
-                                <Sparkles className="w-3 h-3" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider">AI Score</span>
-                            </div>
-                            <span className="text-xs font-black text-white px-2 py-0.5 bg-purple-500/20 rounded-md border border-purple-500/30">
-                                {item.aiAnalysis.score}/10
-                            </span>
-                        </div>
-                        {item.aiAnalysis.recommendedCombos && item.aiAnalysis.recommendedCombos.length > 0 && (
-                            <div className="flex items-center gap-1.5 text-blue-400">
-                                <TrendingUp className="w-3 h-3" />
-                                <span className="text-[9px] font-bold uppercase tracking-wider">Combos Available</span>
-                            </div>
-                        )}
-                    </div>
-                )}
             </div>
         </div>
     );
@@ -298,7 +148,6 @@ const ShopItemCard = ({
 const Shop = ({ language }: { language: Language }) => {
     const [shopData, setShopData] = useState<ShopData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [analyzing, setAnalyzing] = useState(false);
     const [error, setError] = useState(false);
     const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
     const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -363,49 +212,7 @@ const Shop = ({ language }: { language: Language }) => {
         try {
             const data = await fetchFortniteShop(language);
             if (data) {
-                // Check for cached AI analysis
-                const cacheKey = `ai_shop_${data.date}`;
-                const cached = localStorage.getItem(cacheKey);
-
-                let enrichedItems = data.items;
-                let aiOverall: Record<Language, string> | undefined;
-
-                if (cached) {
-                    const parsed = JSON.parse(cached);
-                    enrichedItems = data.items.map(item => ({
-                        ...item,
-                        aiAnalysis: parsed.itemsAnalysis.find((a: any) => a.name === item.name)
-                    }));
-                    aiOverall = parsed.aiOverallAnalysis;
-                } else {
-                    // Trigger AI Analysis asynchronously to not block UI
-                    setAnalyzing(true);
-                    analyzeShopItems(data.items).then(result => {
-                        if (result && result.itemsAnalysis && result.itemsAnalysis.length > 0) {
-                            localStorage.setItem(cacheKey, JSON.stringify(result));
-                            setShopData(prev => prev ? {
-                                ...prev,
-                                items: prev.items.map(item => ({
-                                    ...item,
-                                    aiAnalysis: result.itemsAnalysis.find((a: any) => a.name === item.name)
-                                })),
-                                aiOverallAnalysis: result.aiOverallAnalysis
-                            } : null);
-                        } else {
-                            console.warn("[Shop] AI Analysis returned empty or failed.");
-                        }
-                        setAnalyzing(false);
-                    }).catch(err => {
-                        console.error("[Shop] AI Analysis Error:", err);
-                        setAnalyzing(false);
-                    });
-                }
-
-                setShopData({
-                    ...data,
-                    items: enrichedItems,
-                    aiOverallAnalysis: aiOverall
-                });
+                setShopData(data);
                 setError(false);
             } else {
                 setError(true);
@@ -510,17 +317,7 @@ const Shop = ({ language }: { language: Language }) => {
     return (
         <div className="flex flex-col items-center w-full max-w-7xl mx-auto px-4 py-8 relative">
             {/* Header Timer */}
-            <div className="w-full flex justify-between items-center mb-12">
-                <div className="flex items-center gap-4">
-                    {analyzing && (
-                        <div className="bg-purple-600/20 px-4 py-2 rounded-2xl border border-purple-500/30 flex items-center gap-3">
-                            <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
-                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                                {t.ai_analyzing}
-                            </span>
-                        </div>
-                    )}
-                </div>
+            <div className="w-full flex justify-end items-center mb-12">
                 <div className="bg-black/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-4 shadow-xl text-white">
                     <Clock className="w-6 h-6 text-yellow-500 animate-pulse" />
                     <div className="flex flex-col items-end">
@@ -531,7 +328,7 @@ const Shop = ({ language }: { language: Language }) => {
             </div>
 
             <div className="w-full space-y-16">
-                {/* Hero Banner with AI Summary */}
+                {/* Hero Banner */}
                 <div className="relative w-full overflow-hidden rounded-[3rem] bg-slate-900 shadow-2xl border border-white/10">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20"></div>
                     <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/10 blur-[100px] rounded-full"></div>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ServerStatus, Language, NewsItem } from '../types';
+import { useState } from 'react';
+import { ServerStatus, Language } from '../types';
 import {
   AlertCircle,
   CheckCircle2,
@@ -9,18 +9,14 @@ import {
   Lock,
   X,
   KeyRound,
-  Zap,
+  Sparkles,
   Info,
   Facebook,
   ShoppingBag,
-  Activity,
-  TrendingUp,
-  Sparkles,
-  RefreshCw
+  Activity
 } from 'lucide-react';
 import { FortniteLogo } from './FortniteLogo';
 import { getTranslation, LANGUAGE_NAMES } from '../translations';
-import { NewsSection } from './NewsSection';
 import Shop from './Shop';
 import { SensConverter } from './SensConverter';
 import { Leaks } from './Leaks';
@@ -28,9 +24,6 @@ import { Leaks } from './Leaks';
 interface StatusScreenProps {
   status: ServerStatus;
   message: string;
-  rumorMessage?: string;
-  news?: NewsItem[];
-  sources?: { uri: string; title: string }[];
   lastChecked: Date | null;
   nextCheckTime: number;
   language: Language;
@@ -44,8 +37,6 @@ interface StatusScreenProps {
 export const StatusScreen: React.FC<StatusScreenProps> = ({
   status,
   message,
-  rumorMessage,
-  news,
   lastChecked,
   nextCheckTime,
   language,
@@ -145,9 +136,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
           <button onClick={() => onTabChange('shop')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'shop' ? 'bg-yellow-400 text-black border-b-4 border-orange-600 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
             <div className="flex items-center gap-2 transform skew-x-12"><ShoppingBag className="w-4 h-4 md:w-5 md:h-5" />{t.tab_shop}</div>
           </button>
-          <button onClick={() => onTabChange('giveaway')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'giveaway' ? 'bg-purple-600 text-white border-b-4 border-purple-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
-            <div className="flex items-center gap-2 transform skew-x-12"><Zap className="w-4 h-4 md:w-5 md:h-5" />{t.tab_giveaway}</div>
-          </button>
           <button onClick={() => onTabChange('sens')} className={`group relative flex items-center justify-center px-4 md:px-6 py-2 md:py-3 font-burbank text-lg md:text-xl uppercase tracking-wider transform -skew-x-12 transition-all duration-300 ${activeTab === 'sens' ? 'bg-teal-600 text-white border-b-4 border-teal-900 shadow-xl' : 'bg-black/80 text-white/60 border-b-4 border-gray-900'}`}>
             <div className="flex items-center gap-2 transform skew-x-12"><Activity className="w-4 h-4 md:w-5 md:h-5" />{language === 'bg' ? 'Сензитивност' : 'Sens Converter'}</div>
           </button>
@@ -158,20 +146,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
 
         {activeTab === 'shop' ? (
           <Shop language={language} />
-        ) : activeTab === 'giveaway' ? (
-          <div className="w-full max-w-4xl animate-fade-in flex flex-col items-center">
-            <div className="w-full bg-black/40 backdrop-blur-xl border border-orange-500/30 rounded-[3rem] overflow-hidden shadow-2xl relative p-8 md:p-12 text-center">
-              <div className="flex flex-col items-center gap-6">
-                <img src="https://fortnite-api.com/images/vbuck.png" alt="Giveaway" className="w-48 h-48 object-contain" />
-                <h2 className="font-burbank text-4xl md:text-6xl text-orange-400 italic uppercase">{t.giveaway_vbucks_2000_title}</h2>
-                <h3 className="font-burbank text-5xl md:text-7xl text-white italic tracking-tighter">{t.giveaway_vbucks_2000_prize}</h3>
-                <p className="text-gray-300 font-medium italic max-w-2xl">{t.giveaway_vbucks_2000_winner_info}</p>
-                <a href="https://www.facebook.com/profile.php?id=61586612323239" target="_blank" rel="noopener noreferrer" className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white font-burbank text-3xl uppercase px-12 py-4 rounded-2xl flex items-center gap-3 transition-all transform hover:scale-105 shadow-xl">
-                  <Facebook className="w-8 h-8" /> {t.enter_facebook}
-                </a>
-              </div>
-            </div>
-          </div>
         ) : activeTab === 'sens' ? (
           <div className="w-full max-w-4xl animate-fade-in">
             <SensConverter language={language} />
@@ -195,7 +169,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
             </div>
 
             <div className="w-full max-w-6xl flex flex-col items-center gap-6 mb-8 px-2 md:px-0">
-              
               {/* Information Panel */}
               <div className="w-full md:w-4/5 lg:w-3/4 transform -skew-x-6 relative group">
                 {/* Outer Glow */}
@@ -224,45 +197,7 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                   </div>
                 </div>
               </div>
-
-              {/* Rumor Panel */}
-              {rumorMessage && (
-                <div className="w-full md:w-3/4 lg:w-2/3 transform skew-x-3 relative group mt-4">
-                  
-                  <div className="absolute -inset-1 rounded-3xl blur-md opacity-40 group-hover:opacity-70 transition duration-500 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-blue-600"></div>
-
-                  <div className="relative bg-gradient-to-br from-indigo-950/90 to-purple-900/90 border border-fuchsia-500/30 rounded-2xl p-6 md:p-8 shadow-2xl overflow-hidden z-10">
-                    <div className="absolute -top-4 -right-4 w-32 h-32 bg-fuchsia-500/20 rounded-full blur-3xl z-0"></div>
-                    <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl z-0"></div>
-
-                    <div className="transform -skew-x-3 relative z-10 flex flex-col gap-5">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-gradient-to-br from-fuchsia-600 to-purple-600 rounded-lg shadow-lg">
-                          <TrendingUp className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-sm md:text-base font-bold text-fuchsia-300 tracking-[0.2em] uppercase">{t.rumor_label}</h3>
-                      </div>
-                      
-                      <p className="text-slate-100 text-lg md:text-xl leading-relaxed font-medium bg-black/20 p-4 rounded-xl border border-white/5 shadow-inner">
-                        {rumorMessage}
-                      </p>
-
-                      <div className="space-y-2 mt-2">
-                        <div className="flex justify-between text-[10px] md:text-xs font-bold text-slate-400 tracking-wider uppercase">
-                          <span>AI Intelligence</span>
-                          <span className="text-fuchsia-400 animate-pulse">85% Likely</span>
-                        </div>
-                        <div className="h-2 w-full bg-black/60 rounded-full overflow-hidden border border-white/10 shadow-inner">
-                          <div className="h-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-blue-500 w-[85%] rounded-full shadow-[0_0_15px_rgba(217,70,239,0.7)]" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
-
-            {news && news.length > 0 && <NewsSection news={news} language={language} />}
 
             <div className="flex flex-col items-center gap-2 text-white/60 font-medium pb-8 mt-8 text-center">
               {lastChecked && (
@@ -312,7 +247,7 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
                   onClick={handleVerifyCode}
                   className="w-full bg-blue-600 hover:bg-blue-500 text-white font-burbank text-lg py-2 rounded mt-2 flex items-center justify-center gap-2 shadow-lg"
                 >
-                  {isVerifying ? <RefreshCw className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
+                  {isVerifying ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
                   {t.verify_btn}
                 </button>
               </div>

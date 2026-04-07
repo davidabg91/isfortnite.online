@@ -12,20 +12,11 @@ export interface StatusResponse {
   timestamp: Date;
 }
 
-export interface NewsItem {
-  title: Record<Language, string>;
-  summary: Record<Language, string>;
-  url: string;
-  imageUrl?: string; // Optional image URL
-  date: string;
-}
+
 
 export interface CheckResult {
   isOnline: boolean;
-  messages: Record<Language, string>; // Kept for backward compatibility, serves as Official
-  rumorMessages: Record<Language, string>; // New field for rumors
-  news: NewsItem[]; // New field for news
-  sources?: { uri: string; title: string }[];
+  messages: Record<Language, string>;
 }
 
 export type Language = 'en' | 'bg' | 'es' | 'de' | 'fr' | 'it' | 'ru';
@@ -39,17 +30,10 @@ export interface ShopItem {
   price: number;
   imageUrl: string;
   isBundle: boolean;
-  aiAnalysis?: {
-    score: number; // 1-10
-    reason: Record<Language, string>;
-    rarityScore: number;
-    recommendedCombos?: string[];
-  };
 }
 
 export interface ShopResponse {
   date: string;
   vbuckIcon: string;
   items: ShopItem[];
-  aiOverallAnalysis?: Record<Language, string>;
 }

@@ -1,27 +1,25 @@
 // Final UI & Economy Update - 2026-03-06
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ServerStatus, Language, NewsItem } from './types';
-import { checkFortniteServerStatus } from './services/geminiService';
+import { ServerStatus, Language } from './types';
+import { checkFortniteServerStatus } from './services/statusService';
 import { StatusScreen } from './components/StatusScreen';
 import { getTranslation, LANGUAGE_NAMES } from './translations';
 import { checkPremiumCode } from './premiumCodes';
 
 const STATUS_CHECK_INTERVAL_MS = 10 * 60 * 1000; // Stabilizing at 10 minutes
-const CACHE_RUMOR_LIMIT_MS = 6 * 60 * 60 * 1000; // 6 hours for AI rumors
-const CACHE_NEWS_LIMIT_MS = 24 * 60 * 60 * 1000; // 24 hours for AI news
+
 
 const CACHE_KEY = 'fortnite_status_cache_v8_1_4';
+
+
 
 interface CachedData {
   status: ServerStatus;
   messages: Record<Language, string>;
-  rumorMessages?: Record<Language, string>;
-  news: NewsItem[];
-  sources?: { uri: string; title: string }[];
   timestamp: number;
-  rumorTimestamp?: number;
-  newsTimestamp?: number;
 }
+
+
 
 export default function App() {
   const [status, setStatus] = useState<ServerStatus>(ServerStatus.IDLE);
@@ -34,33 +32,17 @@ export default function App() {
     return map;
   });
 
-  // Store all translated RUMOR messages
-  const [rumorMessagesMap, setRumorMessagesMap] = useState<Record<Language, string>>(() => {
-    const map: Record<Language, string> = {} as any;
-    (Object.keys(LANGUAGE_NAMES) as Language[]).forEach(lang => map[lang] = "");
-    return map;
-  });
-
-  // Store News
-  const [news, setNews] = useState<NewsItem[]>([]);
   const [isPremium, setIsPremium] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'status' | 'shop' | 'giveaway' | 'sens' | 'leaks'>('status');
-  const [sources, setSources] = useState<{ uri: string; title: string }[]>([]);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
   const [nextCheckTime, setNextCheckTime] = useState<number>(Date.now() + STATUS_CHECK_INTERVAL_MS);
   const [secondsUntilNext, setSecondsUntilNext] = useState<number>(30 * 60);
 
   // Use refs for "latest" values in the callback to keep it stable
   const messagesRef = useRef(messagesMap);
-  const rumorsRef = useRef(rumorMessagesMap);
-  const newsRef = useRef(news);
-  const sourcesRef = useRef(sources);
   const statusRef = useRef(status);
 
   useEffect(() => { messagesRef.current = messagesMap; }, [messagesMap]);
-  useEffect(() => { rumorsRef.current = rumorMessagesMap; }, [rumorMessagesMap]);
-  useEffect(() => { newsRef.current = news; }, [news]);
-  useEffect(() => { sourcesRef.current = sources; }, [sources]);
   useEffect(() => { statusRef.current = status; }, [status]);
 
   // Initialize Language, Premium State, and Welcome Modal
@@ -183,41 +165,13 @@ export default function App() {
   };
 
   // Define performCheck as a stable callback
-  const performCheck = useCallback(async (isManualParam = false) => {
-    // If we receive an event object or true, it's a manual refresh
-    const isManual = typeof isManualParam === 'boolean' ? isManualParam : !!isManualParam;
+  const performCheck = useCallback(async () => {
 
     const nowTimestamp = Date.now();
     setNextCheckTime(nowTimestamp + STATUS_CHECK_INTERVAL_MS);
-
     setStatus(ServerStatus.CHECKING);
 
-    // AI Economy Logic
-    const cached = localStorage.getItem(CACHE_KEY);
-    let cachedObj: CachedData | null = null;
-    let shouldSkipAI = false;
-    let shouldSkipNews = false;
-
-    if (!isManual && cached) {
-      try {
-        cachedObj = JSON.parse(cached);
-        const rumorAge = nowTimestamp - (cachedObj!.rumorTimestamp || cachedObj!.timestamp);
-        const newsAge = nowTimestamp - (cachedObj!.newsTimestamp || cachedObj!.timestamp);
-
-        // 1. Skip AI completely if rumors are fresh (< 6 hours) AND we have actual rumor content
-        if (rumorAge < CACHE_RUMOR_LIMIT_MS && cachedObj!.rumorMessages && Object.keys(cachedObj!.rumorMessages).length > 0 && cachedObj!.status === ServerStatus.ONLINE) {
-          shouldSkipAI = true;
-        }
-
-        // 2. Skip News if news are fresh (< 24 hours) AND we have news content
-        // Even if shouldSkipAI is false (meaning we fetch new rumors), we might not need news.
-        if (newsAge < CACHE_NEWS_LIMIT_MS && cachedObj!.news && cachedObj!.news.length > 0) {
-          shouldSkipNews = true;
-        }
-      } catch (e) { }
-    }
-
-    const result = await checkFortniteServerStatus(shouldSkipAI);
+    const result = await checkFortniteServerStatus();
     const checkTime = new Date();
 
     setLastChecked(checkTime);
@@ -230,31 +184,15 @@ export default function App() {
       }
     }
 
-    // Update state
     setStatus(newStatus);
-    setMessagesMap(result.messages); // Always update official/community API-based message map
+    setMessagesMap(result.messages);
 
-    const finalRumors = shouldSkipAI ? (cachedObj?.rumorMessages || rumorsRef.current) : (result.rumorMessages || {} as Record<Language, string>);
-    const finalNews = (shouldSkipAI || shouldSkipNews) ? (cachedObj?.news || newsRef.current) : (result.news || []);
-
-    // Update UI states
-    setRumorMessagesMap(finalRumors);
-    setNews(finalNews);
-    if (!shouldSkipAI && result.sources) setSources(result.sources);
-
-    // Save to Cache
     const cacheData: CachedData = {
       status: newStatus,
       messages: result.messages,
-      rumorMessages: finalRumors,
-      news: finalNews,
-      sources: shouldSkipAI ? (cachedObj?.sources || sourcesRef.current) : (result.sources || []),
       timestamp: checkTime.getTime(),
-      rumorTimestamp: shouldSkipAI ? (cachedObj?.rumorTimestamp || cachedObj?.timestamp || checkTime.getTime()) : checkTime.getTime(),
-      newsTimestamp: (shouldSkipAI || shouldSkipNews) ? (cachedObj?.newsTimestamp || cachedObj?.timestamp || checkTime.getTime()) : checkTime.getTime(),
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-
   }, []); // Truly stable callback
 
 
@@ -270,9 +208,6 @@ export default function App() {
           if (age < STATUS_CHECK_INTERVAL_MS) {
             setStatus(parsed.status);
             setMessagesMap(parsed.messages);
-            setRumorMessagesMap(parsed.rumorMessages || {} as Record<Language, string>);
-            setNews(parsed.news || []);
-            setSources(parsed.sources || []);
             setLastChecked(new Date(parsed.timestamp));
             setNextCheckTime(parsed.timestamp + STATUS_CHECK_INTERVAL_MS);
             return true;
@@ -317,7 +252,6 @@ export default function App() {
   }, []);
 
   const currentMessage = messagesMap[language] || messagesMap['en'] || "...";
-  const currentRumor = rumorMessagesMap[language] || "";
 
   const displayMessage = (status === ServerStatus.IDLE && currentMessage === "...")
     ? getTranslation(language).waiting
@@ -328,9 +262,6 @@ export default function App() {
       <StatusScreen
         status={status}
         message={displayMessage}
-        rumorMessage={currentRumor}
-        news={news}
-        sources={sources}
         lastChecked={lastChecked}
         nextCheckTime={secondsUntilNext}
         language={language}
