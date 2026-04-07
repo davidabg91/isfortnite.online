@@ -168,37 +168,6 @@ export const StatusScreen: React.FC<StatusScreenProps> = ({
               </h2>
             </div>
 
-            <div className="w-full max-w-6xl flex flex-col items-center gap-6 mb-8 px-2 md:px-0">
-              {/* Information Panel */}
-              <div className="w-full md:w-4/5 lg:w-3/4 transform -skew-x-6 relative group">
-                {/* Outer Glow */}
-                <div className={`absolute -inset-1 rounded-3xl blur-md opacity-50 group-hover:opacity-100 transition duration-500 bg-gradient-to-r ${
-                  isOnline ? 'from-green-500 via-emerald-400 to-green-600' : 'from-red-600 via-orange-500 to-red-700'
-                }`}></div>
-
-                <div className="relative bg-black/70 backdrop-blur-xl border-y-4 border-r-4 border-l-8 overflow-hidden rounded-r-2xl rounded-l-md flex flex-col items-center justify-center p-8 md:p-12 shadow-[0_0_30px_rgba(0,0,0,0.8)] z-10 
-                  border-l-indigo-500 border-t-white/10 border-b-white/10 border-r-white/10"
-                >
-                  <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                    <Activity className="w-24 h-24 text-white" />
-                  </div>
-
-                  <div className="flex flex-col items-center text-center gap-4 transform skew-x-6 relative z-10 w-full max-w-2xl">
-                    <div className="flex items-center gap-3 mb-2">
-                       <div className={`p-2 rounded-lg ${isOnline ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-                         <Info className={`w-5 h-5 ${isOnline ? 'text-green-400' : 'text-red-400'}`} />
-                       </div>
-                       <h3 className="text-sm md:text-base font-bold text-gray-400 tracking-[0.2em] uppercase">{t.official_label}</h3>
-                    </div>
-                    
-                    <p className="text-xl md:text-3xl text-white font-burbank italic uppercase tracking-wider leading-relaxed drop-shadow-lg">
-                      {message}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div className="flex flex-col items-center gap-2 text-white/60 font-medium pb-8 mt-8 text-center">
               {lastChecked && (
                 <div className="bg-black/40 px-6 py-2 rounded-full border border-white/10 flex items-center gap-2 shadow-xl">

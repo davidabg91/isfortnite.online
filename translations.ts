@@ -21,7 +21,6 @@ interface TranslationData {
   code_success: string;
   cancel: string;
   victory: string;
-  fallback_message: string;
   waiting: string;
   inference_online: string;
   inference_offline: string;
@@ -30,7 +29,6 @@ interface TranslationData {
   welcome_title: string;
   welcome_desc: string;
   welcome_btn: string;
-  official_label: string;
   tab_status: string;
   tab_shop: string;
   shop_rarity_common: string;
@@ -83,7 +81,6 @@ const translations: Record<Language, TranslationData> = {
     code_success: "Code accepted! Premium unlocked.",
     cancel: "CLOSE",
     victory: "VICTORY ROYALE! PLAYABLE NOW!",
-    fallback_message: "Cannot retrieve info.",
     waiting: "Waiting...",
     inference_online: "Servers are operational and matchmaking is stable.",
     inference_offline: "Issues or maintenance detected.",
@@ -92,7 +89,6 @@ const translations: Record<Language, TranslationData> = {
     welcome_title: "WELCOME TO THE OFFICIAL MONITOR",
     welcome_desc: "This is the premier automated monitor for Fortnite server status. Our systems verify server connectivity strictly every 15 minutes. Ensure this tab remains active.",
     welcome_btn: "ACKNOWLEDGE",
-    official_label: "OFFICIAL STATUS",
     tab_status: "STATUS",
     tab_shop: "SHOP",
     tab_giveaway: "GIVEAWAY",
@@ -133,7 +129,6 @@ const translations: Record<Language, TranslationData> = {
     code_success: "Кодът е приет! Премиум активиран.",
     cancel: "ЗАТВОРИ",
     victory: "VICTORY ROYALE! МОЖЕ ДА СЕ ИГРАЕ!",
-    fallback_message: "Не мога да получа информация.",
     waiting: "Изчакване...",
     inference_online: "Сървърите са напълно активни. Не се съобщава за проблеми.",
     inference_offline: "Засечени са проблеми или профилактика.",
@@ -142,7 +137,6 @@ const translations: Record<Language, TranslationData> = {
     welcome_title: "ОФИЦИАЛЕН МОНИТОРИНГ",
     welcome_desc: "Това е автоматизирана система за следене на сървърите на Fortnite. Системите ни извършват проверка на всеки 15 минути. Дръжте страницата отворена.",
     welcome_btn: "РАЗБРАХ",
-    official_label: "ОФИЦИАЛЕН СТАТУС",
     tab_status: "СТАТУС",
     tab_shop: "МАГАЗИН",
     tab_giveaway: "ТОМБОЛА",
@@ -183,7 +177,6 @@ const translations: Record<Language, TranslationData> = {
     code_success: "¡Premium desbloqueado!",
     cancel: "CERRAR",
     victory: "¡VICTORY ROYALE!",
-    fallback_message: "Error de info.",
     waiting: "Esperando...",
     inference_online: "Servidores operativos.",
     inference_offline: "Problemas detectados.",
@@ -192,7 +185,6 @@ const translations: Record<Language, TranslationData> = {
     welcome_title: "MONITOR OFICIAL",
     welcome_desc: "Este monitor verifica los servidores de Fortnite cada 15 minutos.",
     welcome_btn: "VAMOS",
-    official_label: "ESTADO OFICIAL",
     tab_status: "ESTADO",
     tab_shop: "TIENDA",
     tab_giveaway: "SORTEO",
@@ -233,7 +225,6 @@ const translations: Record<Language, TranslationData> = {
     code_success: "Freigeschaltet!",
     cancel: "SCHLIESSEN",
     victory: "JUGABLE!",
-    fallback_message: "Keine Info.",
     waiting: "Warten...",
     inference_online: "Server online.",
     inference_offline: "Probleme.",
@@ -242,7 +233,6 @@ const translations: Record<Language, TranslationData> = {
     welcome_title: "MONITOR",
     welcome_desc: "Prüft alle 15 Minuten.",
     welcome_btn: "LOS",
-    official_label: "STATUS",
     tab_status: "STATUS",
     tab_shop: "SHOP",
     tab_giveaway: "GIVEAWAY",
@@ -283,7 +273,6 @@ const translations: Record<Language, TranslationData> = {
     code_success: "Débloqué!",
     cancel: "FERMER",
     victory: "JOUABLE!",
-    fallback_message: "No info.",
     waiting: "Attente...",
     inference_online: "En ligne.",
     inference_offline: "Problèmes.",
@@ -292,7 +281,6 @@ const translations: Record<Language, TranslationData> = {
     welcome_title: "MONITEUR",
     welcome_desc: "Vérifie toutes les 15 min.",
     welcome_btn: "OK",
-    official_label: "STATUT",
     tab_status: "STATUT",
     tab_shop: "BOUTIQUE",
     tab_giveaway: "CONCOURS",
@@ -333,7 +321,6 @@ const translations: Record<Language, TranslationData> = {
     code_success: "Sbloccato!",
     cancel: "CHIUDI",
     victory: "GIOCABILE!",
-    fallback_message: "No info.",
     waiting: "Attesa...",
     inference_online: "Online.",
     inference_offline: "Problemi.",
@@ -342,7 +329,6 @@ const translations: Record<Language, TranslationData> = {
     welcome_title: "MONITOR",
     welcome_desc: "Ogni 15 min.",
     welcome_btn: "OK",
-    official_label: "STATO",
     tab_status: "STATO",
     tab_shop: "NEGOZIO",
     tab_giveaway: "GIVEAWAY",
@@ -383,7 +369,6 @@ const translations: Record<Language, TranslationData> = {
     code_success: "Открыто!",
     cancel: "ЗАКРЫТЬ",
     victory: "МОЖНО ИГРАТЬ!",
-    fallback_message: "Нет данных.",
     waiting: "Ожидание...",
     inference_online: "Онлайн.",
     inference_offline: "Проблемы.",
@@ -392,7 +377,6 @@ const translations: Record<Language, TranslationData> = {
     welcome_title: "МОНИТОРИНГ",
     welcome_desc: "Каждые 15 мин.",
     welcome_btn: "ОК",
-    official_label: "СТАТУС",
     tab_status: "СТАТУС",
     tab_shop: "МАГАЗИН",
     tab_giveaway: "РОЗЫГРЫШ",
